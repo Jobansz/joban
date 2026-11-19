@@ -219,3 +219,9 @@ footer .meta { display: flex; justify-content: space-between; flex-wrap: wrap; g
 .log li { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #e7dccb; }
 .st-msg { font-size: 0.9rem; min-height: 1.4em; color: var(--wine); font-weight: 500; }
 @media (max-width: 760px) { .st { grid-template-columns: 1fr; } }
+
+/* ---------- Away screen captures ---------- */
+.screens { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+.screens figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.screens img { width: 100%; height: auto; display: block; border-radius: 14px; }
+.screens figcaption { font-size: 0.85rem; opacity: 0.85; }
