@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SweetTreat — Joban</title>
+<meta name="description" content="Joban Singh — CS student, builder, photographer. Prince George, BC.">
+<link rel="stylesheet" href="style.css?v=4">
+</head>
+<body>
+<nav><a class="logo" href="index.html">Joban</a><ul><li><a href="index.html">Home</a></li><li><a href="projects.html">Projects</a></li><li><a href="apps.html">Apps</a></li><li><a href="lifestyle.html">Lifestyle</a></li><li><a href="socials.html">Socials</a></li></ul></nav>
+
+<section class="block wide-left tomato">
+  <div class="pad">
+    <a class="back" href="apps.html">← Apps</a>
+    <span class="eyebrow">Web version</span>
+    <h1 class="huge">SweetTreat</h1>
+    <p class="small">A food budget that rewards you for saving. Set a daily amount, and whatever you don't spend rolls over. Spend a bit more tomorrow, or stash it in your treat jar for something even better.</p>
+  </div>
+  <div class="photo tall" style="background-image:url('images/bw-leaves.jpg');background-position:center"></div>
+</section>
+
+<section class="block full sage">
+  <div class="pad top">
+    <div class="st">
+      <div class="st-card">
+        <span class="st-label">Available today</span>
+        <div class="st-big" id="avail">$0.00</div>
+        <span id="availNote" style="font-size:.9rem"></span>
+        <div class="row"><input id="spendAmt" type="number" inputmode="decimal" min="0" step="0.01" placeholder="$ spent"><input id="spendNote" placeholder="What on?"></div>
+        <button id="spendBtn">Log spending</button>
+        <div class="st-msg" id="msg"></div>
+      </div>
+
+      <div class="st-card">
+        <span class="st-label">Treat jar</span>
+        <div class="st-big" id="jar">$0.00</div>
+        <span id="goalText" style="font-size:.9rem"></span>
+        <div class="bar"><div id="goalBar"></div></div>
+        <div class="row"><input id="saveAmt" type="number" inputmode="decimal" min="0" step="0.01" placeholder="$ to save"><button class="alt" id="saveBtn">Save it</button></div>
+        <button id="treatBtn">Treat yourself 🎉</button>
+      </div>
+
+      <div class="st-card">
+        <span class="st-label">Settings</span>
+        <label style="font-size:.9rem">Daily budget ($)<input id="budget" type="number" min="0" step="0.5"></label>
+        <label style="font-size:.9rem">Saving up for<input id="goalName" placeholder="e.g. Sushi night"></label>
+        <label style="font-size:.9rem">Treat costs ($)<input id="goalCost" type="number" min="0" step="1"></label>
+        <button class="alt" id="resetBtn">Start over</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block full blue">
+  <div class="pad">
+    <h2 class="med">History</h2>
+    <ul class="log" id="log"></ul>
+    <p class="small" style="font-size:.8rem;opacity:.75">Everything is saved in this browser only. Nothing is sent anywhere.</p>
+  </div>
+</section>
+
+<footer class="block full blue">
+  <div class="pad bottom">
+    <div class="display huge">Joban</div>
+    <div class="meta"><span>Prince George, BC</span><span>@jobansz everywhere</span><span>&copy; 2026 Joban Singh</span></div>
+  </div>
+</footer>
+<script>
+(function(){
+  var KEY="sweettreat-v1", mem=null;
+  function load(){try{var s=localStorage.getItem(KEY);if(s)return JSON.parse(s)}catch(e){} return mem;}
+  function store(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){mem=st}}
+  function today(){var d=new Date();d.setHours(0,0,0,0);return d;}
+  function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+  function fresh(){return {budget:15,start:iso(today()),log:[],jar:0,goalName:"",goalCost:0};}
+  var st=load()||fresh();
+  var $=function(id){return document.getElementById(id)};
+  var money=function(n){return (n<0?"-$":"$")+Math.abs(n).toFixed(2)};
+  function days(){var s=new Date(st.start+"T00:00:00");return Math.floor((today()-s)/864e5)+1;}
+  function totals(){var spent=0,saved=0,used=0;st.log.forEach(function(e){if(e.t==="spend")spent+=e.a;else if(e.t==="save")saved+=e.a;else if(e.t==="treat")used+=e.a;});return{spent:spent,saved:saved,used:used};}
+  function render(){
+    var t=totals(), earned=st.budget*days(), avail=earned-t.spent-t.saved;
+    $("avail").textContent=money(avail);
+    var roll=avail-st.budget;
+    $("availNote").textContent= roll>0.004 ? "Includes "+money(roll)+" rolled over 🙌" : roll<-0.004 ? "You're "+money(-roll)+" over from earlier days" : "Today's budget: "+money(st.budget);
+    $("jar").textContent=money(st.jar);
+    if(st.goalName&&st.goalCost>0){var p=Math.min(100,st.jar/st.goalCost*100);$("goalBar").style.width=p+"%";$("goalText").textContent=st.jar>=st.goalCost?"You can afford "+st.goalName+"! 🎉":money(st.goalCost-st.jar)+" to go for "+st.goalName;}
+    else{$("goalBar").style.width="0";$("goalText").textContent="Set a treat in Settings to track progress.";}
+    $("budget").value=st.budget;$("goalName").value=st.goalName;$("goalCost").value=st.goalCost||"";
+    var L=$("log");L.innerHTML="";
+    st.log.slice().reverse().slice(0,50).forEach(function(e){var li=document.createElement("li");var label=e.t==="spend"?(e.n||"Spent"):e.t==="save"?"Saved to treat jar":"Treat: "+(e.n||"");var a=document.createElement("span");a.textContent=e.d+" · "+label;var b=document.createElement("span");b.textContent=(e.t==="spend"?"-":e.t==="save"?"→ ":"🎉 ")+money(e.a);li.appendChild(a);li.appendChild(b);L.appendChild(li);});
+    if(!st.log.length){var li=document.createElement("li");li.textContent="Nothing logged yet.";L.appendChild(li);}
+  }
+  function amt(id){var v=parseFloat($(id).value);return isFinite(v)&&v>0?Math.round(v*100)/100:0;}
+  function say(t){$("msg").textContent=t;}
+  $("spendBtn").onclick=function(){var a=amt("spendAmt");if(!a)return say("Enter an amount first.");st.log.push({t:"spend",a:a,n:$("spendNote").value.trim(),d:iso(today())});$("spendAmt").value="";$("spendNote").value="";store();render();say("Logged "+money(a)+".");};
+  $("saveBtn").onclick=function(){var a=amt("saveAmt");if(!a)return say("Enter how much to save.");st.log.push({t:"save",a:a,d:iso(today())});st.jar+=a;$("saveAmt").value="";store();render();say("Nice, "+money(a)+" into the treat jar.");};
+  $("treatBtn").onclick=function(){if(st.jar<=0)return say("Your treat jar is empty — save a little first.");var a=st.goalCost>0?Math.min(st.goalCost,st.jar):st.jar;st.log.push({t:"treat",a:a,n:st.goalName||"Something good",d:iso(today())});st.jar=Math.round((st.jar-a)*100)/100;store();render();say("Enjoy it — you earned it! 🎉");};
+  $("budget").onchange=function(){var v=parseFloat(this.value);if(isFinite(v)&&v>=0){st.budget=v;store();render();}};
+  $("goalName").onchange=function(){st.goalName=this.value.trim();store();render();};
+  $("goalCost").onchange=function(){var v=parseFloat(this.value);st.goalCost=isFinite(v)&&v>0?v:0;store();render();};
+  var armed=false;$("resetBtn").onclick=function(){if(!armed){armed=true;this.textContent="Tap again to erase everything";var b=this;setTimeout(function(){armed=false;b.textContent="Start over";},4000);return;}st=fresh();store();render();say("Fresh start!");armed=false;this.textContent="Start over";};
+  render();
+})();
+</script>
+</body>
+</html>

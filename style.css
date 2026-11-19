@@ -183,3 +183,39 @@ footer .meta { display: flex; justify-content: space-between; flex-wrap: wrap; g
 .gallery img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; border-radius: 14px; }
 @media (max-width: 760px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
 .photo.tall { min-height: 520px; }
+
+/* ---------- Detail pages ---------- */
+.away { background: #06062e; color: #fde100; }
+.away .btn { background: #fde100; color: #06062e; }
+.status {
+  display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
+  font-size: 0.85rem; font-weight: 600; padding: 7px 14px; border-radius: 99px;
+  background: rgba(255,255,255,0.18);
+}
+.sage .status, .blue .status, .sand .status { background: rgba(0,0,0,0.08); }
+.status::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #f5b400; box-shadow: 0 0 0 3px rgba(245,180,0,0.3); }
+.logo-wrap { display: flex; align-items: center; justify-content: center; padding: 40px; }
+.logo-wrap img { width: min(100%, 420px); height: auto; border-radius: 24px; }
+.steps { list-style: none; display: flex; flex-direction: column; gap: 10px; counter-reset: s; }
+.steps li { display: flex; gap: 12px; align-items: baseline; font-size: 1rem; }
+.steps li::before { content: "○"; font-weight: 700; }
+.steps li.done::before { content: "●"; }
+.steps li.now { font-weight: 700; }
+.steps li.now::before { content: "◐"; }
+.back { font-size: 0.9rem; text-decoration: none; opacity: 0.85; }
+
+/* ---------- SweetTreat web app ---------- */
+.st { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.st-card { background: var(--cream); color: var(--ink); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 10px; }
+.st-big { font-family: 'Fraunces', serif; font-weight: 800; font-size: clamp(2.4rem, 6vw, 3.6rem); line-height: 1; color: var(--wine); }
+.st-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; opacity: 0.7; }
+.st input { font: inherit; padding: 10px 12px; border-radius: 10px; border: 1.5px solid #d6cbb8; background: #fff; width: 100%; }
+.st button { font: inherit; font-weight: 600; padding: 10px 14px; border-radius: 10px; border: 0; background: var(--wine); color: var(--cream); cursor: pointer; }
+.st button.alt { background: var(--navy); }
+.st .row { display: flex; gap: 8px; }
+.bar { height: 14px; border-radius: 99px; background: #e7dccb; overflow: hidden; }
+.bar > div { height: 100%; background: var(--tomato); width: 0; transition: width .4s; }
+.log { list-style: none; font-size: 0.9rem; max-height: 220px; overflow: auto; }
+.log li { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #e7dccb; }
+.st-msg { font-size: 0.9rem; min-height: 1.4em; color: var(--wine); font-weight: 500; }
+@media (max-width: 760px) { .st { grid-template-columns: 1fr; } }
