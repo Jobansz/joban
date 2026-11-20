@@ -225,3 +225,5 @@ footer .meta { display: flex; justify-content: space-between; flex-wrap: wrap; g
 .screens figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .screens img { width: 100%; height: auto; display: block; border-radius: 14px; }
 .screens figcaption { font-size: 0.85rem; opacity: 0.85; }
+
+.status.live::before { background: #2fbf4a; box-shadow: 0 0 0 3px rgba(47,191,74,0.3); }
