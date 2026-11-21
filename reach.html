@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reach · Joban</title>
+<meta name="description" content="Leave a message on Joban's desk.">
+<style>
+  :root {
+    --bg: #0d0d0e; --text: #f2f2f0; --muted: #8b8b88; --line: #2a2a2b;
+    --green: #3ddc84; --amber: #e0a04a; --screen: #000;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    min-height: 100vh; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", Arial, sans-serif;
+    display: flex; flex-direction: column; align-items: center; padding: 48px 20px 40px;
+  }
+  .brand { font-size: 13px; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); }
+
+  /* the device */
+  .device { position: relative; width: 260px; height: 260px; margin: 36px 0 28px; }
+  .ring {
+    position: absolute; inset: 0; border-radius: 50%;
+    background:
+      repeating-conic-gradient(from 0deg, rgba(255,255,255,.05) 0deg 1deg, rgba(0,0,0,.05) 1deg 2deg),
+      conic-gradient(from 210deg, #9a9a98, #e4e4e1, #8c8c8a, #d6d6d3, #7e7e7c, #e4e4e1, #9a9a98);
+    box-shadow: 0 20px 50px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.25);
+  }
+  .bezel { position: absolute; inset: 14px; border-radius: 50%; background: #151515; }
+  .screen {
+    position: absolute; inset: 30px; border-radius: 50%; background: var(--screen);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 26px; overflow: hidden;
+  }
+  .glow {
+    position: absolute; inset: 30px; border-radius: 50%; pointer-events: none;
+    box-shadow: inset 0 0 0 2px var(--amber); opacity: .35; transition: box-shadow .6s, opacity .6s;
+  }
+  .reachable .glow { box-shadow: inset 0 0 0 2px var(--green), 0 0 28px rgba(61,220,132,.35); opacity: 1; }
+  .time { font-size: 44px; font-weight: 300; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .preview-from { font-size: 11px; color: var(--muted); margin-bottom: 6px; letter-spacing: .08em; text-transform: uppercase; }
+  .preview-text { font-size: 16px; line-height: 1.3; word-break: break-word; }
+
+  /* status */
+  .status { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 500; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); }
+  .reachable .dot { background: var(--green); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(61,220,132,.5);} 50% { box-shadow: 0 0 0 8px rgba(61,220,132,0);} }
+  @media (prefers-reduced-motion: reduce) { .reachable .dot { animation: none; } }
+  .sub { color: var(--muted); font-size: 15px; margin-top: 8px; text-align: center; max-width: 340px; line-height: 1.5; }
+
+  /* form */
+  form { width: 100%; max-width: 380px; margin-top: 32px; display: grid; gap: 12px; }
+  input, textarea {
+    width: 100%; background: #161617; color: var(--text); border: 1px solid var(--line);
+    border-radius: 14px; padding: 14px 16px; font: inherit; font-size: 16px; outline: none;
+    transition: border-color .2s;
+  }
+  input:focus, textarea:focus { border-color: #5a5a5c; }
+  textarea { resize: none; height: 96px; }
+  .row { display: flex; justify-content: space-between; align-items: center; }
+  .count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .count.over { color: #ff6b6b; }
+  button {
+    background: var(--text); color: #111; border: 0; border-radius: 999px; padding: 13px 26px;
+    font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity .2s, transform .1s;
+  }
+  button:active { transform: scale(.97); }
+  button:disabled { opacity: .4; cursor: default; }
+  .hp { position: absolute; left: -9999px; }
+  .note { min-height: 22px; font-size: 14px; text-align: center; color: var(--muted); }
+  .note.ok { color: var(--green); } .note.err { color: #ff6b6b; }
+  footer { margin-top: auto; padding-top: 40px; font-size: 12px; color: #555; }
+</style>
+</head>
+<body>
+  <div class="brand">Reach</div>
+
+  <div class="device" id="device" aria-hidden="true">
+    <div class="ring"></div>
+    <div class="bezel"></div>
+    <div class="screen" id="screen"><div class="time" id="time">--:--</div></div>
+    <div class="glow"></div>
+  </div>
+
+  <div id="statusWrap">
+    <div class="status"><span class="dot"></span><span id="statusText">Checking…</span></div>
+  </div>
+  <p class="sub" id="statusSub">&nbsp;</p>
+
+  <form id="form" autocomplete="off">
+    <input id="name" maxlength="20" placeholder="Your name (optional)">
+    <textarea id="text" maxlength="80" placeholder="Leave a message on Joban's desk…" required></textarea>
+    <input class="hp" id="website" tabindex="-1" aria-hidden="true" placeholder="Leave empty">
+    <div class="row">
+      <span class="count" id="count">0 / 80</span>
+      <button id="send" type="submit" disabled>Send</button>
+    </div>
+    <p class="note" id="note" role="status"></p>
+  </form>
+
+  <footer>joban.me</footer>
+
+<script>
+  // Paste your Worker URL here after deploying, e.g. "https://reach.yourname.workers.dev"
+  // Leave empty to run in demo mode.
+  const API = "https://reach.jobanxy.workers.dev";
+
+  const $ = (id) => document.getElementById(id);
+  const MAX = 80;
+  let state = "away";
+
+  function setStatus(s) {
+    state = s;
+    const reachable = s === "reachable";
+    document.body.classList.toggle("reachable", reachable);
+    $("statusText").textContent = reachable ? "Reachable" : "Away";
+    $("statusSub").textContent = reachable
+      ? "Joban's at his desk. Your message will pop up on his screen right now."
+      : "Joban's away from his desk. Leave a message and he'll see it when he's back.";
+    $("send").textContent = reachable ? "Send now" : "Leave it";
+  }
+
+  async function loadStatus() {
+    if (!API) return setStatus("reachable");
+    try {
+      const r = await fetch(API + "/status", { cache: "no-store" });
+      const d = await r.json();
+      setStatus(d.state);
+    } catch { setStatus("away"); }
+  }
+
+  // clock face / live preview on the round screen
+  function tick() {
+    const n = new Date();
+    $("time").textContent = n.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).replace(/\s?[AP]M/i, "");
+  }
+  function renderScreen() {
+    const text = $("text").value.trim();
+    const name = $("name").value.trim() || "Someone";
+    if (!text) {
+      $("screen").innerHTML = '<div class="time" id="time"></div>'; tick();
+    } else {
+      $("screen").innerHTML = "";
+      const f = document.createElement("div"); f.className = "preview-from"; f.textContent = name;
+      const t = document.createElement("div"); t.className = "preview-text"; t.textContent = text;
+      $("screen").append(f, t);
+    }
+  }
+
+  function updateCount() {
+    const len = $("text").value.length;
+    $("count").textContent = len + " / " + MAX;
+    $("count").classList.toggle("over", len > MAX);
+    $("send").disabled = !$("text").value.trim() || len > MAX;
+  }
+
+  ["input"].forEach((ev) => {
+    $("text").addEventListener(ev, () => { updateCount(); renderScreen(); note(""); });
+    $("name").addEventListener(ev, renderScreen);
+  });
+
+  function note(msg, kind) { $("note").textContent = msg; $("note").className = "note" + (kind ? " " + kind : ""); }
+
+  $("form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = $("text").value.trim();
+    if (!text) { note("Write a message first.", "err"); return; }
+    if (text.length > MAX) { note("Keep it under 80 characters.", "err"); return; }
+    $("send").disabled = true;
+    try {
+      let d;
+      if (!API) {
+        await new Promise((r) => setTimeout(r, 500));
+        d = { ok: true, delivered: state === "reachable" };
+      } else {
+        const r = await fetch(API + "/message", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: $("name").value, text, website: $("website").value }),
+        });
+        d = await r.json();
+        if (!r.ok) throw new Error(d.error || "Couldn't send. Try again.");
+      }
+      note(d.delivered ? "Sent. It's on his screen now." : "Left on his desk. He'll see it when he's back.", "ok");
+      $("text").value = ""; updateCount(); renderScreen();
+    } catch (err) {
+      note(err.message || "Couldn't send. Try again.", "err");
+      updateCount();
+    }
+  });
+
+  tick(); setInterval(() => { if (!$("text").value.trim()) tick(); }, 10000);
+  loadStatus(); setInterval(loadStatus, 30000);
+</script>
+</body>
+</html>
