@@ -74,9 +74,52 @@ window.addEventListener("pageshow", () => { /* coming back with the back button 
   const t = document.querySelector(".threshold"); if (t) t.classList.remove("on");
 });
 </script>
+<style>
+  .weekly { min-height: 0; }
+  .weekly .pad { gap: 14px; padding-top: 34px; padding-bottom: 34px; }
+  .wk-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .wk-items { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+  .wk-items li { font-size: .82rem; padding: 6px 12px; border-radius: 99px; background: rgba(244,239,230,.12); }
+  .wk-try { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+  .weekly .btn { background: var(--cream); color: var(--navy); }
+  .weekly .status::before { background: #3ddc84; box-shadow: 0 0 0 3px rgba(61,220,132,.3); }
+</style>
+<script>
+  // always the newest note: read straight from the repo, so it updates even before Pages rebuilds
+  (async () => {
+    const put = (d) => {
+      document.getElementById("wkWeek").textContent = "Week of " + d.week_of;
+      document.getElementById("wkHead").textContent = d.headline;
+      document.getElementById("wkBody").textContent = d.body;
+      const ul = document.getElementById("wkItems"); ul.innerHTML = "";
+      for (const t of d.items || []) { const li = document.createElement("li"); li.textContent = t; ul.appendChild(li); }
+      const pg = document.getElementById("wkPages"); pg.innerHTML = "";
+      for (const p of d.new_pages || []) {
+        if (!/^[\w-]+\.html$/.test(p.href)) continue;
+        const a = document.createElement("a"); a.className = "btn"; a.href = p.href; a.textContent = p.title + " →"; pg.appendChild(a);
+      }
+      document.getElementById("wkTry").hidden = !pg.children.length;
+    };
+    for (const url of ["https://raw.githubusercontent.com/Jobansz/joban/main/weekly.json", "weekly.json"]) {
+      try { const r = await fetch(url, { cache: "no-store" }); if (r.ok) { put(await r.json()); return; } } catch {}
+    }
+    document.getElementById("weekly").hidden = true;
+  })();
+</script>
 </head>
 <body>
 <nav><a class="logo" href="index.html">Joban</a><ul><li><a href="index.html" class="on">Home</a></li><li><a href="projects.html">Projects</a></li><li><a href="apps.html">Apps</a></li><li><a href="lifestyle.html">Lifestyle</a></li><li><a href="socials.html">Socials</a></li></ul></nav>
+
+<!-- What I'm building: refreshed every Monday (weekly.json, written by .github/workflows/weekly.yml) -->
+<section class="block full navy weekly" id="weekly" aria-live="polite">
+  <div class="pad">
+    <div class="wk-top"><span class="status live" id="wkLabel">What I'm building</span><span class="eyebrow" id="wkWeek"></span></div>
+    <h2 class="med" id="wkHead">This week in the workshop</h2>
+    <p class="small" id="wkBody" style="max-width:58ch"></p>
+    <ul class="wk-items" id="wkItems"></ul>
+    <div class="wk-try" id="wkTry" hidden><span class="eyebrow">New to try</span><div class="chips" id="wkPages"></div></div>
+  </div>
+</section>
 
 <section class="block wide-left blue">
   <div class="pad">

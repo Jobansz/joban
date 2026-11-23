@@ -1,0 +1,31 @@
+name: What I'm building (weekly)
+
+on:
+  schedule:
+    - cron: "41 15 * * 1"   # Mondays 8:41am in BC (UTC-7)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Write this week's note
+        run: node tools/weekly.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - name: Commit
+        run: |
+          git config user.name "joban-weekly-bot"
+          git config user.email "joban-weekly-bot@users.noreply.github.com"
+          git add weekly.json
+          git diff --cached --quiet || git commit -m "Weekly update $(date -u +%F)"
+          git push
