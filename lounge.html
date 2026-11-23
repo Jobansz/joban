@@ -259,6 +259,16 @@
   #away .day input[type=time] { max-width: 160px; }
   .row-save { display: flex; align-items: center; gap: 14px; margin-top: 18px; flex-wrap: wrap; }
   .row-save .btn-brass { padding: 9px 26px; }
+  .reach-now { display: flex; align-items: center; gap: 12px; }
+  .reach-now b { font-weight: 400; font-style: italic; font-size: 1.6rem; }
+  .reach-now .dot { width: 10px; height: 10px; }
+  .msgs { list-style: none; display: grid; gap: 8px; max-height: 340px; overflow: auto; }
+  .msgs li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: start; padding: 10px 0; border-bottom: 1px solid rgba(201,164,106,.1); }
+  .msgs li b { font-family: "Fraunces", serif; font-weight: 400; font-style: italic; }
+  .msgs li small { grid-column: 1; color: var(--muted); font-size: .72rem; letter-spacing: .08em; }
+  .msgs li button { grid-row: 1 / span 2; grid-column: 2; background: none; border: 0; color: var(--muted); font-size: 1.1rem; padding: 2px 6px; }
+  .msgs li button:hover { color: var(--rose); }
+  .msgs .empty { color: var(--muted); font-style: italic; border: 0; }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   @media (max-width: 760px) {
     .lounge-room { --k: .5; margin-left: -8px; margin-right: -8px; }
@@ -406,6 +416,39 @@
             <div class="edition-head" id="edHead">&nbsp;</div>
             <ul class="todos" id="edTodos"></ul>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reach room -->
+    <section id="reach" class="hidden">
+      <div class="room-title">
+        <a class="link" href="#lounge">← The Lounge</a>
+        <span class="eyebrow" style="margin-top:22px">No. 02</span>
+        <h2>Reach</h2>
+      </div>
+      <div class="grid2" style="margin-top:28px">
+        <div>
+          <div class="panel">
+            <span class="eyebrow">Right now</span>
+            <div class="reach-now"><i class="dot" id="rcDot"></i><b class="serif" id="rcState">Checking…</b></div>
+            <p class="muted" style="font-size:.85rem" id="rcSeen"></p>
+            <a class="link" href="reach.html" style="display:inline-block;margin-top:10px">Open the public page ↗</a>
+          </div>
+          <div class="panel">
+            <span class="eyebrow">Messages waiting</span>
+            <ul class="msgs" id="rcMsgs"></ul>
+            <div class="row-save" style="margin-top:12px"><button class="btn-brass" id="rcClear">Clear all</button><span class="toast" id="rcMsgToast"></span></div>
+          </div>
+        </div>
+        <div class="panel">
+          <span class="eyebrow">The front desk</span>
+          <div class="day" style="grid-template-columns:1fr auto"><b>Taking messages</b><label class="sw"><input type="checkbox" id="rcAccept" aria-label="Taking messages"><span></span></label></div>
+          <div class="field"><label for="rcNote">Away note</label>
+            <input id="rcNote" class="line-input" maxlength="120" placeholder="Back after my shift" autocomplete="off"></div>
+          <p class="muted" style="font-size:.8rem;margin-top:6px">Shown on joban.me/reach while you're away.</p>
+          <div class="field"><label for="rcRate">One message per visitor every <output id="rcRateVal"></output></label><input id="rcRate" type="range" min="1" max="30"></div>
+          <div class="row-save"><button class="btn-brass" id="rcSave" disabled>Save</button><span class="toast" id="rcToast"></span></div>
         </div>
       </div>
     </section>
@@ -669,7 +712,7 @@ function doorFrame() {
 
 const ROOMS = [
   { id: "paper", no: "01", name: "Morning Paper", h: 300, w: 132, frame: "#284f33", leafEdge: "#2e5a3b", draw: doorLisbon, href: "#paper", note: "Open" },
-  { id: "reach", no: "02", name: "Reach", h: 296, w: 116, frame: "#4e2610", leafEdge: "#5a2c13", draw: doorPorthole, href: "reach.html", note: "Checking the desk…" },
+  { id: "reach", no: "02", name: "Reach", h: 296, w: 116, frame: "#4e2610", leafEdge: "#5a2c13", draw: doorPorthole, href: "#reach", note: "Checking the desk…" },
   { id: "away", no: "03", name: "Away", h: 280, w: 118, frame: "#5c2c13", leafEdge: "#6a3418", draw: doorPlank, href: "#away", note: "Station settings" },
   { id: "reserved", no: "04", name: "Reserved", h: 280, w: 112, frame: "#4a2a17", leafEdge: "transparent", noLeaf: true, draw: doorFrame, locked: "The frame is up. The door is still on order", note: "Coming soon" },
 ];
@@ -808,6 +851,55 @@ function play(sound) {
 }
 $("preview").addEventListener("click", () => play(settings ? settings.chime.sound : "bells"));
 
+// ---------- Reach room ----------
+let reachCfg = null;
+const ago = (t) => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? "just now" : m < 60 ? m + " min ago" : m < 1440 ? Math.round(m / 60) + " h ago" : Math.round(m / 1440) + " days ago"; };
+async function loadReachRoom() {
+  $("rcToast").textContent = ""; $("rcMsgToast").textContent = "";
+  try {
+    const d = await api("/reach");
+    const here = d.status.state === "reachable";
+    $("rcDot").classList.toggle("on", here);
+    $("rcState").textContent = here ? "At the desk" : "Away from the desk";
+    $("rcSeen").textContent = d.status.lastSeen ? "The clock last checked in " + ago(d.status.lastSeen) + "." : "The clock hasn't checked in yet.";
+    renderMsgs(d.messages);
+    reachCfg = d.config;
+    $("rcAccept").checked = reachCfg.accepting;
+    $("rcNote").value = reachCfg.away_note;
+    bindRange("rcRate", reachCfg.rate_limit_minutes, (v) => (reachCfg.rate_limit_minutes = v), (v) => v + " min", reachDirty);
+    $("rcSave").disabled = true;
+  } catch (err) { $("rcState").textContent = "Couldn't reach Reach"; $("rcSeen").textContent = err.message; }
+}
+function renderMsgs(msgs) {
+  $("rcMsgs").innerHTML = "";
+  if (!msgs.length) { $("rcMsgs").innerHTML = '<li class="empty">Nothing waiting. All caught up.</li>'; $("rcClear").disabled = true; return; }
+  $("rcClear").disabled = false;
+  for (const m of [...msgs].reverse()) {
+    const li = document.createElement("li");
+    const b = document.createElement("b"); b.textContent = m.text;
+    const sm = document.createElement("small"); sm.textContent = `${m.name || "Someone"} · ${ago(m.at)}`;
+    const x = document.createElement("button"); x.textContent = "×"; x.setAttribute("aria-label", "Delete this message");
+    x.addEventListener("click", async () => {
+      try { renderMsgs((await api("/reach/messages?id=" + encodeURIComponent(m.id), { method: "DELETE" })).messages); }
+      catch (err) { $("rcMsgToast").textContent = err.message; $("rcMsgToast").classList.add("err"); }
+    });
+    li.append(b, x, sm); $("rcMsgs").appendChild(li);
+  }
+}
+function reachDirty() { $("rcSave").disabled = false; $("rcToast").textContent = "Not saved yet"; $("rcToast").classList.remove("err"); }
+$("rcAccept").addEventListener("change", () => { reachCfg.accepting = $("rcAccept").checked; reachDirty(); });
+$("rcNote").addEventListener("input", () => { reachCfg.away_note = $("rcNote").value; reachDirty(); });
+$("rcSave").addEventListener("click", async () => {
+  $("rcSave").disabled = true; $("rcToast").textContent = "Bernard is filing it…";
+  try { const d = await api("/reach/config", { method: "PUT", body: JSON.stringify({ config: reachCfg }) }); reachCfg = d.config; $("rcToast").textContent = d.bertrand || "Filed."; }
+  catch (err) { $("rcToast").textContent = err.message; $("rcToast").classList.add("err"); $("rcSave").disabled = false; }
+});
+$("rcClear").addEventListener("click", async () => {
+  if (!confirm("Clear every waiting message?")) return;
+  try { renderMsgs((await api("/reach/messages", { method: "DELETE" })).messages); }
+  catch (err) { $("rcMsgToast").textContent = err.message; $("rcMsgToast").classList.add("err"); }
+});
+
 // ---------- Away room ----------
 let away = null, awaySha = null;
 async function loadAway() {
@@ -849,11 +941,11 @@ $("awSave").addEventListener("click", async () => {
 
 // ---------- routing ----------
 function route() {
-  const room = ["#paper", "#away"].includes(location.hash) ? location.hash.slice(1) : null;
+  const room = ["#paper", "#reach", "#away"].includes(location.hash) ? location.hash.slice(1) : null;
   $("hub").classList.toggle("hidden", !!room);
-  $("paper").classList.toggle("hidden", room !== "paper");
-  $("away").classList.toggle("hidden", room !== "away");
+  for (const id of ["paper", "reach", "away"]) $(id).classList.toggle("hidden", room !== id);
   if (room === "away" && token) loadAway();
+  if (room === "reach" && token) loadReachRoom();
   window.scrollTo(0, 0);
 }
 window.addEventListener("hashchange", route);

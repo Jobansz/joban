@@ -292,10 +292,17 @@ function setStatus(s) {
   $("send").textContent = reachable ? "Send now" : "Leave it";
 }
 
+let paused = false;
 async function loadStatus() {
   try {
     const r = await fetch(API + "/status", { cache: "no-store" });
-    setStatus((await r.json()).state);
+    const d = await r.json();
+    setStatus(d.state);
+    if (d.note) $("statusSub").textContent = d.note;
+    if (d.accepting === false) {
+      $("statusSub").textContent = (d.note ? d.note + " " : "") + "Joban isn't taking messages right now.";
+      paused = true; $("send").disabled = true; $("send").textContent = "Closed";
+    }
   } catch { setStatus("away"); }
 }
 
@@ -306,7 +313,7 @@ function updateCount() {
   const pages = t.trim() ? layout(t.slice(0, MAX_MESSAGE)).pages : 0;
   $("count").innerHTML = `<b>${t.length}</b> / ${MAX_MESSAGE}` + (pages ? ` · ${pages} screen${pages === 1 ? "" : "s"}` : "");
   $("count").classList.toggle("over", t.length > MAX_MESSAGE);
-  $("send").disabled = !t.trim() || t.length > MAX_MESSAGE;
+  $("send").disabled = paused || !t.trim() || t.length > MAX_MESSAGE;
 }
 
 function note(msg, kind) { $("note").textContent = msg; $("note").className = "note" + (kind ? " " + kind : ""); }
