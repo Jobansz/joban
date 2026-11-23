@@ -325,7 +325,17 @@
     box-shadow: inset 0 0 0 6px #3b1f10, inset 0 0 0 7px rgba(201,164,106,.45), inset 0 0 30px rgba(0,0,0,.5), 0 4px 10px rgba(0,0,0,.4); }
   .blotter::before { content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: .35;
     background: repeating-radial-gradient(circle at 30% 40%, rgba(0,0,0,.25) 0 1px, transparent 1px 3px); }
-  .items { position: relative; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 30px 34px; }
+  .items { position: relative; display: grid; grid-template-columns: repeat(var(--n, 4), 150px); justify-content: center; gap: 22px; }
+  .tile { position: relative; width: 150px; height: 128px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    text-decoration: none; color: #2a1a0c; border-radius: 3px; background: linear-gradient(160deg, #fbf7ee, #ece2cf);
+    box-shadow: inset 0 0 0 2px #c9a46a, inset 0 0 0 4px #fbf7ee, inset 0 0 0 5px rgba(201,164,106,.6), 0 8px 14px rgba(0,0,0,.45);
+    transition: transform .3s cubic-bezier(.2,.75,.2,1), box-shadow .3s; }
+  .tile:hover, .tile:focus-visible { transform: translateY(-5px); outline: none;
+    box-shadow: inset 0 0 0 2px #c9a46a, inset 0 0 0 4px #fbf7ee, inset 0 0 0 5px rgba(201,164,106,.6), 0 16px 22px rgba(0,0,0,.5); }
+  .tile .seal { position: static; margin: 0 0 6px; width: 34px; height: 34px; }
+  .tile b { font-family: "Fraunces", serif; font-weight: 600; font-size: 1.1rem; line-height: 1.1; }
+  .tile small { font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: #6b5233; }
+  @media (max-width: 760px) { .items { grid-template-columns: repeat(2, 140px); gap: 14px; } .tile { width: 140px; height: 118px; } }
   .items.swap { animation: slidein .5s cubic-bezier(.2,.75,.2,1); }
   @keyframes slidein { from { opacity: 0; transform: translateX(var(--from, 40px)); } to { opacity: 1; transform: none; } }
   .obj { position: relative; display: block; text-decoration: none; color: #2a1a0c; transform: rotate(var(--r, 0deg));
@@ -394,7 +404,6 @@
   @media (max-width: 760px) {
     .desk { padding: 26px 12px 0; margin-left: -8px; margin-right: -8px; }
     .blotter { padding: 24px 10px 34px; }
-    .items { gap: 30px 18px; }
     .lamp { display: none; }
     .desk-view { padding-top: 64px; }
     .desk-front { margin: 22px -12px 0; }
@@ -1068,38 +1077,31 @@ $("preview").addEventListener("click", () => play(settings ? settings.chime.soun
 // ---------- the desk ----------
 const DESKS = [
   { name: "The study", items: [
-    { kind: "envelope", label: "Gmail", mark: "G", href: "https://mail.google.com/", r: -4 },
-    { kind: "envelope", label: "UNBC mail", mark: "U", href: "https://outlook.com/owa/unbc.ca", r: 3 },
-    { kind: "notebook", label: "Moodle", title: "Moodle", href: "https://moodle.unbc.ca/my/", r: -2 },
+    { label: "Gmail", mark: "G", sub: "Personal mail", href: "https://mail.google.com/" },
+    { label: "UNBC Mail", mark: "U", sub: "School mail", href: "https://outlook.com/owa/unbc.ca" },
+    { label: "Moodle", mark: "M", sub: "Courses", href: "https://moodle.unbc.ca/my/" },
   ] },
   { name: "The workshop", items: [
-    { kind: "notebook", label: "GitHub", title: "GitHub", href: "https://github.com/Jobansz", r: 3 },
-    { kind: "card", label: "Cloudflare", title: "Cloudflare", sub: "Workers & Pages", href: "https://dash.cloudflare.com/", r: -3 },
-    { kind: "card", label: "App Store Connect", title: "App Store", sub: "Connect", href: "https://appstoreconnect.apple.com/", r: 2 },
-    { kind: "folder", label: "Chrome Web Store", title: "Snippy", href: "https://chrome.google.com/webstore/devconsole", r: -2 },
+    { label: "GitHub", mark: "G", sub: "Code", href: "https://github.com/Jobansz" },
+    { label: "Cloudflare", mark: "C", sub: "Workers", href: "https://dash.cloudflare.com/" },
+    { label: "App Store", mark: "A", sub: "Connect", href: "https://appstoreconnect.apple.com/" },
+    { label: "Snippy", mark: "S", sub: "Web Store", href: "https://chrome.google.com/webstore/devconsole" },
   ] },
   { name: "The den", items: [
-    { kind: "record", label: "Spotify", href: "https://open.spotify.com/", r: 0 },
-    { kind: "polaroid", label: "Instagram", title: "@filmbyjoban", href: "https://www.instagram.com/filmbyjoban/", r: 4 },
-    { kind: "note", label: "Pinterest", title: "ideas, doors, rooms", href: "https://www.pinterest.com/", r: -3 },
-    { kind: "folder", label: "Google Drive", title: "Drive", href: "https://drive.google.com/", r: 2 },
+    { label: "Spotify", mark: "S", sub: "Music", href: "https://open.spotify.com/" },
+    { label: "Instagram", mark: "I", sub: "@filmbyjoban", href: "https://www.instagram.com/filmbyjoban/" },
+    { label: "Pinterest", mark: "P", sub: "Inspiration", href: "https://www.pinterest.com/" },
+    { label: "Drive", mark: "D", sub: "Files", href: "https://drive.google.com/" },
   ] },
 ];
 let deskIndex = 0;
 try { deskIndex = Math.min(DESKS.length - 1, Number(localStorage.getItem("loungeDesk")) || 0); } catch {}
 
+// every app gets the same card: same size, same weight on the desk
 function deskObject(it) {
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const inner = {
-    envelope: `<span class="seal">${esc(it.mark)}</span>`,
-    folder: `<span class="label">${esc(it.title)}</span>`,
-    notebook: `<span class="title">${esc(it.title)}</span>`,
-    card: `<b>${esc(it.title)}</b><small>${esc(it.sub || "")}</small>`,
-    record: `<span class="hole"></span>`,
-    polaroid: `<i></i><span class="scrawl">${esc(it.title)}</span>`,
-    note: esc(it.title),
-  }[it.kind];
-  return `<a class="obj ${it.kind}" style="--r:${it.r}deg" href="${it.href}" target="_blank" rel="noopener" aria-label="${esc(it.label)} (opens in a new tab)">${inner}<span class="cap">${esc(it.label)}</span></a>`;
+  return `<a class="tile" href="${it.href}" target="_blank" rel="noopener" aria-label="${esc(it.label)} (opens in a new tab)">
+    <span class="seal">${esc(it.mark)}</span><b>${esc(it.label)}</b><small>${esc(it.sub)}</small></a>`;
 }
 
 function showDesk(i, dir = 0) {
@@ -1109,6 +1111,7 @@ function showDesk(i, dir = 0) {
   $("deskNo").textContent = `Desk ${deskIndex + 1} of ${DESKS.length}`;
   $("deskName").textContent = d.name;
   box.innerHTML = d.items.map(deskObject).join("");
+  box.style.setProperty("--n", d.items.length);
   box.style.setProperty("--from", dir < 0 ? "-40px" : "40px");
   box.classList.remove("swap"); void box.offsetWidth; if (dir) box.classList.add("swap");
 }
