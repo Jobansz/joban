@@ -758,7 +758,7 @@ const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<
 
 const FULL = [0, 0, 1200, 700];
 let vb = FULL.slice(), zoomAnim = 0, zoomedOn = null;
-function setVB(v) { vb = v; $("room").setAttribute("viewBox", v.map((n) => n.toFixed(1)).join(" ")); }
+function setVB(v) { vb = v; $("room").setAttribute("viewBox", v.map((n) => n.toFixed(1)).join(" ")); if (layers.length) applyCamera(); }
 function animateVB(to, ms = 700) {
   cancelAnimationFrame(zoomAnim);
   return new Promise((done) => {
@@ -768,16 +768,20 @@ function animateVB(to, ms = 700) {
   });
 }
 function zoomBox(el, pad = 0.35) {
-  const b = el.getBBox();
+  if (el.id === "hotWindow") return [760, 60, 440, 256.7]; // the window is floor-to-ceiling: look out at the skyline
+  // measure in the element's own space, before the camera moves it (the window by its frame, not the whole sky behind it)
+  const b = (el.id === "hotWindow" ? el.querySelector(":scope > polygon") : el).getBBox();
+  const d = DEPTH[el.id] ?? SHELL, tx = -cam.x * LOOK_X * d, ty = -cam.y * LOOK_Y * d;
+  b.x = (b.x - 600) * OVERSCAN + 600 + tx; b.y = (b.y - 350) * OVERSCAN + 350 + ty; b.width *= OVERSCAN; b.height *= OVERSCAN;
   let w = b.width * (1 + pad * 2), h = b.height * (1 + pad * 2);
   if (w / h > 1200 / 700) h = (w * 700) / 1200; else w = (h * 1200) / 700;
-  w = Math.max(w, 260); h = (w * 700) / 1200;
+  w = Math.min(1200, Math.max(w, 260)); h = (w * 700) / 1200;
   const x = Math.max(0, Math.min(1200 - w, b.x + b.width / 2 - w / 2)), y = Math.max(0, Math.min(700 - h, b.y + b.height / 2 - h / 2));
   return [x, y, w, h];
 }
 async function zoomTo(id, pad) {
   if (zoomedOn && $("vault").classList.contains("surfaced")) closeSurface();
-  zoomedOn = id; $("vault").classList.add("zoomed");
+  zoomedOn = id; focusDepth = DEPTH[id] ?? SHELL; $("vault").classList.add("zoomed");
   $("vault").scrollIntoView({ behavior: "smooth", block: innerWidth < 760 ? "start" : "center" });
   await animateVB(zoomBox($(id), pad));
 }
@@ -1012,6 +1016,91 @@ for (const id in actions) {
   el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(id); } });
 }
 document.querySelectorAll(".hint-row button").forEach((b) => b.addEventListener("click", () => act(b.dataset.go)));
+
+
+// ---------- 2.5D: a camera you can look around with ----------
+// every object sits at a depth: 0 is the far city, 1 is right in front of you
+const DEPTH = { hotWindow: 0.35, hotBoard: 0.35, hotDoor: 0.35, hotBar: 0.35, hotPit: 0.62, hotChair: 0.6, hotLamp: 0.8, hotRecord: 1, hotPalm: 1.05 };
+const CITY_DEPTH = 0.08, SHELL = 0.35, LOOK_X = 42, LOOK_Y = 16, OVERSCAN = 1.06;
+const cam = { x: 0, y: 0, tx: 0, ty: 0, last: 0, gyro: false }, reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let layers = [], cityLayer = null, focusDepth = SHELL, lookDragged = false;
+function buildLayers() {
+  const svg = $("room");
+  layers = [...svg.children].filter((el) => el.tagName !== "defs" && el.getAttribute("fill") !== "url(#vignette)")
+    .map((el) => ({ el, d: DEPTH[el.id] ?? SHELL }));
+  // the city moves on its own inside the window frame
+  const clip = $("hotWindow").querySelector("g[clip-path]");
+  cityLayer = document.createElementNS(NS, "g");
+  while (clip.firstChild) cityLayer.appendChild(clip.firstChild);
+  clip.appendChild(cityLayer);
+}
+function applyCamera() {
+  const Z = 1200 / vb[2], fx = vb[0] + vb[2] / 2, fy = vb[1] + vb[3] / 2;
+  for (const { el, d } of layers) {
+    const tx = (-cam.x * LOOK_X * d) / Z, ty = (-cam.y * LOOK_Y * d) / Z;
+    // dolly: things nearer than what you're zooming to grow faster and slide out of frame
+    const k = OVERSCAN * Math.pow(Z, 0.4 * Math.max(0, d - focusDepth));
+    el.setAttribute("transform", `translate(${(tx + fx * (1 - k)).toFixed(2)} ${(ty + fy * (1 - k)).toFixed(2)}) scale(${k.toFixed(4)})`);
+  }
+  const rel = CITY_DEPTH - DEPTH.hotWindow;
+  cityLayer.setAttribute("transform", `translate(${((-cam.x * LOOK_X * rel) / Z).toFixed(2)} ${((-cam.y * LOOK_Y * rel) / Z).toFixed(2)})`);
+}
+function cameraLoop(t) {
+  requestAnimationFrame(cameraLoop);
+  if (document.hidden || $("vault").classList.contains("surfaced") || !$("vault").classList.contains("vault-open")) return;
+  if (!cam.gyro && !reduced && t - cam.last > 2500) { // nobody's looking around: a slow drift so the room feels deep
+    cam.tx = Math.sin(t / 4200) * 0.45; cam.ty = Math.cos(t / 5600) * 0.25;
+  }
+  const ease = t - cam.last > 2500 ? 0.015 : 0.12;
+  cam.x += (cam.tx - cam.x) * ease; cam.y += (cam.ty - cam.y) * ease;
+  applyCamera();
+}
+const lim = (v) => Math.max(-1, Math.min(1, v));
+function lookAt(x, y) { cam.tx = lim(x); cam.ty = lim(y); cam.last = performance.now(); }
+// mouse: look where the pointer is
+$("room").addEventListener("pointermove", (e) => {
+  if (e.pointerType !== "mouse" || cam.gyro) return;
+  const r = $("room").getBoundingClientRect();
+  lookAt(((e.clientX - r.left) / r.width) * 2 - 1, ((e.clientY - r.top) / r.height) * 2 - 1);
+});
+// touch: drag the room to look around (a tap still opens things)
+$("room").addEventListener("pointerdown", (e) => {
+  if (e.pointerType === "mouse" || cam.gyro) return;
+  const r = $("room").getBoundingClientRect(), sx = e.clientX, sy = e.clientY, bx = cam.tx, by = cam.ty;
+  lookDragged = false;
+  const mv = (ev) => {
+    const dx = ev.clientX - sx, dy = ev.clientY - sy;
+    if (!lookDragged && Math.hypot(dx, dy) < 8) return;
+    lookDragged = true; lookAt(bx - (dx / r.width) * 3, by - (dy / r.height) * 2);
+  };
+  const up = () => { removeEventListener("pointermove", mv); removeEventListener("pointerup", up); removeEventListener("pointercancel", up); };
+  addEventListener("pointermove", mv); addEventListener("pointerup", up); addEventListener("pointercancel", up);
+});
+$("room").style.touchAction = "pan-y";
+$("room").addEventListener("click", (e) => { if (lookDragged) { lookDragged = false; e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+// tilt: look around by tilting the iPad
+let gyro0 = null;
+function onTilt(e) {
+  if (e.gamma == null) return;
+  if (!gyro0) gyro0 = { g: e.gamma, b: e.beta };
+  cam.tx = lim((e.gamma - gyro0.g) / 18); cam.ty = lim((e.beta - gyro0.b) / 22); cam.last = performance.now();
+}
+async function toggleTilt() {
+  const btn = $("tiltBtn");
+  if (cam.gyro) { removeEventListener("deviceorientation", onTilt); cam.gyro = false; btn.classList.remove("on"); say("Tilt off. Drag the room to look around."); return; }
+  try {
+    if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
+      if ((await DeviceOrientationEvent.requestPermission()) !== "granted") { say("No tilting without permission. Drag the room instead.", true); return; }
+    }
+    gyro0 = null; addEventListener("deviceorientation", onTilt); cam.gyro = true; btn.classList.add("on");
+    say("Tilt your screen to look around the room.");
+  } catch { say("This screen can't tilt. Drag the room instead.", true); }
+}
+if (matchMedia("(pointer: coarse)").matches && "DeviceOrientationEvent" in window) {
+  $("hintRow").insertAdjacentHTML("beforeend", '<button id="tiltBtn" type="button">↻ Tilt to look</button>');
+  $("tiltBtn").addEventListener("click", toggleTilt);
+}
+buildLayers(); applyCamera(); requestAnimationFrame(cameraLoop);
 
 // ---------- card + pit ----------
 function showCard(n) {
