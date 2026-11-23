@@ -98,6 +98,19 @@
     bean: '<svg viewBox="0 0 44 54" width="40" height="50"><path d="M6 14h32v34a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="rgba(220,235,240,.35)" stroke="#d9e4e8" stroke-width="1.5"/><rect x="4" y="8" width="36" height="7" rx="2" fill="#8c6a30"/><g fill="#3b2012"><ellipse cx="14" cy="40" rx="4" ry="5.5"/><ellipse cx="24" cy="44" rx="4" ry="5.5"/><ellipse cx="31" cy="37" rx="4" ry="5.5"/><ellipse cx="19" cy="31" rx="4" ry="5.5"/><ellipse cx="29" cy="27" rx="4" ry="5.5"/></g></svg>',
   };
 
+  // the same rules as Bernard's, for members mixing one just for fun
+  function practiceCheck(steps) {
+    const bad = steps.find((s) => ["gin", "tonic", "orange-juice", "milk", "tequila"].includes(s));
+    if (bad) return NAMES[bad][0].toUpperCase() + NAMES[bad].slice(1) + " doesn't belong in an espresso martini.";
+    const at = (s) => steps.indexOf(s), last = (s) => steps.lastIndexOf(s);
+    if (["vodka", "coffee-liqueur", "espresso"].some((n) => at(n) < 0)) return "Something's missing from the shaker.";
+    if (at("ice") < 0) return "A warm martini? It needs ice.";
+    if (Math.max(...["vodka", "coffee-liqueur", "espresso", "syrup", "ice"].map(last)) > at("shake")) return "Everything goes in before you shake.";
+    const beans = steps.filter((s) => s === "bean").length;
+    if (beans !== 3) return beans < 3 ? "The garnish isn't quite right." : "Tradition says three beans.";
+    return null;
+  }
+
   function mount(root, opts) {
     if (!document.getElementById("pbar-css")) { const st = document.createElement("style"); st.id = "pbar-css"; st.textContent = css; document.head.appendChild(st); }
     const say = opts.say || (() => {});
@@ -156,6 +169,11 @@
     q('[data-a="reset"]').addEventListener("click", () => reset("A fresh shaker. Take your time."));
     q(".pb-serve").addEventListener("click", async () => {
       q(".pb-serve").disabled = true; say("Bernard takes a sip…");
+      if (opts.practice) {
+        const bad = practiceCheck(steps);
+        setTimeout(() => { if (bad) { reset(); say(bad + " Try again.", true); } else { say("Perfect, as ever. Bernard raises the glass to you."); setTimeout(() => reset(), 2500); } }, 700);
+        return;
+      }
       try {
         const r = await fetch(API + "/pit/join", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ steps }) });
         const d = await r.json().catch(() => ({}));

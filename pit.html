@@ -7,7 +7,7 @@
 <meta name="description" content="A room for guests. Mix your way in, then leave your glass on the table.">
 <meta name="theme-color" content="#140d09">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=Caveat:wght@500;700&family=Reenie+Beanie&display=swap" rel="stylesheet">
 <style>
   :root { --ink: #0f0b09; --brass: #c9a46a; --brass-dim: #7d6743; --cream: #efe3cf; --muted: #a8957c; --rose: #e39a8f; --line: rgba(201,164,106,.25);
     --rust: #b4532a; --mustard: #c9932c; --teal: #2e6a6c; --ox: #4b0b11; }
@@ -51,6 +51,27 @@
   .room .hot.ping { animation: ping .7s ease; }
   @keyframes ping { 0% { filter: none; } 35% { filter: brightness(1.6) drop-shadow(0 0 16px rgba(255,210,140,.8)); } 100% { filter: none; } }
   .hint-row button.on { border-color: var(--brass); color: var(--brass); }
+  .closeup { margin-top: 14px; padding: 20px 22px 24px; background: rgba(14,8,6,.9); border-radius: 4px; box-shadow: inset 0 0 0 1px var(--brass), 0 20px 40px rgba(0,0,0,.45); animation: rise .35s ease both; }
+  .cu-head { display: flex; flex-wrap: wrap-reverse; justify-content: space-between; align-items: flex-start; gap: 8px 12px; margin-bottom: 12px; }
+  #cuBack { white-space: nowrap; }
+  .cu-head h3 { font-family: "Fraunces", serif; font-weight: 400; font-style: italic; font-size: 1.5rem; margin-top: 4px; }
+  .cu-line { font-family: "Fraunces", serif; font-style: italic; font-size: 1.05rem; color: var(--cream); margin-bottom: 12px; }
+  .cu-line::before { content: "Bernard · "; font-family: "Inter", sans-serif; font-style: normal; font-size: .74rem; color: var(--muted); }
+  .crate { list-style: none; display: grid; gap: 6px; }
+  .crate li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 3px; background: rgba(255,255,255,.03); border: 1px solid rgba(201,164,106,.15); }
+  .crate li.on { border-color: var(--brass); background: rgba(201,164,106,.1); }
+  .crate b { font-family: "Fraunces", serif; font-style: italic; font-weight: 400; }
+  .crate small { color: var(--muted); font-size: .72rem; }
+  .crate a { color: var(--brass); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; white-space: nowrap; }
+  .coasters { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 16px; }
+  .coasters button { background: radial-gradient(circle at 35% 30%, #f6efe1, #e9dcc3 70%, #d9c7a6); border: 0; border-radius: 50%; aspect-ratio: 1; padding: 6px;
+    box-shadow: 0 10px 18px rgba(0,0,0,.45), inset 0 0 0 4px #efe3cf; transition: transform .25s; }
+  .coasters button:hover { transform: translateY(-4px) rotate(-3deg); }
+  .coasters svg { width: 100%; height: 100%; }
+  .cu-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  .room.lamp-off #lamp circle, .room.lamp-off #lampWash { opacity: 0; }
+  .room.lamp-off #lamp path:nth-of-type(2) { fill: #b9a888; }
+  #lamp circle { transition: opacity .4s; }
   /* ---------- the wall (deco doors over the room) ---------- */
   .leaves { position: absolute; inset: 0; z-index: 5; border-radius: 6px; overflow: hidden; pointer-events: auto; }
   .leaf { position: absolute; top: 0; bottom: 0; width: 50.2%; transition: transform 1.6s cubic-bezier(.6,.05,.25,1);
@@ -153,6 +174,42 @@
   .field input:focus { border-color: var(--brass); }
   .toast { font-size: .85rem; color: var(--muted); }
   .toast.err { color: var(--rose); }
+  /* ---------- coaster stain + memo board ---------- */
+  .mark-form { display: grid; grid-template-columns: 240px 1fr; gap: 28px; align-items: start; }
+  .coaster-wrap { display: grid; justify-items: center; gap: 10px; text-align: center; }
+  .coaster-wrap .eyebrow { justify-self: start; }
+  .coaster { width: 220px; height: 220px; border-radius: 50%; display: grid; place-items: center;
+    background: radial-gradient(circle at 35% 30%, #f6efe1, #e9dcc3 70%, #d9c7a6); box-shadow: 0 14px 28px rgba(0,0,0,.45), inset 0 0 0 6px #efe3cf, inset 0 0 0 7px rgba(120,80,40,.25); }
+  .coaster svg { width: 92%; height: 92%; }
+  .coaster-wrap small { font-size: .74rem; max-width: 22ch; }
+  .field textarea { width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--brass-dim); color: var(--cream); font: inherit; font-size: 16px; padding: 7px 2px; outline: none; resize: vertical; }
+  .field textarea:focus { border-color: var(--brass); }
+  .field label span:not([id]) { letter-spacing: .1em; text-transform: none; opacity: .7; }
+  .board-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin: 40px 0 14px; }
+  .board-head h2 { font-family: "Fraunces", serif; font-weight: 400; font-style: italic; font-size: 1.7rem; }
+  .board { position: relative; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 30px 24px; padding: 34px 28px 40px; border-radius: 4px; min-height: 260px;
+    background: radial-gradient(circle at 20% 30%, rgba(255,255,255,.06), transparent 40%),
+      radial-gradient(rgba(60,30,10,.35) 1px, transparent 1.6px) 0 0 / 7px 7px,
+      radial-gradient(rgba(255,220,170,.12) 1px, transparent 1.6px) 3px 4px / 9px 9px,
+      linear-gradient(135deg, #a8774a, #b98957 40%, #9c6a3f);
+    box-shadow: inset 0 0 0 12px #4a2614, inset 0 0 0 14px #c9a46a, inset 0 0 40px rgba(0,0,0,.45), 0 24px 50px rgba(0,0,0,.5); }
+  .board .empty { grid-column: 1 / -1; align-self: center; text-align: center; font-family: "Caveat", cursive; font-size: 1.6rem; color: #3a1f0f; }
+  .memo { position: relative; padding: 26px 20px 18px; min-height: 170px; color: #2a1a0c; transform: rotate(var(--r, 0deg));
+    background: linear-gradient(180deg, transparent 0 28px, rgba(70,110,170,.18) 28px 29px, transparent 29px) 0 0 / 100% 26px, linear-gradient(170deg, #fffaf0, #f3e8cf);
+    box-shadow: 0 10px 18px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.6) inset; transition: transform .3s; }
+  .memo:hover { transform: rotate(0deg) scale(1.03); z-index: 2; }
+  .memo.yellow { background: linear-gradient(170deg, #fff4b8, #f2dd84); }
+  .memo.pink { background: linear-gradient(170deg, #ffe4e1, #f5c6c0); }
+  .memo::before { content: ""; position: absolute; left: 50%; top: 8px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff0c8, #c9a46a 50%, #7d5a26); box-shadow: 0 3px 3px rgba(0,0,0,.45); }
+  .memo .to { font-family: "Inter", sans-serif; font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: #8a5a2a; }
+  .memo p { font-family: "Caveat", cursive; font-size: 1.45rem; line-height: 1.1; margin: 4px 0 10px; word-wrap: break-word; position: relative; z-index: 1; }
+  .memo a { font-family: "Inter", sans-serif; font-size: .78rem; color: #7a3214; text-decoration: none; position: relative; z-index: 1; }
+  .memo .sig { font-family: "Reenie Beanie", "Caveat", cursive; font-size: 1.35rem; color: #3a1f0f; display: block; margin-top: 6px; position: relative; z-index: 1; }
+  .memo small { display: block; font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: #8a6a4a; margin-top: 2px; position: relative; z-index: 1; }
+  .memo .stain { position: absolute; right: -34px; bottom: -40px; width: 130px; height: 130px; pointer-events: none; opacity: .9; mix-blend-mode: multiply; }
+  .memo.mine { box-shadow: 0 10px 18px rgba(0,0,0,.35), 0 0 0 2px #c9a46a; }
+  @media (max-width: 760px) { .mark-form { grid-template-columns: 1fr; } .coaster { width: 190px; height: 190px; } .board { padding: 28px 18px 34px; } }
   .marks { list-style: none; display: grid; gap: 2px; max-height: 420px; overflow: auto; }
   .marks li { padding: 10px 0; border-bottom: 1px solid rgba(201,164,106,.1); }
   .marks li b { font-family: "Fraunces", serif; font-weight: 400; font-style: italic; font-size: 1.05rem; }
@@ -377,8 +434,12 @@
     </svg>
     <p class="room-say" id="roomSay" aria-live="polite"></p>
     <div class="hint-row" id="hintRow" role="group" aria-label="Places in the room">
-      <button data-go="hotBar">The bar</button><button data-go="hotPit">The pit</button><button data-go="hotRecord">Record player</button><button data-go="hotWindow">Window</button>
+      <button data-go="hotBar">The bar</button><button data-go="hotPit">The pit</button><button data-go="hotRecord">Record player</button><button data-go="hotWindow">Window</button><button data-go="hotLamp">Lamp</button><button data-go="hotChair">Chair</button>
     </div>
+    <section class="closeup" id="closeup" hidden aria-live="polite">
+      <div class="cu-head"><div><span class="eyebrow" id="cuKicker"></span><h3 id="cuTitle"></h3></div><button class="link" id="cuBack">← Back to the room</button></div>
+      <div id="cuBody"></div>
+    </section>
     <div class="now-playing" id="nowPlaying" hidden><span class="eyebrow">Now playing</span><a id="npSong" target="_blank" rel="noopener"></a><small id="npBy"></small><button class="link" id="npNext">Next →</button></div>
   </div>
 
@@ -401,22 +462,26 @@
   <!-- leave your mark -->
   <section id="pitStage" hidden>
     <div class="pit-info"><h2>Leave your mark</h2><span class="eyebrow" id="pitCount"></span></div>
-    <div class="grid2">
-      <form class="panel" id="markForm" autocomplete="off">
-        <span class="eyebrow">Your glass &amp; coaster</span>
+    <form class="panel mark-form" id="markForm" autocomplete="off">
+      <div class="coaster-wrap">
+        <span class="eyebrow">Your coaster</span>
+        <div class="coaster" id="coaster" aria-hidden="true"></div>
+        <small class="muted">Your glass leaves a ring. Your name goes in the stain.</small>
+      </div>
+      <div>
+        <span class="eyebrow">Leave a glass &amp; a memo</span>
         <p class="muted locked-note" id="lockedNote">Members only. Mix an espresso martini at the bar first.</p>
         <fieldset id="markFields" style="border:0">
-          <div class="field"><label for="mName">Name <span id="cardNo"></span></label><input id="mName" maxlength="24" placeholder="What should the coaster say?"></div>
-          <div class="field"><label for="mNote">A note</label><input id="mNote" maxlength="90" placeholder="Say something to the room…"></div>
-          <div class="field"><label for="mSong">A song for the record player</label><input id="mSong" maxlength="70" placeholder="Song – Artist"></div>
+          <div class="field"><label for="mName">Your name <span id="cardNo"></span></label><input id="mName" maxlength="18" placeholder="Scrawled in the stain"></div>
+          <div class="field"><label for="mTo">For <span>optional</span></label><input id="mTo" maxlength="24" placeholder="Everyone, or someone in particular"></div>
+          <div class="field"><label for="mNote">Your memo</label><textarea id="mNote" maxlength="160" rows="3" placeholder="Leave a note for whoever comes in next…"></textarea></div>
+          <div class="field"><label for="mSong">A song for the record player <span>optional</span></label><input id="mSong" maxlength="70" placeholder="Song – Artist"></div>
           <div style="display:flex;gap:14px;align-items:center;margin-top:18px;flex-wrap:wrap"><button class="btn solid" type="submit" id="markBtn">Leave my glass</button><span class="toast" id="markToast"></span></div>
         </fieldset>
-      </form>
-      <div class="panel">
-        <span class="eyebrow">On the table</span>
-        <ul class="marks" id="marks"></ul>
       </div>
-    </div>
+    </form>
+    <div class="board-head"><h2>The memo board</h2><span class="eyebrow">Notes from the room</span></div>
+    <div class="board" id="marks"></div>
   </section>
 </div>
 
@@ -534,17 +599,87 @@ function drawTableGlasses(marks) {
 const WINDOW_LINES = ["Prince George? Not tonight. Tonight it's forty floors up somewhere.", "The city never quite sleeps from up here.", "Mr. Singh says every good room needs a view.", "Count the lit windows. Bernard stopped at 214."];
 const SIGN_LINES = ["Open late. Always.", "The neon was Mr. Singh's idea. Bernard approves.", "Mind the step down into the Pit."];
 let wi = 0, si = 0, playlist = [], pi = 0;
+// ---------- zooming in, like the desk in the Lounge ----------
+const FULL = [0, 0, 1200, 700];
+let vb = FULL.slice(), zoomAnim = 0, zoomedOn = null;
+function setVB(v) { vb = v; $("room").setAttribute("viewBox", v.map((n) => n.toFixed(1)).join(" ")); }
+function animateVB(to, ms = 750) {
+  cancelAnimationFrame(zoomAnim);
+  const from = vb.slice(), t0 = performance.now(), ease = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const step = (now) => { const t = Math.min(1, (now - t0) / ms), e = ease(t); setVB(from.map((f, i) => f + (to[i] - f) * e)); if (t < 1) zoomAnim = requestAnimationFrame(step); };
+  zoomAnim = requestAnimationFrame(step);
+}
+function zoomBox(el, pad = 0.35) {
+  const b = el.getBBox();
+  let w = b.width * (1 + pad * 2), h = b.height * (1 + pad * 2);
+  if (w / h > 1200 / 700) h = w * 700 / 1200; else w = h * 1200 / 700;
+  w = Math.max(w, 300); h = w * 700 / 1200;
+  let x = b.x + b.width / 2 - w / 2, y = b.y + b.height / 2 - h / 2;
+  x = Math.max(0, Math.min(1200 - w, x)); y = Math.max(0, Math.min(700 - h, y));
+  return [x, y, w, h];
+}
+function closeup(id, kicker, title, html) {
+  zoomedOn = id;
+  animateVB(zoomBox($(id), id === "hotWindow" ? 0.08 : 0.35));
+  $("cuKicker").textContent = kicker; $("cuTitle").textContent = title; $("cuBody").innerHTML = html;
+  $("closeup").hidden = false; $("nowPlaying").hidden = true;
+  setTimeout(() => $("vault").scrollIntoView({ behavior: "smooth", block: innerWidth < 760 ? "start" : "center" }), 50);
+}
+function backToRoom() {
+  zoomedOn = null; animateVB(FULL); $("closeup").hidden = true;
+  document.querySelectorAll(".hint-row button").forEach((b) => b.classList.remove("on"));
+}
+$("cuBack").addEventListener("click", backToRoom);
+addEventListener("keydown", (e) => { if (e.key === "Escape" && zoomedOn) backToRoom(); });
+const esc = (t) => String(t || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let lastMarks = [];
+
 const BAR_LINES = ["Another espresso martini? On the house, of course.", "Bernard polishes a glass and nods.", "The bar's open as long as you are."];
 let bi = 0;
-function openBar() { say(BAR_LINES[bi++ % BAR_LINES.length]); }
+const CHAIR_LINES = ["Mr. Singh's chair. Bernard keeps it warm.", "Best seat for the skyline. Reserved, naturally.", "Oxblood leather, older than the building. Sit, if you're brave."];
+const PALM_LINES = ["Bernard waters it every Sunday. It has never once said thank you.", "It came with the building. Nobody knows how old it is.", "Somewhere a florist is very proud of this palm."];
+let ci = 0, pli = 0;
+
 const actions = {
-  hotBar: openBar,
-  hotPit: () => { say(isHost ? "Your usual seat, Mr. Singh. Leave a glass below if you like." : "Your seat's waiting. Leave a glass below."); setTimeout(() => $("pitStage").scrollIntoView({ behavior: "smooth" }), 900); },
-  hotRecord: () => playNext(true),
-  hotWindow: () => say(WINDOW_LINES[wi++ % WINDOW_LINES.length]),
-  hotSign: () => say(SIGN_LINES[si++ % SIGN_LINES.length]),
+  hotBar: () => {
+    closeup("hotBar", "The bar", "Bernard's bar", `<p class="cu-line">${esc(BAR_LINES[bi++ % BAR_LINES.length])} Mix one for practice; the glass is on him.</p><div id="cuBar"></div>`);
+    PitBar.mount($("cuBar"), { compact: true, practice: true, say: (t, err) => say(t, err) });
+  },
+  hotPit: () => {
+    const coasters = lastMarks.slice().reverse().map((m, i) => `<button type="button" data-i="${i}" aria-label="${esc(m.name)}'s coaster">${stainSVG(m.name, "m" + m.member + ":" + m.at)}</button>`).join("");
+    closeup("hotPit", "The table", "Rings on the table", `<p class="cu-line">${lastMarks.length ? "Every ring is someone who found their way in. Tap one to read their memo." : "Not a ring on it yet. Be the first."}</p>
+      <div class="coasters">${coasters}</div><div class="cu-actions"><button class="btn solid" id="cuLeave">${isHost ? "Leave a memo" : "Leave my glass"}</button></div>`);
+    $("cuLeave").addEventListener("click", () => $("pitStage").scrollIntoView({ behavior: "smooth" }));
+    $("cuBody").querySelectorAll(".coasters button").forEach((b) => b.addEventListener("click", () => {
+      const memo = $("marks").children[Number(b.dataset.i)]; if (!memo) return;
+      memo.scrollIntoView({ behavior: "smooth", block: "center" }); memo.animate([{ transform: "scale(1.08)" }, { transform: "scale(1)" }], { duration: 700 });
+    }));
+  },
+  hotRecord: () => {
+    const rows = playlist.map((m, i) => `<li data-i="${i}"><div><b>${esc(m.song)}</b><br><small>Left by ${esc(m.name)}</small></div><a href="https://open.spotify.com/search/${encodeURIComponent(m.song)}" target="_blank" rel="noopener">Spotify ↗</a></li>`).join("");
+    closeup("hotRecord", "The record player", "The crate", playlist.length ? `<p class="cu-line">Bernard drops the needle. Tap a record to put it on.</p><ul class="crate">${rows}</ul>` : `<p class="cu-line">Nothing in the crate yet. Leave a song with your glass and Bernard will put it on.</p>`);
+    $("room").classList.add("playing");
+    const crate = $("cuBody").querySelector(".crate");
+    if (crate) {
+      const mark = (i) => crate.querySelectorAll("li").forEach((li) => li.classList.toggle("on", Number(li.dataset.i) === i));
+      mark(pi % playlist.length);
+      crate.querySelectorAll("li").forEach((li) => li.addEventListener("click", (e) => { if (e.target.tagName !== "A") { mark(Number(li.dataset.i)); say("Now playing: " + playlist[li.dataset.i].song); } }));
+    }
+  },
+  hotWindow: () => {
+    const t = new Date().toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit" });
+    closeup("hotWindow", "The window", "Forty floors up", `<p class="cu-line">${esc(WINDOW_LINES[wi++ % WINDOW_LINES.length])}</p><p class="muted">It's ${t}. Somewhere down there a train is running late and a café is just closing. Nobody up here minds.</p>`);
+  },
+  hotSign: () => closeup("hotSign", "The sign", "Open late", `<p class="cu-line">${esc(SIGN_LINES[si++ % SIGN_LINES.length])}</p>`),
+  hotChair: () => closeup("hotChair", "The chair", "The club chair", `<p class="cu-line">${esc(CHAIR_LINES[ci++ % CHAIR_LINES.length])}</p>`),
+  hotPalm: () => closeup("hotPalm", "The palm", "The palm", `<p class="cu-line">${esc(PALM_LINES[pli++ % PALM_LINES.length])}</p>`),
+  hotLamp: () => { const off = $("room").classList.toggle("lamp-off"); say(off ? "Lamp off. Moodier." : "Lamp on. Much better."); },
   hotDoor: () => { location.href = "index.html"; },
 };
+// make the furniture tappable too
+for (const [gid, hid, label] of [["chair", "hotChair", "The club chair"], ["palm", "hotPalm", "The palm"], ["lamp", "hotLamp", "The lamp"]]) {
+  const g = $(gid); g.id = hid; g.classList.add("hot"); g.setAttribute("tabindex", "0"); g.setAttribute("role", "button"); g.setAttribute("aria-label", label);
+}
 function act(id) {
   const el = $(id); el.classList.remove("ping"); void el.getBBox(); el.classList.add("ping");
   document.querySelectorAll(".hint-row button").forEach((b) => b.classList.toggle("on", b.dataset.go === id));
@@ -552,10 +687,12 @@ function act(id) {
 }
 for (const id in actions) {
   const el = $(id);
-  el.addEventListener("click", () => act(id));
+  el.addEventListener("click", (e) => { e.stopPropagation(); act(id); });
   el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(id); } });
 }
 document.querySelectorAll(".hint-row button").forEach((b) => b.addEventListener("click", () => act(b.dataset.go)));
+// tapping empty room while zoomed goes back
+$("room").addEventListener("click", () => { if (zoomedOn) backToRoom(); });
 function playNext(fromClick) {
   if (!playlist.length) {
     $("room").classList.add("playing"); setTimeout(() => $("room").classList.remove("playing"), 2600);
@@ -568,6 +705,48 @@ function playNext(fromClick) {
   if (fromClick) say("Bernard drops the needle.");
 }
 $("npNext").addEventListener("click", () => playNext(false));
+
+// ---------- the coffee-ring stain, with a name scrawled where the ring breaks ----------
+function hashStr(t) { let h = 2166136261; for (const c of String(t)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return Math.abs(h); }
+function stainSVG(name, seedKey) {
+  const rnd = seeded((hashStr(seedKey) % 200000) + 11), id = "st" + hashStr(seedKey + name).toString(36);
+  const cx = 100, cy = 100, r = 64, W = 32;
+  const letters = [...String(name || "").trim().slice(0, 18)];
+  const fs = letters.length > 10 ? 20 : 24, step = (fs * 0.62) / r;        // radians per letter
+  const gap = letters.length ? letters.length * step + 0.28 : 0.35;       // break in the ring for the name
+  const a0 = -Math.PI / 2 + gap / 2, a1 = -Math.PI / 2 - gap / 2 + Math.PI * 2;
+  const P = (a, rr = r) => `${(cx + rr * Math.cos(a)).toFixed(1)} ${(cy + rr * Math.sin(a)).toFixed(1)}`;
+  const arc = (rr) => `M${P(a0, rr)} A${rr} ${rr} 0 1 1 ${P(a1, rr)}`;
+  // darker blotches where the glass sat longer
+  let blots = "";
+  for (let i = 0; i < 4; i++) {
+    const s0 = a0 + rnd() * (a1 - a0 - 0.6), len = 0.25 + rnd() * 0.55;
+    blots += `<path d="M${P(s0)} A${r} ${r} 0 0 1 ${P(s0 + len)}" stroke="#3e1f0a" stroke-opacity="${(0.35 + rnd() * 0.35).toFixed(2)}" stroke-width="${W - 4 + rnd() * 8}" fill="none" stroke-linecap="round"/>`;
+  }
+  // a drip or two
+  let drips = "";
+  for (let i = 0; i < 2; i++) { const a = a0 + 0.4 + rnd() * (a1 - a0 - 0.8), rr = r + W / 2 + 4 + rnd() * 6; drips += `<circle cx="${(cx + rr * Math.cos(a)).toFixed(1)}" cy="${(cy + rr * Math.sin(a)).toFixed(1)}" r="${(2 + rnd() * 3).toFixed(1)}" fill="#5a3418" fill-opacity=".45"/>`; }
+  // the name, letter by letter, a little drunk
+  let text = "";
+  letters.forEach((ch, i) => {
+    const a = -Math.PI / 2 + (i - (letters.length - 1) / 2) * step, rr = r + (rnd() - 0.5) * 5;
+    const deg = (a * 180) / Math.PI + 90 + (rnd() - 0.5) * 22;
+    text += `<text x="${(cx + rr * Math.cos(a)).toFixed(1)}" y="${(cy + rr * Math.sin(a)).toFixed(1)}" transform="rotate(${deg.toFixed(1)} ${(cx + rr * Math.cos(a)).toFixed(1)} ${(cy + rr * Math.sin(a)).toFixed(1)})"
+      text-anchor="middle" dominant-baseline="central" font-family="Reenie Beanie, Caveat, cursive" font-size="${(fs + (rnd() - 0.5) * 6).toFixed(1)}" fill="#3a1d0a" fill-opacity="${(0.65 + rnd() * 0.3).toFixed(2)}">${ch.replace(/[<&>"]/g, "")}</text>`;
+  });
+  return `<svg viewBox="0 0 200 200" aria-hidden="true">
+    <defs><filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="3" seed="${hashStr(seedKey) % 97}"/><feDisplacementMap in="SourceGraphic" scale="9"/></filter>
+    <filter id="${id}t" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="${hashStr(name) % 97}" result="n"/><feColorMatrix in="n" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1.25" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in"/></filter></defs>
+    <g filter="url(#${id})"><g filter="url(#${id}t)">
+      <path d="${arc(r)}" stroke="#6b3818" stroke-opacity=".62" stroke-width="${W}" fill="none" stroke-linecap="round"/>
+      ${blots}
+      <path d="${arc(r + W / 2 - 2)}" stroke="#4a2810" stroke-opacity=".55" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="${arc(r - W / 2 + 2)}" stroke="#4a2810" stroke-opacity=".35" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>${drips}</g>
+    <g filter="url(#${id})">${text}</g>
+  </svg>`;
+}
+function drawCoaster() { $("coaster").innerHTML = stainSVG($("mName").value, "me" + (myPass || "guest")); }
 
 // ---------- card + pit ----------
 function showCard(n) {
@@ -604,25 +783,34 @@ async function loadPit() {
     const count = d.count || 0;
     $("pitCount").textContent = `${count} guest${count === 1 ? " has" : "s have"} found their way in`;
     $("topCount").textContent = `${count} member${count === 1 ? "" : "s"}`;
-    drawTable(d.marks || []); drawTableGlasses(d.marks || []);
+    lastMarks = d.marks || []; drawTable(lastMarks); drawTableGlasses(lastMarks);
     playlist = (d.marks || []).filter((m) => m.song).reverse();
   } catch {}
 }
 function drawTable(marks) {
-  const list = $("marks");
-  list.innerHTML = "";
-  if (!marks.length) { list.innerHTML = '<li class="muted">The table\'s empty. Be the first to leave a glass.</li>'; return; }
+  const board = $("marks");
+  board.innerHTML = "";
+  if (!marks.length) { board.innerHTML = '<p class="empty">The board\'s empty. Pin the first memo.</p>'; return; }
+  const tints = ["", "yellow", "", "pink", ""];
   for (const m of [...marks].reverse()) {
-    const li = document.createElement("li"); li.dataset.k = m.member;
-    const b = document.createElement("b"); b.textContent = m.name; li.appendChild(b);
-    if (m.note) { const p = document.createElement("p"); p.textContent = m.note; li.appendChild(p); }
+    const memo = document.createElement("article");
+    const k = hashStr(m.member + ":" + m.at);
+    memo.className = "memo " + tints[k % tints.length] + (m.member === myMember && myPass ? " mine" : "");
+    memo.style.setProperty("--r", ((k % 70) / 10 - 3.5).toFixed(1) + "deg");
+    if (m.to) { const t = document.createElement("span"); t.className = "to"; t.textContent = "For " + m.to; memo.appendChild(t); }
+    if (m.note) { const p = document.createElement("p"); p.textContent = m.note; memo.appendChild(p); }
     if (m.song) {
       const a = document.createElement("a"); a.href = "https://open.spotify.com/search/" + encodeURIComponent(m.song); a.target = "_blank"; a.rel = "noopener";
-      a.textContent = "♪ " + m.song; li.appendChild(a);
+      a.textContent = "♪ " + m.song; memo.appendChild(a);
     }
-    const sm = document.createElement("small"); sm.textContent = `${m.member === 0 ? "The host" : "Member No. " + m.member} · ${new Date(m.at).toLocaleDateString("en-CA", { month: "short", day: "numeric" })}`; li.appendChild(sm);
-    list.appendChild(li);
-    if (m.member === myMember && !$("mName").value && !$("mNote").value) { $("mName").value = m.name; $("mNote").value = m.note; $("mSong").value = m.song; $("markBtn").textContent = "Update my glass"; }
+    const sig = document.createElement("span"); sig.className = "sig"; sig.textContent = "— " + m.name; memo.appendChild(sig);
+    const sm = document.createElement("small"); sm.textContent = `${m.member === 0 ? "The host" : "Member No. " + m.member} · ${new Date(m.at).toLocaleDateString("en-CA", { month: "short", day: "numeric" })}`; memo.appendChild(sm);
+    const st = document.createElement("div"); st.className = "stain"; st.innerHTML = stainSVG(m.name, "m" + m.member + ":" + m.at); memo.appendChild(st);
+    board.appendChild(memo);
+    if (m.member === myMember && myPass && !$("mName").value && !$("mNote").value) {
+      $("mName").value = m.name; $("mNote").value = m.note || ""; $("mSong").value = m.song || ""; $("mTo").value = m.to || "";
+      $("markBtn").textContent = "Update my glass"; drawCoaster();
+    }
   }
   seen = new Set(marks.map((m) => m.member + ":" + m.at));
 }
@@ -632,17 +820,17 @@ $("markForm").addEventListener("submit", async (e) => {
   $("markBtn").disabled = true; $("markToast").textContent = "Bernard is setting it down…"; $("markToast").classList.remove("err");
   try {
     const r = await fetch(API + "/pit/mark", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pass: myPass, name: $("mName").value, note: $("mNote").value, song: $("mSong").value }) });
+      body: JSON.stringify({ pass: myPass, name: $("mName").value, to: $("mTo").value, note: $("mNote").value, song: $("mSong").value }) });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(d.error || "Couldn't set it down. Try again.");
-    $("markToast").textContent = "Your glass is on the table."; $("markBtn").textContent = "Update my glass";
+    $("markToast").textContent = "Your memo's on the board."; $("markBtn").textContent = "Update my glass";
     loadPit();
   } catch (err) { $("markToast").textContent = err.message; $("markToast").classList.add("err"); }
   $("markBtn").disabled = false;
 });
 
 // ---------- start ----------
-drawRoom(); unlockForm(); loadPit(); setInterval(loadPit, 20000);
+drawRoom(); unlockForm(); drawCoaster(); $("mName").addEventListener("input", drawCoaster); loadPit(); setInterval(loadPit, 20000);
 if (myPass) {
   $("barStage").hidden = true;
   setTimeout(() => openVault(false), 350);
