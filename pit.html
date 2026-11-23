@@ -69,9 +69,9 @@
   .coasters button:hover { transform: translateY(-4px) rotate(-3deg); }
   .coasters svg { width: 100%; height: 100%; }
   .cu-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
-  .room.lamp-off #lamp circle, .room.lamp-off #lampWash { opacity: 0; }
-  .room.lamp-off #lamp path:nth-of-type(2) { fill: #b9a888; }
-  #lamp circle { transition: opacity .4s; }
+  .room.lamp-off .lamp-glow { opacity: 0; }
+  .room.lamp-off .lamp-dome { fill: #6a3a1a; }
+  .lamp-glow { transition: opacity .4s; }
   .cu-form { display: grid; gap: 4px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
   .cu-form .row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
   .cu-split { display: grid; grid-template-columns: 220px 1fr; gap: 26px; align-items: center; }
@@ -117,8 +117,8 @@
 
   /* the board, up close */
   .surface.board { background: #2a1207; padding: 16px; }
-  .cork-area { position: absolute; inset: 16px; border-radius: 3px; box-shadow: inset 0 0 0 3px #c9a46a, inset 0 0 50px rgba(0,0,0,.45);
-    background: radial-gradient(circle at 30% 40%, rgba(255,220,170,.18), transparent 50%), radial-gradient(rgba(60,30,10,.4) 1px, transparent 1.7px) 0 0 / 7px 7px, radial-gradient(rgba(255,220,170,.14) 1px, transparent 1.7px) 3px 4px / 9px 9px, linear-gradient(135deg, #a8774a, #b98957 40%, #9c6a3f); }
+  .cork-area { position: absolute; inset: 16px; border-radius: 3px; box-shadow: inset 0 0 0 3px #c9a46a, inset 0 0 60px rgba(0,0,0,.5);
+    background: radial-gradient(ellipse at 25% 20%, rgba(255,190,110,.22), transparent 55%), linear-gradient(rgba(40,20,8,.12), rgba(40,20,8,.3)), url(images/pit-cork.jpg) center / cover; }
   .cork-area .bare { position: absolute; inset: 0; display: grid; place-items: center; font-family: "Caveat", cursive; font-size: 1.8rem; color: #3a1f0f; pointer-events: none; }
   .cork-area .scrap { position: absolute; width: clamp(130px, 21%, 200px); transform: translate(-50%, -50%) rotate(var(--r, 0deg)); cursor: pointer; }
   .cork-area .scrap:hover { transform: translate(-50%, -50%) rotate(0deg) scale(1.04); }
@@ -137,18 +137,21 @@
   @keyframes nudge { 50% { transform: rotate(3deg) translateY(-4px); } }
 
   /* the table, up close (looking down) */
-  .surface.tablesurf { background: radial-gradient(ellipse at 50% 50%, #7a0e12, #4a0609 70%, #2a0406); }
-  .tabletop { position: absolute; left: 7%; right: 7%; top: 9%; bottom: 7%; border-radius: 50%;
-    background: radial-gradient(ellipse at 32% 28%, #b8ccff 0, #5a7ae0 18%, #2a46b0 45%, #13277a 75%, #0a1450 100%);
-    box-shadow: 0 0 0 6px #0a1033, 0 0 0 8px #cfe0ff, 0 30px 50px rgba(0,0,0,.6), inset 0 -20px 60px rgba(0,0,0,.4); }
-  .tabletop::after { content: ""; position: absolute; left: 12%; top: 10%; width: 46%; height: 30%; border-radius: 50%; border-top: 3px solid rgba(255,255,255,.35); transform: rotate(-12deg); pointer-events: none; }
+  .surface.tablesurf { background: radial-gradient(ellipse at 50% 45%, rgba(255,210,140,.18), transparent 60%), linear-gradient(180deg, #d49a26, #8a5a0c); }
+  .tabletop { position: absolute; left: 8%; right: 8%; top: 12%; bottom: 10%; border-radius: 34px;
+    background: radial-gradient(ellipse at 30% 25%, rgba(255,230,190,.35), transparent 50%),
+      repeating-linear-gradient(92deg, rgba(90,40,10,.0) 0 7px, rgba(90,40,10,.14) 7px 8px, rgba(255,220,170,.05) 8px 15px, rgba(90,40,10,.1) 15px 16px, transparent 16px 31px),
+      repeating-linear-gradient(90deg, transparent 0 140px, rgba(70,30,8,.12) 140px 142px),
+      linear-gradient(100deg, #d9a066, #c08448 30%, #b7783e 60%, #c98e52);
+    box-shadow: 0 0 0 5px #8a5226, 0 28px 40px rgba(0,0,0,.5), inset 0 -16px 40px rgba(80,35,10,.35), inset 0 2px 0 rgba(255,235,200,.5); }
+  .tabletop::after { content: ""; position: absolute; left: 6%; top: 8%; width: 40%; height: 20%; border-radius: 50%; border-top: 2px solid rgba(255,245,225,.35); transform: rotate(-6deg); pointer-events: none; }
   .table-area { position: absolute; inset: 8% 6%; }
   .ring { position: absolute; width: clamp(96px, 17%, 160px); aspect-ratio: 1; transform: translate(-50%, -50%); cursor: pointer; }
-  .ring svg { width: 100%; height: 100%; filter: brightness(1.35) saturate(1.1); }
-  .ring.mine svg { filter: brightness(1.35) saturate(1.1) drop-shadow(0 0 6px rgba(201,164,106,.6)); }
+  .ring svg { width: 100%; height: 100%; mix-blend-mode: multiply; }
+  .ring.mine svg { filter: drop-shadow(0 0 5px rgba(255,240,200,.6)); }
   .ring.draft { width: clamp(130px, 22%, 200px); cursor: grab; z-index: 30; }
   .ring.draft .stain-now { width: 100%; height: 100%; animation: soak 1.2s ease both; }
-  .ring.draft .stain-now svg { width: 100%; height: 100%; filter: brightness(1.35) saturate(1.1); }
+  .ring.draft .stain-now svg { width: 100%; height: 100%; mix-blend-mode: multiply; }
   @keyframes soak { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
   .ring.draft.up .d-card, .scrap.draft.up .d-card { top: auto; bottom: calc(100% + 10px); }
   .scrap.draft.left .d-card { left: auto; right: 30%; transform: rotate(calc(-1 * var(--r, 0deg))); }
@@ -164,8 +167,8 @@
   /* the record player, up close */
   .rec-wrap { display: grid; grid-template-columns: minmax(220px, 1fr) 1.2fr; gap: 26px; align-items: start; }
   @media (max-width: 760px) { .rec-wrap { grid-template-columns: 1fr; } }
-  .deck { position: relative; padding: 22px; border-radius: 8px; background: linear-gradient(160deg, #6b3a1e, #4a2614); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 18px 30px rgba(0,0,0,.5); }
-  .platter { width: min(100%, 300px); aspect-ratio: 1; margin: 0 auto; border-radius: 50%; background: #1b1b1d; display: grid; place-items: center; box-shadow: inset 0 0 0 6px #2a2a2c; }
+  .deck { position: relative; padding: 22px; border-radius: 8px; background: repeating-linear-gradient(90deg, rgba(0,0,0,.12) 0 1px, transparent 1px 6px, rgba(255,220,180,.03) 6px 7px, transparent 7px 13px), linear-gradient(160deg, #6b3a1e, #4a2614); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 18px 30px rgba(0,0,0,.5); }
+  .platter { width: min(100%, 300px); aspect-ratio: 1; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(from 20deg, #9aa0a6, #eef1f3, #8a9096, #e4e8ea, #9aa0a6); box-shadow: 0 10px 18px rgba(0,0,0,.5), inset 0 0 0 3px rgba(0,0,0,.25); }
   .vinyl { width: 92%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center;
     background: repeating-radial-gradient(circle, #0c0c0d 0 2px, #161618 2px 3px), #0c0c0d; box-shadow: inset 0 0 0 1px #2a2a2c; }
   .vinyl::after { content: ""; position: absolute; width: 40%; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(from 30deg, transparent, rgba(255,255,255,.12), transparent 30%); }
@@ -173,7 +176,7 @@
   .vinyl.spin { animation: spin 1.8s linear infinite; }
   .vlabel { width: 34%; aspect-ratio: 1; border-radius: 50%; background: #b4532a; box-shadow: inset 0 0 0 6px rgba(0,0,0,.15); }
   .vlabel::after { content: ""; display: block; width: 10%; aspect-ratio: 1; margin: 45% auto; border-radius: 50%; background: #111; }
-  .tonearm { position: absolute; right: 26px; top: 26px; width: 14px; height: 46%; border-radius: 7px; background: linear-gradient(90deg, #8c6a30, #f0d69c, #8c6a30); transform-origin: 50% 7px; transform: rotate(24deg); box-shadow: 0 6px 8px rgba(0,0,0,.4); }
+  .tonearm { position: absolute; right: 26px; top: 26px; width: 10px; height: 46%; border-radius: 5px; background: linear-gradient(90deg, #6c7176, #e9edf0, #7d8287); transform-origin: 50% 7px; transform: rotate(24deg); box-shadow: 0 6px 8px rgba(0,0,0,.4); }
   .np { margin-top: 16px; text-align: center; color: var(--muted); font-size: .85rem; display: grid; gap: 2px; }
   .np b { font-family: "Fraunces", serif; font-style: italic; font-weight: 400; font-size: 1.15rem; color: var(--cream); }
   .np a { color: var(--brass); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; margin-top: 4px; }
@@ -374,7 +377,7 @@
         <linearGradient id="wallB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a1a0b"/><stop offset=".55" stop-color="#55280f"/><stop offset="1" stop-color="#2a1207"/></linearGradient>
         <linearGradient id="curtain" x1="0" x2="1" spreadMethod="repeat" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8a2410"/><stop offset=".35" stop-color="#e0582a"/><stop offset=".6" stop-color="#b83a18"/><stop offset="1" stop-color="#8a2410"/></linearGradient>
         <radialGradient id="curtainLight" cx=".5" cy=".85" r=".8"><stop offset="0" stop-color="#ffb070" stop-opacity=".55"/><stop offset="1" stop-color="#3a0a04" stop-opacity=".55"/></radialGradient>
-        <linearGradient id="drape" x1="0" x2="1"><stop offset="0" stop-color="#2a0c3a"/><stop offset=".3" stop-color="#7a3496"/><stop offset=".55" stop-color="#4a1a62"/><stop offset=".8" stop-color="#8a44a8"/><stop offset="1" stop-color="#2a0c3a"/></linearGradient>
+        <linearGradient id="drape" x1="0" x2="1"><stop offset="0" stop-color="#1e0a1c"/><stop offset=".3" stop-color="#5a2350"/><stop offset=".55" stop-color="#33122e"/><stop offset=".8" stop-color="#62285a"/><stop offset="1" stop-color="#1e0a1c"/></linearGradient>
         <linearGradient id="velvet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d23a3a"/><stop offset=".35" stop-color="#a3181e"/><stop offset="1" stop-color="#5e0a0e"/></linearGradient>
         <radialGradient id="mirror" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#9fb8ff"/><stop offset=".25" stop-color="#3a5ad0"/><stop offset=".7" stop-color="#132a7a"/><stop offset="1" stop-color="#08123a"/></radialGradient>
         <linearGradient id="leather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a3a22"/><stop offset=".5" stop-color="#5a1e12"/><stop offset="1" stop-color="#2e0d07"/></linearGradient>
@@ -382,13 +385,28 @@
         <filter id="plush" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .7  0 0 0 0 .75  0 0 0 0 1  0 0 0 .35 0"/></filter>
         <clipPath id="wallLClip"><polygon points="0,0 330,150 330,480 0,700"/></clipPath>
         <clipPath id="wallRClip"><polygon points="1200,0 870,150 870,480 1200,700"/></clipPath>
-        <linearGradient id="floorG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a3cb0"/><stop offset=".45" stop-color="#1a288a"/><stop offset="1" stop-color="#0a1350"/></linearGradient>
+        <linearGradient id="floorG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a2512"/><stop offset=".5" stop-color="#3a1c0d"/><stop offset="1" stop-color="#1e0e06"/></linearGradient>
         <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#04061a"/><stop offset=".45" stop-color="#0e1240"/><stop offset=".62" stop-color="#2a1e5c"/><stop offset=".7" stop-color="#4a2c6a"/><stop offset="1" stop-color="#0a0a22"/></linearGradient>
         <linearGradient id="brassG" x1="0" x2="1"><stop offset="0" stop-color="#7d5a26"/><stop offset=".45" stop-color="#f0d69c"/><stop offset="1" stop-color="#8c6a30"/></linearGradient>
         <linearGradient id="walnutG" x1="0" x2="1"><stop offset="0" stop-color="#4e2a15"/><stop offset=".4" stop-color="#6b3a1e"/><stop offset="1" stop-color="#4a2614"/></linearGradient>
         <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd28a" stop-opacity=".55"/><stop offset="1" stop-color="#ffd28a" stop-opacity="0"/></radialGradient>
         <radialGradient id="vignette" cx=".5" cy=".45" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".65"/></radialGradient>
         <filter id="neon" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="grainV" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".32 .005" numOctaves="3" seed="3"/><feColorMatrix values="0 0 0 0 .08  0 0 0 0 .04  0 0 0 0 .01  0 0 0 .7 -.22"/></filter>
+        <filter id="grainH" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".004 .3" numOctaves="3" seed="8"/><feColorMatrix values="0 0 0 0 .08  0 0 0 0 .04  0 0 0 0 .01  0 0 0 .7 -.22"/></filter>
+        <filter id="nap" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="5"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .5 -.12"/></filter>
+        <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+        <filter id="softer" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
+        <linearGradient id="mustard" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9a640"/><stop offset=".3" stop-color="#b6801f"/><stop offset=".75" stop-color="#8a5a12"/><stop offset="1" stop-color="#5e3a08"/></linearGradient>
+        <radialGradient id="pitShade" cx=".5" cy=".3" r=".75"><stop offset=".35" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient>
+        <linearGradient id="teak" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9a066"/><stop offset=".5" stop-color="#b7783e"/><stop offset="1" stop-color="#8a5226"/></linearGradient>
+        <linearGradient id="walnutDark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a2e15"/><stop offset="1" stop-color="#2e160a"/></linearGradient>
+        <linearGradient id="chrome" x1="0" x2="1"><stop offset="0" stop-color="#6c7176"/><stop offset=".45" stop-color="#e9edf0"/><stop offset="1" stop-color="#7d8287"/></linearGradient>
+        <radialGradient id="amber" cx=".45" cy=".35" r=".7"><stop offset="0" stop-color="#fff2c2"/><stop offset=".25" stop-color="#ffb347"/><stop offset=".7" stop-color="#d9741a"/><stop offset="1" stop-color="#8a3a08"/></radialGradient>
+        <radialGradient id="amberGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffb04a" stop-opacity=".55"/><stop offset=".45" stop-color="#ff9a30" stop-opacity=".18"/><stop offset="1" stop-color="#ff9a30" stop-opacity="0"/></radialGradient>
+        <radialGradient id="pool" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd9a0" stop-opacity=".28"/><stop offset="1" stop-color="#ffd9a0" stop-opacity="0"/></radialGradient>
+        <radialGradient id="shadow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".7"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+        <pattern id="corkTex" patternUnits="userSpaceOnUse" width="200" height="130"><image href="images/pit-cork.jpg" width="200" height="130" preserveAspectRatio="none"/></pattern>
         <clipPath id="floorClip"><polygon points="0,700 330,480 870,480 1200,700"/></clipPath>
         <clipPath id="winClip"><polygon points="890,156.9 1190,20.5 1190,673.3 890,473.3"/></clipPath>
       </defs>
@@ -402,11 +420,14 @@
       <polygon points="0,0 330,150 330,480 0,700" fill="url(#wallL)"/>
       <polygon points="1200,0 870,150 870,480 1200,700" fill="url(#wallR)"/>
       <rect x="330" y="150" width="540" height="330" fill="url(#wallB)"/>
-      <!-- lacquered walnut slats -->
-      <g id="slatsL" clip-path="url(#wallLClip)" stroke="#000" stroke-opacity=".38"></g>
-      <g id="slatsR" clip-path="url(#wallRClip)" stroke="#000" stroke-opacity=".38"></g>
-      <g id="pinstripes" stroke="#000" stroke-opacity=".35"></g>
-      <polygon points="0,0 330,150 330,250 0,180" fill="#fff" opacity=".04"/>
+      <!-- vertical walnut slats, like a listening room -->
+      <polygon points="0,0 330,150 330,480 0,700" filter="url(#grainV)" opacity=".8"/>
+      <polygon points="1200,0 870,150 870,480 1200,700" filter="url(#grainV)" opacity=".8"/>
+      <rect x="330" y="150" width="140" height="330" filter="url(#grainV)" opacity=".8"/>
+      <g id="slatsL" clip-path="url(#wallLClip)"></g>
+      <g id="slatsR" clip-path="url(#wallRClip)"></g>
+      <g id="pinstripes"></g>
+      <polygon points="0,0 330,150 330,250 0,180" fill="#fff" opacity=".03"/>
       <!-- the glowing velvet curtain behind the bar -->
       <rect x="470" y="150" width="400" height="330" fill="url(#curtain)"/>
       <g id="folds"></g>
@@ -416,12 +437,11 @@
       <path d="M330 150 H870" stroke="url(#brassG)" stroke-width="3"/>
       <path d="M0 0 L330 150 M1200 0 L870 150" stroke="#c9a46a" stroke-opacity=".5" stroke-width="2"/>
       <polygon points="0,700 330,480 870,480 1200,700" fill="url(#floorG)"/>
-      <rect x="0" y="480" width="1200" height="220" filter="url(#plush)" clip-path="url(#floorClip)" opacity=".55"/>
-      <g clip-path="url(#floorClip)" fill="none" stroke="#8a5ae0" stroke-width="5" opacity=".75">
-        <ellipse cx="600" cy="660" rx="380" ry="120"/><ellipse cx="600" cy="660" rx="470" ry="150" stroke-width="3"/><ellipse cx="600" cy="660" rx="560" ry="180" stroke-width="2" opacity=".6"/>
-      </g>
-      <polygon points="0,700 330,480 870,480 1200,700" fill="url(#vignette)" opacity=".6"/>
-      <path d="M330 480 H870" stroke="#0a0f30" stroke-width="3"/>
+      <g clip-path="url(#floorClip)"><rect x="0" y="480" width="1200" height="220" filter="url(#grainH)" opacity=".9"/><g id="boards" stroke="#0e0703" stroke-opacity=".7" stroke-width="1.3"></g></g>
+      <image href="images/pit-rug.webp" x="0" y="480" width="1200" height="220" preserveAspectRatio="none"/>
+      <g clip-path="url(#floorClip)"><g id="pools"></g></g>
+      <polygon points="0,700 330,480 870,480 1200,700" fill="url(#vignette)" opacity=".55"/>
+      <path d="M330 480 H870" stroke="#140a04" stroke-width="3"/>
       <path d="M330 472 H870 M0 692 L330 472 M1200 692 L870 472" stroke="#3a1a0b" stroke-width="5" opacity=".95"/>
 
       <!-- pendant globes -->
@@ -449,8 +469,9 @@
         <clipPath id="corkClip"><polygon points="66,212 244,245 244,343 66,374"/></clipPath>
         <polygon points="56,202 254,238 254,350 56,384" fill="#2a1207"/>
         <polygon points="60,206 250,241 250,347 60,380" fill="none" stroke="url(#brassG)" stroke-width="3"/>
-        <polygon points="66,212 244,245 244,343 66,374" fill="#a8774a"/>
-        <g clip-path="url(#corkClip)"><g id="corkDots"></g><g id="corkPapers"></g></g>
+        <polygon points="66,212 244,245 244,343 66,374" fill="url(#corkTex)"/>
+        <polygon points="66,212 244,245 244,343 66,374" fill="#3a1d0e" opacity=".25"/>
+        <g clip-path="url(#corkClip)"><g id="corkPapers"></g></g>
         <polygon points="66,212 244,245 244,343 66,374" fill="url(#lampGlow)" opacity=".35"/>
       </g>
 
@@ -479,9 +500,13 @@
         <g id="bottles"></g>
         <rect x="500" y="300" width="350" height="5" fill="url(#brassG)"/><rect x="500" y="352" width="350" height="5" fill="url(#brassG)"/>
         <!-- counter -->
-        <rect x="485" y="382" width="380" height="12" rx="2" fill="#2a0c06"/>
-        <rect x="485" y="382" width="380" height="3" fill="#ffb070" opacity=".45"/>
+        <ellipse cx="675" cy="486" rx="210" ry="14" fill="url(#shadow)" opacity=".8"/>
+        <rect x="485" y="382" width="380" height="12" rx="2" fill="#3a1608"/>
+        <rect x="485" y="382" width="380" height="12" rx="2" filter="url(#grainH)" opacity=".8"/>
+        <rect x="485" y="382" width="380" height="3" fill="#ffb070" opacity=".55"/>
         <rect x="492" y="394" width="366" height="86" fill="url(#walnutG)"/>
+        <rect x="492" y="394" width="366" height="86" filter="url(#grainV)" opacity=".9"/>
+        <rect x="492" y="394" width="366" height="20" fill="#ff9a50" opacity=".12"/>
         <g id="fluting" stroke="#000" stroke-opacity=".35"></g>
         <rect x="492" y="460" width="366" height="4" fill="url(#brassG)"/>
         <!-- espresso martinis waiting on the counter -->
@@ -493,58 +518,83 @@
       <!-- the pit -->
       <g class="hot" id="hotPit" tabindex="0" role="button" aria-label="The pit: see the glasses guests left">
         <polygon points="420,520 780,520 880,700 320,700" fill="#2a1207"/>
-        <polygon points="430,526 770,526 866,700 334,700" fill="#060a24"/>
-        <!-- sunken sofa ring -->
-        <path d="M446 540 H754 L838 700 H362 Z M488 570 H712 L770 700 H430 Z" fill="url(#velvet)" fill-rule="evenodd"/>
-        <path d="M446 540 H754" stroke="#ff7a6a" stroke-width="2.5" opacity=".7"/>
-        <g stroke="#4a0609" stroke-width="2"><path d="M520 540 L506 570 M600 540 L600 570 M680 540 L694 570 M420 620 L470 620 M780 620 L730 620"/></g>
-        <!-- mirrored coffee table -->
-        <ellipse cx="600" cy="646" rx="150" ry="34" fill="#05081e"/>
-        <ellipse cx="600" cy="634" rx="150" ry="34" fill="url(#mirror)"/>
-        <ellipse cx="600" cy="634" rx="150" ry="34" fill="none" stroke="#cfe0ff" stroke-width="1.5" opacity=".8"/>
-        <path d="M486 628 q40 -20 110 -24" stroke="#fff" stroke-width="2" opacity=".45" fill="none"/>
-        <path d="M676 620 l4 -9 l4 9 l-4 9z M672 620 h16" fill="#fff" stroke="#fff" stroke-width=".8" opacity=".9"/>
+        <polygon points="430,526 770,526 866,700 334,700" fill="#1a0e08"/>
+        <!-- warm strip light under the rim -->
+        <path d="M420 520 H780 L880 700 M420 520 L320 700" stroke="#ffcf7a" stroke-width="6" fill="none" filter="url(#soft)" opacity=".9"/>
+        <path d="M420 520 H780 L880 700 M420 520 L320 700" stroke="#fff0c8" stroke-width="1.6" fill="none"/>
+        <!-- sunken sofa in mustard velvet -->
+        <path d="M446 540 H754 L838 700 H362 Z M488 576 H712 L770 700 H430 Z" fill="url(#mustard)" fill-rule="evenodd"/>
+        <path d="M446 540 H754 L838 700 H362 Z M488 576 H712 L770 700 H430 Z" filter="url(#nap)" fill-rule="evenodd"/>
+        <path d="M446 540 H754 L838 700 H362 Z M488 576 H712 L770 700 H430 Z" fill="url(#pitShade)" fill-rule="evenodd"/>
+        <path d="M446 540 H754" stroke="#ffe0a0" stroke-width="1.6" opacity=".55"/>
+        <path d="M488 576 H712 L770 700 M488 576 L430 700" stroke="#6a4208" stroke-width="3" fill="none" opacity=".7"/>
+        <g id="tufts" fill="#7a4a08" opacity=".75"></g>
+        <g id="cushions"></g>
+        <!-- bentwood teak coffee table -->
+        <ellipse cx="600" cy="676" rx="150" ry="16" fill="url(#shadow)"/>
+        <path d="M482 604 H718 L744 650 H456 Z" fill="url(#teak)"/>
+        <path d="M482 604 H718 L744 650 H456 Z" filter="url(#grainH)" opacity=".7"/>
+        <path d="M456 650 H744 Q752 650 752 660 V662 Q752 670 744 670 H456 Q448 670 448 662 V660 Q448 650 456 650 Z" fill="#7a4520"/>
+        <path d="M456 650 H744" stroke="#f0c48a" stroke-width="1.5" opacity=".8"/>
+        <path d="M490 610 Q560 600 640 606" stroke="#fff" stroke-width="2" opacity=".15" fill="none"/>
+        <g id="tableBooks"><rect x="500" y="612" width="44" height="12" rx="1" fill="#d9541e" transform="rotate(-4 522 618)"/><rect x="502" y="610" width="40" height="3" fill="#f6efe1" transform="rotate(-4 522 618)"/></g>
         <g id="tableGlasses"></g>
       </g>
 
-      <!-- the record player -->
+      <!-- the record cabinet: vinyl in one cube, an amp with glowing meters in the other, a turntable on top -->
       <g class="hot" id="hotRecord" tabindex="0" role="button" aria-label="The record player: songs guests left">
-        <g fill="#2a1408"><path d="M70 655 L62 700 h6 L80 655Z"/><path d="M250 655 L262 700 h-6 L240 655Z"/></g>
-        <rect x="52" y="560" width="220" height="96" rx="4" fill="url(#walnutG)"/>
-        <rect x="52" y="560" width="220" height="5" fill="#fff" opacity=".1"/>
-        <rect x="64" y="578" width="96" height="66" fill="#3a1d0e"/><g stroke="#c9a46a" stroke-opacity=".5"><path d="M64 588 H160 M64 600 H160 M64 612 H160 M64 624 H160 M64 636 H160"/></g>
-        <rect x="168" y="578" width="92" height="66" fill="#4a2614"/><circle cx="214" cy="611" r="4" fill="url(#brassG)"/>
+        <ellipse cx="166" cy="700" rx="140" ry="14" fill="url(#shadow)"/>
+        <g fill="#2a1408"><path d="M70 655 L62 700 h6 L80 655Z"/><path d="M262 655 L272 700 h-6 L252 655Z"/></g>
+        <rect x="48" y="560" width="236" height="98" rx="3" fill="url(#walnutG)"/>
+        <rect x="48" y="560" width="236" height="98" rx="3" filter="url(#grainH)" opacity=".9"/>
+        <rect x="48" y="560" width="236" height="4" fill="#ffcf8a" opacity=".35"/>
+        <rect x="58" y="572" width="104" height="76" fill="#1a0c05"/>
+        <g id="spines"></g>
+        <rect x="170" y="572" width="104" height="76" fill="#140a05"/>
+        <rect x="176" y="590" width="92" height="30" rx="2" fill="#0c0c0d"/>
+        <rect x="181" y="594" width="38" height="20" rx="2" fill="#ffb347" opacity=".85"/><rect x="225" y="594" width="38" height="20" rx="2" fill="#ffb347" opacity=".85"/>
+        <path d="M200 612 L192 598 M244 612 L252 599" stroke="#2a1408" stroke-width="1.2"/>
+        <g fill="url(#chrome)"><circle cx="186" cy="632" r="4"/><circle cx="202" cy="632" r="4"/><circle cx="218" cy="632" r="4"/><circle cx="234" cy="632" r="4"/><circle cx="250" cy="632" r="4"/></g>
+        <ellipse cx="222" cy="604" rx="60" ry="30" fill="url(#amberGlow)"/>
         <!-- turntable -->
-        <polygon points="70,552 254,552 266,562 58,562" fill="#1b1b1d"/>
-        <ellipse cx="160" cy="548" rx="86" ry="16" fill="#2a2a2c"/>
-        <g id="vinyl"><ellipse cx="160" cy="546" rx="72" ry="13" fill="#0c0c0d"/><ellipse cx="160" cy="546" rx="56" ry="10" fill="none" stroke="#2a2a2c"/><ellipse cx="160" cy="546" rx="40" ry="7" fill="none" stroke="#2a2a2c"/><ellipse cx="160" cy="546" rx="16" ry="3" fill="#b4532a"/><ellipse cx="148" cy="544" rx="10" ry="1.6" fill="#fff" opacity=".18"/><ellipse id="vinylShine" cx="160" cy="546" rx="14" ry="9" fill="#fff" opacity="0"/></g>
-        <path d="M240 540 L214 548 L196 549" stroke="url(#brassG)" stroke-width="3" fill="none"/><circle cx="240" cy="540" r="5" fill="url(#brassG)"/>
-        <g id="notes" fill="#ffd28a" opacity="0" font-family="Fraunces, serif" font-size="22"><text x="120" y="520">♪</text><text x="180" y="505">♫</text></g>
+        <path d="M150 544 H274 L282 556 H142 Z" fill="#141416"/>
+        <path d="M142 556 H282 V566 H142 Z" fill="url(#walnutG)"/>
+        <path d="M142 556 H282 V566 H142 Z" filter="url(#grainH)" opacity=".8"/>
+        <ellipse cx="204" cy="550" rx="44" ry="8" fill="url(#chrome)"/>
+        <g id="vinyl"><ellipse cx="204" cy="549" rx="39" ry="6.6" fill="#0c0c0d"/><ellipse cx="204" cy="549" rx="28" ry="4.8" fill="none" stroke="#2a2a2c"/><ellipse cx="204" cy="549" rx="11" ry="2" fill="#e0a440"/><ellipse cx="196" cy="548" rx="8" ry="1.2" fill="#fff" opacity=".18"/><ellipse id="vinylShine" cx="204" cy="549" rx="10" ry="5" fill="#fff" opacity="0"/></g>
+        <path d="M266 540 L250 548 L228 550" stroke="url(#chrome)" stroke-width="2.4" fill="none"/><circle cx="266" cy="540" r="4.5" fill="url(#chrome)"/>
+        <g id="notes" fill="#ffd28a" opacity="0" font-family="Fraunces, serif" font-size="22"><text x="170" y="520">♪</text><text x="226" y="505">♫</text></g>
       </g>
 
-      <!-- leather club chair by the window -->
+      <!-- tufted oxblood club chair by the window -->
       <g id="chair">
-        <path d="M904 492 q46 -26 92 0 v58 h-92z" fill="url(#leather)"/>
-        <g fill="#2a0c06" opacity=".7"><circle cx="930" cy="500" r="2"/><circle cx="950" cy="494" r="2"/><circle cx="970" cy="500" r="2"/><circle cx="940" cy="514" r="2"/><circle cx="960" cy="514" r="2"/><circle cx="930" cy="528" r="2"/><circle cx="950" cy="528" r="2"/><circle cx="970" cy="528" r="2"/></g>
-        <rect x="896" y="530" width="108" height="34" rx="12" fill="#6a2616"/>
-        <rect x="890" y="512" width="22" height="58" rx="10" fill="url(#leather)"/><rect x="988" y="512" width="22" height="58" rx="10" fill="url(#leather)"/>
-        <path d="M900 534 q50 -8 100 0" stroke="#c8704a" stroke-width="2" opacity=".5" fill="none"/>
-        <rect x="896" y="568" width="108" height="6" fill="#1a0804"/>
+        <ellipse cx="952" cy="582" rx="78" ry="10" fill="url(#shadow)"/>
+        <path d="M898 540 Q896 488 952 482 Q1008 488 1006 540 Z" fill="url(#leather)"/>
+        <g id="chairTufts"></g>
+        <path d="M904 492 Q952 478 1000 492" stroke="#d07a52" stroke-width="2" opacity=".5" fill="none"/>
+        <path d="M900 536 H1004 Q1010 536 1010 546 V562 H894 V546 Q894 536 900 536 Z" fill="#6e2416"/>
+        <path d="M904 538 Q952 532 1000 538" stroke="#d07a52" stroke-width="1.6" opacity=".5" fill="none"/>
+        <path d="M884 516 Q884 504 896 504 Q908 504 908 516 V566 H884 Z" fill="url(#leather)"/>
+        <path d="M996 516 Q996 504 1008 504 Q1020 504 1020 516 V566 H996 Z" fill="url(#leather)"/>
+        <ellipse cx="896" cy="508" rx="11" ry="4" fill="#b8553a" opacity=".6"/><ellipse cx="1008" cy="508" rx="11" ry="4" fill="#b8553a" opacity=".6"/>
+        <rect x="884" y="562" width="136" height="9" rx="2" fill="#3a0e08"/>
+        <g fill="#c9a46a"><rect x="890" y="571" width="5" height="9"/><rect x="1009" y="571" width="5" height="9"/></g>
       </g>
       <!-- palm in a brass pot -->
       <g id="palm">
         <g id="fronds" fill="none" stroke-linecap="round"></g>
+        <ellipse cx="1125" cy="698" rx="56" ry="8" fill="url(#shadow)"/>
         <path d="M1088 630 h74 l-8 66 h-58z" fill="url(#brassG)"/>
         <rect x="1084" y="624" width="82" height="9" rx="2" fill="#f0d69c"/>
       </g>
-      <!-- pleated floor lamp -->
+      <!-- amber mushroom lamp on the record cabinet -->
       <g id="lamp">
-        <circle cx="300" cy="440" r="120" fill="url(#lampGlow)"/>
-        <path d="M300 466 V590" stroke="#c9a46a" stroke-width="4"/>
-        <ellipse cx="300" cy="592" rx="22" ry="5" fill="#8c6a30"/>
-        <path d="M276 412 H324 L336 466 H264 Z" fill="#fbe7bc"/>
-        <g stroke="#d9b98a" stroke-width="1"><path d="M282 412 L272 466 M290 412 L284 466 M300 412 L300 466 M310 412 L316 466 M318 412 L328 466"/></g>
-        <path d="M264 466 H336" stroke="#fff3d6" stroke-width="2"/>
+        <circle class="lamp-glow" cx="96" cy="520" r="190" fill="url(#amberGlow)"/>
+        <ellipse class="lamp-glow" cx="104" cy="562" rx="48" ry="5" fill="#ffb347" opacity=".3"/>
+        <ellipse cx="96" cy="559" rx="17" ry="4" fill="#5a2408"/>
+        <path class="lamp-dome" d="M89 558 Q88 540 91 530 H101 Q104 540 103 558 Z" fill="url(#amber)"/>
+        <path class="lamp-dome" d="M60 532 Q62 498 96 496 Q130 498 132 532 Q96 538 60 532 Z" fill="url(#amber)"/>
+        <path d="M70 512 Q86 500 104 500" stroke="#fff6d8" stroke-width="2" opacity=".6" fill="none"/>
       </g>
       <g id="sconces"></g>
       <rect width="1200" height="700" fill="url(#vignette)" pointer-events="none"/>
@@ -595,46 +645,79 @@ const NS = "http://www.w3.org/2000/svg";
 function svgEl(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent && parent.appendChild(e); return e; }
 function seeded(seed) { let r = seed; return () => ((r = (r * 9301 + 49297) % 233280) / 233280); }
 function drawRoom() {
-  // lacquered slats converging on the vanishing point (600, 330)
+  // vertical walnut slats; in one-point perspective they stay vertical and crowd together with depth
+  const slat = (g, x, top, bot) => {
+    svgEl("line", { x1: x, y1: top, x2: x, y2: bot, stroke: "#0e0603", "stroke-width": 2.2, "stroke-opacity": .75 }, g);
+    svgEl("line", { x1: x + 1.8, y1: top, x2: x + 1.8, y2: bot, stroke: "#ffcf9a", "stroke-width": .7, "stroke-opacity": .14 }, g);
+  };
   const sl = $("slatsL"), sr = $("slatsR");
-  for (let y = -60; y <= 760; y += 13) {
-    svgEl("line", { x1: 0, y1: y, x2: 330, y2: 0.45 * y + 181.5 }, sl);
-    svgEl("line", { x1: 1200, y1: y, x2: 870, y2: 0.45 * y + 181.5 }, sr);
-  }
+  for (let x = 4; x < 330; x += Math.max(4, 30 * (1 - x / 380))) slat(sl, x, (x * 150) / 330, 700 - (x * 220) / 330);
+  for (let x = 1196; x > 870; x -= Math.max(4, 30 * (1 - (1200 - x) / 380))) slat(sr, x, ((1200 - x) * 150) / 330, 700 - ((1200 - x) * 220) / 330);
   const pin = $("pinstripes");
-  for (let y = 158; y < 470; y += 9) svgEl("line", { x1: 330, y1: y, x2: 470, y2: y }, pin);
+  for (let x = 334; x < 470; x += 7) slat(pin, x, 150, 480);
+  // floorboards running toward the bar
+  const boards = $("boards");
+  for (let x = 330; x <= 870; x += 30) svgEl("line", { x1: x, y1: 480, x2: 600 + (x - 600) * 2.4667, y2: 700 }, boards);
+  for (const y of [494, 512, 536, 566, 604, 650]) svgEl("line", { x1: 0, y1: y, x2: 1200, y2: y, "stroke-opacity": .35 }, boards);
+  // light pooling on the floor under the downlights and the lamp
+  const pools = $("pools");
+  for (const [x, y, rx] of [[420, 520, 120], [600, 515, 140], [780, 520, 120], [300, 640, 170], [950, 600, 170]]) svgEl("ellipse", { cx: x, cy: y, rx, ry: rx * 0.28, fill: "url(#pool)" }, pools);
   // curtain folds
   const folds = $("folds");
   for (let x = 470; x < 870; x += 22) {
     svgEl("rect", { x: x + 12, y: 150, width: 6, height: 330, fill: "#5a1406", opacity: .45 }, folds);
     svgEl("rect", { x: x + 4, y: 150, width: 3, height: 330, fill: "#ffb080", opacity: .25 }, folds);
   }
-  // back-bar bottles, silhouetted against the curtain
-  const rnd = seeded(7), bottles = $("bottles"), cols = ["#e7d6b6", "#2e6a6c", "#3a0a08", "#c9932c", "#1a0c05", "#9ec3c8", "#5a1406"];
+  // back-bar bottles with labels, caps and a glint
+  const rnd = seeded(7), bottles = $("bottles"), cols = ["#e7d6b6", "#2e6a6c", "#3a0a08", "#c9932c", "#1a0c05", "#9ec3c8", "#5a1406", "#4f7a2a"];
+  const labels = ["#f4efe6", "#e8d29a", "#1a0c05", "#7a1426", "#f4efe6"];
   for (const [y0, y1] of [[255, 300], [310, 352]]) {
     let x = 510;
     while (x < 838) {
-      const w = 10 + rnd() * 8, h = (y1 - y0) * (0.62 + rnd() * 0.32), c = cols[Math.floor(rnd() * cols.length)];
-      svgEl("rect", { x, y: y1 - h, width: w, height: h, rx: 2, fill: c, opacity: .92 }, bottles);
-      svgEl("rect", { x: x + w / 2 - 2, y: y1 - h - 8, width: 4, height: 9, fill: c }, bottles);
-      svgEl("rect", { x: x + 1.5, y: y1 - h + 3, width: 2, height: h - 6, fill: "#fff", opacity: .3 }, bottles);
-      x += w + 6 + rnd() * 6;
+      const w = 11 + rnd() * 7, h = (y1 - y0) * (0.62 + rnd() * 0.32), c = cols[Math.floor(rnd() * cols.length)];
+      const neck = 3 + rnd() * 2;
+      svgEl("rect", { x, y: y1 - h, width: w, height: h, rx: 2.5, fill: c, opacity: .94 }, bottles);
+      svgEl("rect", { x: x + w / 2 - neck / 2, y: y1 - h - 9, width: neck, height: 10, fill: c }, bottles);
+      svgEl("rect", { x: x + w / 2 - neck / 2 - .5, y: y1 - h - 11, width: neck + 1, height: 3, fill: rnd() < .5 ? "#c9a46a" : "#7a1426" }, bottles);
+      if (rnd() < .8) svgEl("rect", { x: x + 1.5, y: y1 - h * .55, width: w - 3, height: h * .28, fill: labels[Math.floor(rnd() * labels.length)], opacity: .9 }, bottles);
+      svgEl("rect", { x: x + 1.6, y: y1 - h + 3, width: 1.6, height: h - 6, fill: "#fff", opacity: .35 }, bottles);
+      x += w + 5 + rnd() * 5;
     }
   }
   const flute = $("fluting");
   for (let x = 504; x < 858; x += 12) svgEl("line", { x1: x, y1: 396, x2: x, y2: 458 }, flute);
-  // oxblood leather stools
+  // bar stools: oxblood leather cushion, chrome pedestal, foot ring
   const stools = $("stools");
   for (const x of [540, 640, 740, 820]) {
-    svgEl("path", { d: `M${x - 3} 468 L${x - 14} 520 M${x + 3} 468 L${x + 14} 520`, stroke: "#c9a46a", "stroke-width": 3 }, stools);
-    svgEl("ellipse", { cx: x, cy: 466, rx: 22, ry: 7, fill: "#3a0a08" }, stools);
-    svgEl("ellipse", { cx: x, cy: 463, rx: 22, ry: 6, fill: "#7a1a14" }, stools);
+    svgEl("ellipse", { cx: x, cy: 522, rx: 24, ry: 5, fill: "url(#shadow)" }, stools);
+    svgEl("ellipse", { cx: x, cy: 519, rx: 14, ry: 3.5, fill: "url(#chrome)" }, stools);
+    svgEl("rect", { x: x - 2.5, y: 470, width: 5, height: 49, fill: "url(#chrome)" }, stools);
+    svgEl("ellipse", { cx: x, cy: 500, rx: 11, ry: 3, fill: "none", stroke: "url(#chrome)", "stroke-width": 2 }, stools);
+    svgEl("path", { d: `M${x - 22} 462 Q${x - 22} 470 ${x} 471 Q${x + 22} 470 ${x + 22} 462 Z`, fill: "#4a0e0a" }, stools);
+    svgEl("ellipse", { cx: x, cy: 462, rx: 22, ry: 6.5, fill: "#8a2218" }, stools);
+    svgEl("ellipse", { cx: x - 5, cy: 460.5, rx: 10, ry: 2.4, fill: "#e07a5a", opacity: .35 }, stools);
   }
-  // recessed downlights
+  // recessed downlights with a soft cone
   const pend = $("pendants");
   for (const [x, y] of [[420, 120], [600, 132], [780, 120], [250, 60], [950, 60]]) {
-    svgEl("ellipse", { cx: x, cy: y + 70, rx: 70, ry: 90, fill: "url(#glow)", opacity: .35 }, pend);
+    svgEl("path", { d: `M${x - 10} ${y} L${x - 60} ${y + 200} L${x + 60} ${y + 200} L${x + 10} ${y} Z`, fill: "#ffe2b0", opacity: .05, filter: "url(#soft)" }, pend);
     svgEl("ellipse", { cx: x, cy: y, rx: 12, ry: 3, fill: "#fff6dc" }, pend);
+  }
+  // records in the cabinet
+  const sp = $("spines"), rs = seeded(31), sc = ["#7a1426", "#c9932c", "#2e6a6c", "#e7d6b6", "#1a0c05", "#b4532a", "#4a2614", "#5a3f9a"];
+  for (let x = 60; x < 160;) { const w = 2 + rs() * 3; svgEl("rect", { x, y: 576 + rs() * 5, width: w, height: 70 - rs() * 5, fill: sc[Math.floor(rs() * sc.length)], opacity: .85 }, sp); x += w + .6; }
+  // tufting on the pit sofa and the chair
+  const tf = $("tufts");
+  for (let x = 470; x <= 730; x += 26) svgEl("circle", { cx: x, cy: 556, r: 1.6 }, tf);
+  for (let i = 0; i < 5; i++) { svgEl("circle", { cx: 452 - i * 13, cy: 600 + i * 22, r: 1.6 }, tf); svgEl("circle", { cx: 748 + i * 13, cy: 600 + i * 22, r: 1.6 }, tf); }
+  const cu = $("cushions");
+  for (const [x, y, c, r] of [[478, 548, "#7a1426", -8], [700, 548, "#141012", 6], [612, 550, "#7a1426", 2], [430, 640, "#141012", -14], [770, 640, "#7a1426", 14]])
+    svgEl("rect", { x: x - 16, y: y - 11, width: 32, height: 22, rx: 7, fill: c, transform: `rotate(${r} ${x} ${y})` }, cu);
+  const ct = $("chairTufts");
+  for (let row = 0; row < 3; row++) for (let i = 0; i < 4 - (row === 0 ? 1 : 0); i++) {
+    const x = 922 + i * 20 + (row === 0 ? 10 : 0), y = 500 + row * 12;
+    svgEl("circle", { cx: x, cy: y, r: 1.8, fill: "#2a0806" }, ct);
+    svgEl("path", { d: `M${x - 10} ${y + 6} L${x} ${y} L${x + 10} ${y + 6}`, stroke: "#2a0806", "stroke-width": .8, fill: "none", opacity: .5 }, ct);
   }
   // the city: dark towers, warm windows, a glittering grid to the horizon
   const city = $("city"), r2 = seeded(21), stars = $("stars");
@@ -654,17 +737,25 @@ function drawRoom() {
       if (r2() < (tall ? 0.6 : 0.3)) svgEl("rect", { x: wx, y: wy, width: 2.4, height: 2.6, fill: r2() < 0.75 ? "#ffd98a" : "#e8f0ff", opacity: .55 + r2() * .45 }, city);
     x += w + 1 + r2() * 5;
   }
-  // palm fronds
-  const fr = $("fronds"), r3 = seeded(5);
-  for (let i = 0; i < 13; i++) {
-    const ang = -165 + i * (150 / 12) + (r3() - .5) * 8, len = 110 + r3() * 70;
-    const rad = ang * Math.PI / 180, ex = 1125 + Math.cos(rad) * len, ey = 600 + Math.sin(rad) * len * 0.9;
-    const mx = 1125 + Math.cos(rad) * len * .5, my = 600 + Math.sin(rad) * len * .5 - 30;
-    svgEl("path", { d: `M1125 610 Q${mx} ${my} ${ex} ${ey}`, stroke: "#123a22", "stroke-width": 9 }, fr);
-    svgEl("path", { d: `M1125 610 Q${mx} ${my} ${ex} ${ey}`, stroke: i % 2 ? "#2e7a44" : "#3f9a58", "stroke-width": 4, "stroke-dasharray": "2 3" }, fr);
+  // palm fronds: a stem, with leaflets on both sides
+  const fr = $("fronds"), r3 = seeded(5), greens = ["#1f5a32", "#2e7a44", "#3f8f52", "#265f38"];
+  for (let i = 0; i < 11; i++) {
+    const ang = -160 + i * (140 / 10) + (r3() - .5) * 10, len = 105 + r3() * 70, rad = (ang * Math.PI) / 180;
+    const x0 = 1125, y0 = 612, ex = x0 + Math.cos(rad) * len, ey = y0 + Math.sin(rad) * len * 0.85 + len * 0.12;
+    const mx = x0 + Math.cos(rad) * len * 0.5, my = y0 + Math.sin(rad) * len * 0.5 - 34;
+    const g = svgEl("g", {}, fr), col = greens[i % greens.length];
+    svgEl("path", { d: `M${x0} ${y0} Q${mx} ${my} ${ex} ${ey}`, stroke: "#173d22", "stroke-width": 2.2, fill: "none" }, g);
+    for (let t = 0.16; t < 0.98; t += 0.055) {
+      const px = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * mx + t * t * ex, py = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * my + t * t * ey;
+      const dx = 2 * (1 - t) * (mx - x0) + 2 * t * (ex - mx), dy = 2 * (1 - t) * (my - y0) + 2 * t * (ey - my), L = Math.hypot(dx, dy);
+      const nx = -dy / L, ny = dx / L, leaf = 30 * Math.sin(Math.PI * Math.min(1, t * 1.1)) + 8;
+      for (const side of [1, -1]) {
+        const tx = px + (nx * side * 0.55 + (dx / L) * 0.8) * leaf, ty = py + (ny * side * 0.55 + (dy / L) * 0.8) * leaf + leaf * 0.55;
+        const cx1 = px + (nx * side * 0.7 + (dx / L) * 0.3) * leaf, cy1 = py + (ny * side * 0.7 + (dy / L) * 0.3) * leaf;
+        svgEl("path", { d: `M${px.toFixed(1)} ${py.toFixed(1)} Q${cx1.toFixed(1)} ${cy1.toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)}`, stroke: greens[(i + Math.round(t * 10) + (side > 0 ? 1 : 0)) % greens.length], "stroke-width": 2.4, fill: "none", "stroke-linecap": "round", opacity: .95 }, g);
+      }
+    }
   }
-  const cd = $("corkDots"), rc = seeded(17);
-  for (let i = 0; i < 260; i++) svgEl("circle", { cx: 66 + rc() * 178, cy: 212 + rc() * 162, r: .6 + rc(), fill: rc() < .5 ? "#6a4426" : "#d4a676", opacity: .55 }, cd);
   // martinis on the bar
   const cg = $("counterGlasses");
   for (const gx of [575, 760]) {
@@ -686,11 +777,11 @@ function drawTableGlasses(marks) {
   const g = $("tableGlasses"); g.innerHTML = "";
   const list = marks.slice(-24).map(spot);
   for (const m of list) {
-    const gx = 600 + (m.x - 0.5) * 250, gy = 634 + (m.y - 0.5) * 44;
+    const gy = 610 + m.y * 36, gx = 600 + (m.x - 0.5) * (236 + (gy - 604) * 1.2);
     svgEl("ellipse", { cx: gx, cy: gy, rx: 9, ry: 2.8, fill: "none", stroke: STAINS[m.color] || STAINS.espresso, "stroke-width": 2.4, opacity: .9 }, g);
   }
   for (const m of list.slice(-3)) { // the last few glasses are still standing
-    const gx = 600 + (m.x - 0.5) * 250 + 8, gy = 634 + (m.y - 0.5) * 44 - 2;
+    const gy = 610 + m.y * 36 - 2, gx = 600 + (m.x - 0.5) * (236 + (gy - 604) * 1.2) + 8;
     svgEl("path", { d: `M${gx - 9} ${gy - 20} L${gx + 9} ${gy - 20} L${gx} ${gy - 9} Z`, fill: "#2a1408", stroke: "#e8f2f6", "stroke-width": 1.2 }, g);
     svgEl("path", { d: `M${gx - 7} ${gy - 18.8} H${gx + 7}`, stroke: "#d9b98a", "stroke-width": 1.6 }, g);
     svgEl("path", { d: `M${gx} ${gy - 9} V${gy} M${gx - 5} ${gy} H${gx + 5}`, stroke: "#e8f2f6", "stroke-width": 1.2 }, g);
@@ -1020,7 +1111,7 @@ document.querySelectorAll(".hint-row button").forEach((b) => b.addEventListener(
 
 // ---------- 2.5D: a camera you can look around with ----------
 // every object sits at a depth: 0 is the far city, 1 is right in front of you
-const DEPTH = { hotWindow: 0.35, hotBoard: 0.35, hotDoor: 0.35, hotBar: 0.35, hotPit: 0.62, hotChair: 0.6, hotLamp: 0.8, hotRecord: 1, hotPalm: 1.05 };
+const DEPTH = { hotWindow: 0.35, hotBoard: 0.35, hotDoor: 0.35, hotBar: 0.35, hotPit: 0.62, hotChair: 0.6, hotLamp: 1, hotRecord: 1, hotPalm: 1.05 };
 const CITY_DEPTH = 0.08, SHELL = 0.35, LOOK_X = 42, LOOK_Y = 16, OVERSCAN = 1.06;
 const cam = { x: 0, y: 0, tx: 0, ty: 0, last: 0, gyro: false }, reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 let layers = [], cityLayer = null, focusDepth = SHELL, lookDragged = false;
