@@ -6,6 +6,17 @@
 <title>Projects — Joban</title>
 <meta name="description" content="Joban Singh — CS student, builder, photographer. Prince George, BC.">
 <link rel="stylesheet" href="style.css?v=6">
+<style>
+  .paper-photo { display: grid; place-items: center; background: radial-gradient(circle at 40% 30%, #c9d4b4, #4b5640 75%); min-height: 320px; }
+  .eink { width: min(84%, 420px); aspect-ratio: 800 / 480; background: #e9e6dc; color: #1d1d1b; border-radius: 6px; padding: 5% 6%;
+    box-shadow: 0 0 0 10px #2a2a28, 0 0 0 12px #474744, 0 24px 40px rgba(0,0,0,.4); font-family: Georgia, serif; display: grid; align-content: start; gap: 6%; }
+  .eink-mast { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #1d1d1b; padding-bottom: 3%; }
+  .eink-mast b { font-size: clamp(.7rem, 1.6vw, 1rem); letter-spacing: .04em; }
+  .eink small { font-family: system-ui, sans-serif; font-size: clamp(.45rem, .9vw, .6rem); letter-spacing: .14em; }
+  .eink-head { font-size: clamp(.85rem, 2.2vw, 1.35rem); font-weight: 700; line-height: 1.15; }
+  .eink-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 6%; border-top: 1px solid #1d1d1b; padding-top: 3%; }
+  .eink-cols p { font-size: clamp(.55rem, 1.2vw, .78rem); line-height: 1.45; margin-top: 2%; }
+</style>
 </head>
 <body>
 <nav><a class="logo" href="index.html">Joban</a><ul><li><a href="index.html">Home</a></li><li><a href="projects.html" class="on">Projects</a></li><li><a href="apps.html">Apps</a></li><li><a href="lifestyle.html">Lifestyle</a></li><li><a href="socials.html">Socials</a></li></ul></nav>
@@ -39,6 +50,25 @@
     <a class="btn" href="reach.html">Leave me a message →</a>
   </div>
   <div class="photo " style="background-image:url('images/reach-render.jpg');background-position:center"></div>
+</section>
+
+<section class="block olive">
+  <div class="photo paper-photo" aria-hidden="true">
+    <div class="eink">
+      <div class="eink-mast"><b>THE MORNING PAPER</b><small>MONDAY · 7:30 AM</small></div>
+      <div class="eink-head">Two things due this week. Start with Databases.</div>
+      <div class="eink-cols">
+        <div><small>DUE</small><p>Thu · Databases<br>Fri · Ethics</p></div>
+        <div><small>TO DO</small><p>□ Reply to group<br>□ Book the lab</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="pad">
+    <span class="eyebrow">Hardware · In progress</span>
+    <h2 class="big">The Morning Paper</h2>
+    <p class="small">A little e-ink newspaper for my desk. Every morning it prints a fresh front page just for me: what's due this week from Moodle, the emails that actually need an answer, and a short to-do list, written up by AI and quietly updated as I finish things. It doubles as an alarm, with a gentle chime from its speaker.</p>
+    <div class="chips"><span class="chip">ESP32-S3</span><span class="chip">3.97" e-ink</span><span class="chip">Claude AI</span><span class="chip">GitHub Actions</span></div>
+  </div>
 </section>
 
 <footer class="block full blue">
