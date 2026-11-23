@@ -183,7 +183,7 @@
     <div class="seal">J</div>
     <span class="eyebrow">Members only</span>
     <h1>The Lounge</h1>
-    <p>Private rooms for the things I build.</p>
+    <p>Private rooms for the things I build.<br><em class="serif" style="color:var(--brass)">Bernard is at the door.</em></p>
     <div class="key">
       <input id="pw" type="password" autocomplete="current-password" aria-label="Password" placeholder="••••••" required>
       <button class="btn-brass" type="submit" id="enter">Enter</button>
@@ -205,6 +205,7 @@
       <div class="hello">
         <span class="eyebrow" id="today"></span>
         <h2 id="greeting">Good evening, <em>Joban.</em></h2>
+        <p class="serif" style="font-style:italic;color:var(--muted);font-size:1.05rem" id="bertrand"></p>
       </div>
 
       <article class="clipping" id="clipping">
@@ -273,7 +274,7 @@
 </div>
 
 <div class="savebar" id="savebar" role="status">
-  <span class="toast" id="toast">Unsaved changes</span>
+  <span class="toast" id="toast">Bernard is holding your changes</span>
   <button class="btn-brass" id="save">Save</button>
 </div>
 
@@ -283,7 +284,7 @@ const REACH = "https://reach.jobanxy.workers.dev";
 const DAYS = [["mon","Mon"],["tue","Tue"],["wed","Wed"],["thu","Thu"],["fri","Fri"],["sat","Sat"],["sun","Sun"]];
 const $ = (id) => document.getElementById(id);
 
-let token = null, sha = null, settings = null, edition = null;
+let token = null, sha = null, settings = null, edition = null, bertrandSays = "";
 try { token = localStorage.getItem("loungeToken"); } catch {}
 
 async function api(path, opts = {}) {
@@ -292,7 +293,7 @@ async function api(path, opts = {}) {
     headers: { "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) },
   });
   const data = await r.json().catch(() => ({}));
-  if (r.status === 401 && path !== "/login") { leave(); throw new Error("Session ended."); }
+  if (r.status === 401 && path !== "/login") { leave(); $("doorNote").textContent = data.error || "Your pass has expired."; throw new Error(data.error || "Session ended."); }
   if (!r.ok) throw new Error(data.error || "Something went wrong.");
   return data;
 }
@@ -300,14 +301,15 @@ async function api(path, opts = {}) {
 // ---------- door ----------
 $("keyForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  $("enter").disabled = true; $("doorNote").textContent = "";
+  $("enter").disabled = true; $("doorNote").style.color = "var(--muted)"; $("doorNote").textContent = "Bernard is checking the list…";
   try {
     const d = await api("/login", { method: "POST", body: JSON.stringify({ password: $("pw").value }) });
     token = d.token;
     try { localStorage.setItem("loungeToken", token); } catch {}
-    $("pw").value = "";
+    $("pw").value = ""; $("doorNote").textContent = "";
+    bertrandSays = d.bertrand || "";
     enter();
-  } catch (err) { $("doorNote").textContent = err.message; }
+  } catch (err) { $("doorNote").style.color = ""; $("doorNote").textContent = err.message; }
   $("enter").disabled = false;
 });
 
@@ -332,6 +334,7 @@ function greet() {
   $("greeting").innerHTML = `${part}, <em>Joban.</em>`;
   $("today").textContent = now.toLocaleDateString("en-CA", { weekday: "long", month: "long", day: "numeric" });
   $("roomCount").textContent = "2 open · 2 coming";
+  $("bertrand").textContent = bertrandSays || (h < 5 ? "Bernard is still up. So are you, apparently." : "Bernard is on duty.");
 }
 
 async function loadPaper() {
@@ -417,16 +420,16 @@ document.querySelectorAll(".sound").forEach((b) => b.addEventListener("click", (
 }));
 
 function dirty() {
-  $("toast").textContent = "Unsaved changes"; $("toast").classList.remove("err");
+  $("toast").textContent = "Bernard is holding your changes"; $("toast").classList.remove("err");
   $("savebar").classList.add("show"); $("save").disabled = false;
 }
 
 $("save").addEventListener("click", async () => {
-  $("save").disabled = true; $("toast").textContent = "Saving…";
+  $("save").disabled = true; $("toast").textContent = "Bernard is filing it…";
   try {
     const d = await api("/paper/settings", { method: "PUT", body: JSON.stringify({ settings, sha }) });
     sha = d.sha; settings = d.settings; updateAlarmTag();
-    $("toast").textContent = "Saved. The paper picks it up at 4:30am.";
+    $("toast").textContent = d.bertrand || "Filed. Your paper will know by 4:30am.";
     setTimeout(() => $("savebar").classList.remove("show"), 2200);
   } catch (err) { $("toast").textContent = err.message; $("toast").classList.add("err"); $("save").disabled = false; }
 });
