@@ -44,6 +44,12 @@
   #bnd input:focus { border-color: #c9a46a; }
   #bnd form button { background: none; color: #c9a46a; border: 1px solid #c9a46a; padding: 7px 14px; font: inherit; font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; cursor: pointer; }
   #bnd form button:hover { background: #c9a46a; color: #1b0e06; }
+  #bnd .pit-link { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 0 10px; padding: 10px 16px 11px; text-decoration: none; color: #efe3cf;
+    border-top: 1px solid rgba(201,164,106,.3); background: rgba(180,83,42,.18); }
+  #bnd .pit-link small { grid-column: 1; font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: #c9a46a; }
+  #bnd .pit-link span { grid-column: 1; font: italic 1rem "Fraunces", Georgia, serif; }
+  #bnd .pit-link em { grid-column: 2; grid-row: 1 / span 2; font-style: normal; font-size: .72rem; letter-spacing: .12em; color: #c9a46a; }
+  #bnd .pit-link:hover { background: rgba(180,83,42,.3); }
   #bnd .lounge-tease { display: block; width: 100%; text-align: left; border: 0; cursor: pointer; padding: 11px 16px 13px; color: #efe3cf;
     background: linear-gradient(180deg, rgba(90,15,22,.55), rgba(58,8,12,.75)); border-top: 1px solid rgba(201,164,106,.3); font: inherit; }
   #bnd .lounge-tease small { display: block; font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: #c9a46a; }
@@ -66,6 +72,7 @@
     <div class="talk" aria-live="polite"></div>
     <div class="sugg"></div>
     <form autocomplete="off"><input maxlength="300" placeholder="Ask about Joban…" aria-label="Your question"><button type="submit">Ask</button></form>
+    <a class="pit-link" href="pit.html"><small>Open to guests</small><span>The Conversation Pit</span><em>Mix your way in →</em></a>
     <button type="button" class="lounge-tease" aria-expanded="false">
       <small>Members only</small><span>What's the Lounge?</span>
       <span class="more">Somewhere on this site is a walnut door. Behind it is Joban's private Lounge, where the real work happens. Bernard keeps the door, and he's not at liberty to say what's inside. Membership is by invitation, and nobody has been invited.</span>

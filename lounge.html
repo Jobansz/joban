@@ -713,6 +713,11 @@
             <div class="row-save" style="margin-top:12px"><button class="btn-brass" id="rcClear">Clear all</button><span class="toast" id="rcMsgToast"></span></div>
           </div>
           <div class="panel">
+            <span class="eyebrow">The Conversation Pit</span>
+            <p class="muted" style="font-size:.8rem;margin:-6px 0 8px" id="pitStat">Glasses guests have left at joban.me/pit.</p>
+            <ul class="msgs" id="pitMarks"></ul>
+          </div>
+          <div class="panel">
             <span class="eyebrow">History</span>
             <ul class="msgs history" id="rcHistory"></ul>
             <div class="row-save" style="margin-top:12px"><button class="btn-brass" id="rcClearHistory">Clear history</button><span class="toast" id="rcHistToast"></span></div>
@@ -1299,6 +1304,7 @@ async function loadReachRoom() {
     $("rcState").textContent = here ? "At the desk" : "Away from the desk";
     $("rcSeen").textContent = d.status.lastSeen ? "The clock last checked in " + ago(d.status.lastSeen) + "." : "The clock hasn't checked in yet.";
     renderMsgs(d.messages);
+    loadPitMarks();
     reachReplies = d.replies || {};
     renderHistory(d.history || [], d.messages);
     $("rcFacts").value = d.facts || ""; $("rcFactsSave").disabled = true;
@@ -1389,6 +1395,28 @@ $("rcFactsSave").addEventListener("click", async () => {
   try { $("rcFactsToast").textContent = (await api("/reach/facts", { method: "PUT", body: JSON.stringify({ facts: $("rcFacts").value }) })).bertrand; }
   catch (err) { $("rcFactsToast").textContent = err.message; $("rcFactsToast").classList.add("err"); $("rcFactsSave").disabled = false; }
 });
+async function loadPitMarks() {
+  try {
+    const d = await (await fetch(API + "/pit", { cache: "no-store" })).json();
+    $("pitStat").textContent = `${d.count || 0} guests have mixed their way in. Tap × to clear a glass.`;
+    renderPitMarks(d.marks || []);
+  } catch {}
+}
+function renderPitMarks(marks) {
+  const box = $("pitMarks"); box.innerHTML = "";
+  if (!marks.length) { box.innerHTML = '<li class="empty">No glasses on the table yet.</li>'; return; }
+  for (const m of [...marks].reverse()) {
+    const li = document.createElement("li");
+    const b = document.createElement("b"); b.textContent = (m.note || "") + (m.song ? (m.note ? " · ♪ " : "♪ ") + m.song : "");
+    const x = document.createElement("button"); x.textContent = "×"; x.setAttribute("aria-label", "Remove this glass");
+    x.addEventListener("click", async () => {
+      if (!confirm(`Remove ${m.name}'s glass from the table?`)) return;
+      try { renderPitMarks((await api("/pit/mark?member=" + m.member, { method: "DELETE" })).marks); } catch (err) { alert(err.message); }
+    });
+    const sm = document.createElement("small"); sm.textContent = `${m.name} · Member No. ${m.member} · ${ago(m.at)}`;
+    li.append(b, x, sm); box.appendChild(li);
+  }
+}
 function reachDirty() { $("rcSave").disabled = false; $("rcToast").textContent = "Not saved yet"; $("rcToast").classList.remove("err"); }
 $("rcAccept").addEventListener("change", () => { reachCfg.accepting = $("rcAccept").checked; reachDirty(); });
 $("rcNote").addEventListener("input", () => { reachCfg.away_note = $("rcNote").value; reachDirty(); });
