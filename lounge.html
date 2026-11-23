@@ -439,6 +439,30 @@
   #ask:focus { border-color: var(--brass); }
   #askForm .btn-brass { padding: 8px 18px; }
   @media (max-width: 760px) { .bell { right: 14px; bottom: 14px; } .bernard { right: 16px; bottom: 82px; } }
+  .notes { width: 100%; background: rgba(0,0,0,.25); border: 1px solid rgba(201,164,106,.3); border-radius: 3px; color: var(--cream);
+    font: inherit; font-size: .9rem; line-height: 1.5; padding: 10px 12px; resize: vertical; outline: none; }
+  .notes:focus { border-color: var(--brass); }
+  .msgs .reply-btn { grid-column: 1 / -1; justify-self: start; background: none; border: 0; padding: 4px 0 0; color: var(--brass); font-size: .7rem; letter-spacing: .18em; text-transform: uppercase; }
+  .msgs .sent-reply { grid-column: 1 / -1; font-size: .85rem; color: var(--cream); opacity: .85; padding-left: 12px; border-left: 2px solid var(--brass-dim); margin-top: 4px; }
+  .msgs .compose { grid-column: 1 / -1; display: grid; gap: 8px; margin-top: 6px; }
+  .msgs .compose .row-save { margin-top: 0; }
+  .study-talk { display: flex; flex-direction: column; min-height: 420px; }
+  .study-talk .talk { flex: 1; padding: 6px 0; max-height: 520px; }
+  #stForm, #ceForm { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+  #stForm.hidden { display: none; }
+  #stIn, #ceIn { flex: 1; min-width: 0; background: transparent; border: 0; border-bottom: 1px solid var(--brass-dim); color: var(--cream); font: inherit; padding: 8px 2px; outline: none; }
+  #stTasks li { cursor: pointer; }
+  #stTasks li.on b { color: var(--brass); }
+  #stTasks li:hover b { color: var(--brass); }
+  .row-save .btn-brass + .btn-brass { margin-left: 4px; }
+  .cellar-page { margin-top: 28px; padding: 26px 28px; border-radius: 3px; min-height: 420px; display: flex; flex-direction: column;
+    background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255,190,110,.10), transparent 70%), repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 2px, transparent 2px 38px), linear-gradient(180deg, #1b1612, #0d0a08);
+    box-shadow: inset 0 0 0 1px rgba(201,164,106,.25), inset 0 0 80px rgba(0,0,0,.7); }
+  .cellar-talk { flex: 1; max-height: 520px; padding: 0; }
+  .cellar-talk .b { max-width: 100%; font-size: 1.08rem; line-height: 1.55; }
+  .cellar-talk .u { background: none; padding: 0; color: var(--brass); font-family: "Inter", sans-serif; font-style: normal; font-size: .85rem; letter-spacing: .06em; align-self: flex-start; }
+  .cellar-talk .u::before { content: "› "; }
+  #ceForm .prompt { color: var(--brass); font-size: 1.2rem; }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   @media (max-width: 760px) {
     .lounge-room { --k: .5; margin-left: -8px; margin-right: -8px; }
@@ -702,7 +726,49 @@
           <p class="muted" style="font-size:.8rem;margin-top:6px">Shown on joban.me/reach while you're away.</p>
           <div class="field"><label for="rcRate">One message per visitor every <output id="rcRateVal"></output></label><input id="rcRate" type="range" min="1" max="30"></div>
           <div class="row-save"><button class="btn-brass" id="rcSave" disabled>Save</button><span class="toast" id="rcToast"></span></div>
+          <span class="eyebrow" style="display:block;margin-top:30px">What Bernard may tell visitors</span>
+          <p class="muted" style="font-size:.8rem;margin:-6px 0 10px">Visitors to joban.me/reach can ask Bernard about you. He answers only from these notes.</p>
+          <textarea id="rcFacts" class="notes" rows="7" maxlength="4000" placeholder="I'm a 3rd-year CS student at UNBC. I'm building Reach, Away and a morning paper on e-ink. I shoot film (@filmbyjoban). Personality: curious, a bit of a perfectionist, always starting new projects…"></textarea>
+          <div class="row-save"><button class="btn-brass" id="rcFactsSave" disabled>Save notes</button><span class="toast" id="rcFactsToast"></span></div>
         </div>
+      </div>
+    </section>
+
+    <!-- Study room -->
+    <section id="study" class="hidden">
+      <div class="room-title">
+        <a class="link" href="#lounge">← The Lounge</a>
+        <span class="eyebrow" style="margin-top:22px">No. 04</span>
+        <h2>The Study</h2>
+      </div>
+      <div class="grid2" style="margin-top:28px">
+        <div class="panel">
+          <span class="eyebrow">What's coming up</span>
+          <ul class="msgs" id="stTasks"></ul>
+          <span class="eyebrow" style="display:block;margin-top:22px">Your notes (optional)</span>
+          <textarea id="stNotes" class="notes" rows="6" maxlength="6000" placeholder="Paste the assignment brief, lecture notes or topics, so Bernard knows what you're studying."></textarea>
+          <div class="row-save"><button class="btn-brass" id="stPlan" disabled>Make a plan</button><button class="btn-brass" id="stQuiz" disabled>Quiz me</button></div>
+        </div>
+        <div class="panel study-talk">
+          <span class="eyebrow" id="stTitle">Pick an assignment</span>
+          <div class="talk" id="stTalk"></div>
+          <form id="stForm" class="hidden"><input id="stIn" autocomplete="off" placeholder="Your answer…" aria-label="Your answer"><button class="btn-brass" type="submit">Send</button></form>
+        </div>
+      </div>
+    </section>
+
+    <!-- The cellar (under the rug) -->
+    <section id="cellar" class="hidden">
+      <div class="room-title">
+        <a class="link" href="#lounge">← Climb back up</a>
+        <span class="eyebrow" style="margin-top:22px">Under the rug</span>
+        <h2>The Cellar</h2>
+        <p class="muted" id="ceProgress" style="font-size:.9rem"></p>
+      </div>
+      <div class="cellar-page">
+        <div class="talk cellar-talk" id="ceTalk"></div>
+        <form id="ceForm"><span class="prompt">›</span><input id="ceIn" autocomplete="off" placeholder="look around, open the door, read the plaque…" aria-label="What do you do?"><button class="btn-brass" type="submit">Go</button></form>
+        <button class="link" id="ceRestart" style="margin-top:14px">Start over</button>
       </div>
     </section>
 
@@ -822,6 +888,7 @@ async function loadPaper() {
     const [e, s] = await Promise.all([api("/paper/edition"), api("/paper/settings")]);
     edition = e.edition; settings = s.settings; sha = s.sha;
     renderEdition(); renderSettings(); updateAlarmTag();
+    if (location.hash === "#study") loadStudy();
   } catch (err) { $("clipDate").textContent = err.message; }
 }
 
@@ -971,11 +1038,38 @@ function doorFrame() {
   </svg>`;
 }
 
+// No. 04: a bookcase that's secretly a door
+function doorBookcase() {
+  let r = 17, books = "";
+  const rnd = () => ((r = (r * 9301 + 49297) % 233280) / 233280);
+  const cols = ["#7a1b1f", "#2e4a37", "#1f3350", "#b8862c", "#4a2a17", "#5c1a3a", "#3c4c2a", "#8c6a30", "#26323d"];
+  for (const y of [14, 72, 130, 188]) {
+    let x = 8;
+    while (x < 96) {
+      const w = 4 + rnd() * 6, h = 38 + rnd() * 14, tilt = rnd() < .08;
+      const c = cols[Math.floor(rnd() * cols.length)];
+      if (x + w > 98) break;
+      books += `<g ${tilt ? `transform="rotate(-8 ${x} ${y + 52})"` : ""}><rect x="${x.toFixed(1)}" y="${(y + 52 - h).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="${c}"/>
+        <rect x="${x.toFixed(1)}" y="${(y + 52 - h + 5).toFixed(1)}" width="${w.toFixed(1)}" height="1.2" fill="#c9a46a" opacity=".7"/>
+        <rect x="${x.toFixed(1)}" y="${(y + 52 - h).toFixed(1)}" width="1" height="${h.toFixed(1)}" fill="#fff" opacity=".1"/></g>`;
+      x += w + .6 + (rnd() < .1 ? 6 : 0);
+    }
+  }
+  return `<svg viewBox="0 0 106 262" preserveAspectRatio="none">
+    <rect width="106" height="262" fill="#3a1d0e"/><rect width="106" height="262" filter="url(#grain)"/>
+    <rect x="6" y="6" width="94" height="246" fill="#1a0c05"/>
+    ${books}
+    ${[66, 124, 182, 240].map((y) => `<rect x="4" y="${y}" width="98" height="6" fill="#4e2a15"/><rect x="4" y="${y}" width="98" height="1" fill="#fff" opacity=".1"/>`).join("")}
+    <rect x="0" y="0" width="6" height="262" fill="#4e2a15"/><rect x="100" y="0" width="6" height="262" fill="#4e2a15"/><rect x="0" y="0" width="106" height="6" fill="#4e2a15"/>
+    <rect width="106" height="262" fill="url(#sheen)"/>
+  </svg>`;
+}
+
 const ROOMS = [
   { id: "paper", no: "01", name: "Morning Paper", h: 300, w: 132, frame: "#284f33", leafEdge: "#2e5a3b", draw: doorLisbon, href: "#paper", note: "Open" },
   { id: "reach", no: "02", name: "Reach", h: 296, w: 116, frame: "#4e2610", leafEdge: "#5a2c13", draw: doorPorthole, href: "#reach", note: "Checking the desk…" },
   { id: "away", no: "03", name: "Away", h: 280, w: 118, frame: "#5c2c13", leafEdge: "#6a3418", draw: doorPlank, href: "#away", note: "Station settings" },
-  { id: "reserved", no: "04", name: "Reserved", h: 280, w: 112, frame: "#4a2a17", leafEdge: "transparent", noLeaf: true, draw: doorFrame, locked: "The frame is up. The door is still on order", note: "Coming soon" },
+  { id: "study", no: "04", name: "The Study", h: 280, w: 112, frame: "#4a2a17", draw: doorBookcase, href: "#study", note: "Study plans and quizzes" },
 ];
 let activeRoom = null;
 const canHover = matchMedia("(hover: hover)").matches;
@@ -1036,10 +1130,8 @@ function enterRoom(i) {
 // the rug: lift the corner and there is a trapdoor
 $("rugCorner").addEventListener("click", () => $("rugPlane").classList.add("lifted"));
 $("trapdoor").addEventListener("click", () => {
-  $("plaqueNo").textContent = "Under the rug";
-  $("plaqueName").textContent = "A trapdoor";
-  $("plaqueNote").textContent = "Bernard is still building what's down there.";
-  setTimeout(() => { $("rugPlane").classList.remove("lifted"); activeRoom === null ? resetPlaque() : setActive(activeRoom); }, 3200);
+  $("plaqueNo").textContent = "Under the rug"; $("plaqueName").textContent = "A trapdoor"; $("plaqueNote").textContent = "Mind the stairs";
+  setTimeout(() => { $("rugPlane").classList.remove("lifted"); location.hash = "#cellar"; }, 700);
 });
 
 buildHall();
@@ -1207,7 +1299,9 @@ async function loadReachRoom() {
     $("rcState").textContent = here ? "At the desk" : "Away from the desk";
     $("rcSeen").textContent = d.status.lastSeen ? "The clock last checked in " + ago(d.status.lastSeen) + "." : "The clock hasn't checked in yet.";
     renderMsgs(d.messages);
+    reachReplies = d.replies || {};
     renderHistory(d.history || [], d.messages);
+    $("rcFacts").value = d.facts || ""; $("rcFactsSave").disabled = true;
     reachCfg = d.config;
     $("rcAccept").checked = reachCfg.accepting;
     $("rcNote").value = reachCfg.away_note;
@@ -1232,6 +1326,7 @@ function renderMsgs(msgs) {
   }
 }
 function renderHistory(history, waiting) {
+  lastHistory = history; lastWaiting = waiting;
   const box = $("rcHistory"); box.innerHTML = "";
   if (!history.length) { box.innerHTML = '<li class="empty">No past messages yet. New ones will be kept here.</li>'; $("rcClearHistory").disabled = true; return; }
   $("rcClearHistory").disabled = false;
@@ -1246,13 +1341,53 @@ function renderHistory(history, waiting) {
     when.textContent = waitingIds.has(m.id) ? "Waiting" : "Seen";
     const sm = document.createElement("small");
     sm.textContent = `${m.name || "Someone"} · ${new Date(m.at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`;
-    li.append(b, when, sm); box.appendChild(li);
+    li.append(b, when, sm);
+    const rep = reachReplies[m.id];
+    if (rep) { const r = document.createElement("div"); r.className = "sent-reply"; r.textContent = "You replied: " + rep.text; li.appendChild(r); }
+    const btn = document.createElement("button"); btn.className = "reply-btn"; btn.textContent = rep ? "Edit reply" : "Reply";
+    btn.addEventListener("click", () => openCompose(li, m, rep));
+    li.appendChild(btn);
+    box.appendChild(li);
   }
 }
+let reachReplies = {};
+async function openCompose(li, m, rep) {
+  if (li.querySelector(".compose")) return;
+  const wrap = document.createElement("div"); wrap.className = "compose";
+  const ta = document.createElement("textarea"); ta.className = "notes"; ta.rows = 3; ta.maxLength = 280;
+  ta.value = rep ? rep.text : ""; ta.placeholder = "Bernard is drafting…";
+  const row = document.createElement("div"); row.className = "row-save";
+  const send = document.createElement("button"); send.className = "btn-brass"; send.textContent = "Send reply";
+  const redo = document.createElement("button"); redo.className = "link"; redo.textContent = "Redraft";
+  const t = document.createElement("span"); t.className = "toast";
+  row.append(send, redo, t); wrap.append(ta, row); li.appendChild(wrap);
+  const draft = async () => {
+    ta.value = ""; ta.placeholder = "Bernard is drafting…"; t.textContent = ""; t.classList.remove("err");
+    try { ta.value = (await api("/reach/draft", { method: "POST", body: JSON.stringify({ id: m.id }) })).draft; }
+    catch (err) { t.textContent = err.message; t.classList.add("err"); ta.placeholder = "Write a reply…"; }
+  };
+  redo.addEventListener("click", draft);
+  send.addEventListener("click", async () => {
+    send.disabled = true; t.textContent = "Bernard is delivering it…";
+    try {
+      const d = await api("/reach/reply", { method: "PUT", body: JSON.stringify({ id: m.id, text: ta.value }) });
+      reachReplies = d.replies; t.textContent = d.bertrand;
+      setTimeout(() => renderHistory(lastHistory, lastWaiting), 900);
+    } catch (err) { t.textContent = err.message; t.classList.add("err"); send.disabled = false; }
+  });
+  if (!rep) draft();
+}
+let lastHistory = [], lastWaiting = [];
 $("rcClearHistory").addEventListener("click", async () => {
   if (!confirm("Clear the whole message history? Messages still waiting stay in the queue.")) return;
   try { await api("/reach/history", { method: "DELETE" }); renderHistory([], []); }
   catch (err) { $("rcHistToast").textContent = err.message; $("rcHistToast").classList.add("err"); }
+});
+$("rcFacts").addEventListener("input", () => { $("rcFactsSave").disabled = false; $("rcFactsToast").textContent = "Not saved yet"; $("rcFactsToast").classList.remove("err"); });
+$("rcFactsSave").addEventListener("click", async () => {
+  $("rcFactsSave").disabled = true; $("rcFactsToast").textContent = "Bernard is taking notes…";
+  try { $("rcFactsToast").textContent = (await api("/reach/facts", { method: "PUT", body: JSON.stringify({ facts: $("rcFacts").value }) })).bertrand; }
+  catch (err) { $("rcFactsToast").textContent = err.message; $("rcFactsToast").classList.add("err"); $("rcFactsSave").disabled = false; }
 });
 function reachDirty() { $("rcSave").disabled = false; $("rcToast").textContent = "Not saved yet"; $("rcToast").classList.remove("err"); }
 $("rcAccept").addEventListener("change", () => { reachCfg.accepting = $("rcAccept").checked; reachDirty(); });
@@ -1321,7 +1456,7 @@ function renderTalk(extra) {
 }
 function currentRoom() {
   if (!$("deskView").hidden) return "the desk (" + DESKS[deskIndex].name + ")";
-  return { "#paper": "the Morning Paper room", "#reach": "the Reach room", "#away": "the Away room" }[location.hash] || "the hallway with the doors";
+  return { "#paper": "the Morning Paper room", "#reach": "the Reach room", "#away": "the Away room", "#study": "the Study", "#cellar": "the cellar under the rug" }[location.hash] || "the hallway with the doors";
 }
 $("bell").addEventListener("click", () => {
   const open = $("bernard").hidden;
@@ -1347,11 +1482,95 @@ $("askForm").addEventListener("submit", async (e) => {
   $("askBtn").disabled = false; $("ask").focus();
 });
 
+
+// ---------- the Study ----------
+let study = { task: null, mode: null, talk: [] };
+function loadStudy() {
+  const due = (edition && edition.due) || [];
+  const box = $("stTasks"); box.innerHTML = "";
+  if (!due.length) box.innerHTML = '<li class="empty">Nothing due in the next week. Enjoy it.</li>';
+  due.forEach((d, i) => {
+    const li = document.createElement("li");
+    const b = document.createElement("b"); b.textContent = d.title;
+    const sm = document.createElement("small"); sm.textContent = (d.course ? d.course + " · " : "") + d.when;
+    li.append(b, sm);
+    li.addEventListener("click", () => {
+      study = { task: d, mode: null, talk: [] };
+      box.querySelectorAll("li").forEach((x) => x.classList.toggle("on", x === li));
+      $("stTitle").textContent = d.title; $("stPlan").disabled = $("stQuiz").disabled = false;
+      $("stForm").classList.add("hidden"); drawStudy();
+    });
+    box.appendChild(li);
+  });
+  if (!study.task) { $("stTalk").innerHTML = '<p class="b">Choose an assignment on the left. I can lay out a plan to get it done, or quiz you on it.</p>'; }
+}
+function drawStudy(extra) {
+  const box = $("stTalk"); box.innerHTML = "";
+  for (const m of study.talk) { const p = document.createElement("p"); p.className = m.role === "user" ? "u" : "b"; p.textContent = m.content; box.appendChild(p); }
+  if (extra) box.appendChild(extra);
+  box.scrollTop = box.scrollHeight;
+}
+async function studyTurn() {
+  const wait = document.createElement("p"); wait.className = "b thinking"; wait.textContent = "One moment…"; drawStudy(wait);
+  try {
+    const d = await api("/study", { method: "POST", body: JSON.stringify({ task: study.task, mode: study.mode, notes: $("stNotes").value, messages: study.talk }) });
+    study.talk.push({ role: "assistant", content: d.reply }); drawStudy();
+  } catch (err) { const p = document.createElement("p"); p.className = "b err"; p.textContent = err.message; drawStudy(p); }
+}
+function startStudy(mode) {
+  study.mode = mode; study.talk = [{ role: "user", content: mode === "quiz" ? "Quiz me." : "Make me a study plan." }];
+  $("stForm").classList.toggle("hidden", mode !== "quiz"); studyTurn();
+}
+$("stPlan").addEventListener("click", () => startStudy("plan"));
+$("stQuiz").addEventListener("click", () => startStudy("quiz"));
+$("stForm").addEventListener("submit", (e) => {
+  e.preventDefault(); const a = $("stIn").value.trim(); if (!a) return;
+  $("stIn").value = ""; study.talk.push({ role: "user", content: a }); studyTurn();
+});
+
+// ---------- the Cellar ----------
+let cellar = [];
+try { cellar = JSON.parse(localStorage.getItem("cellarTalk") || "[]"); } catch {}
+function saveCellar() { try { localStorage.setItem("cellarTalk", JSON.stringify(cellar.slice(-30))); } catch {} }
+function drawCellar(extra) {
+  const box = $("ceTalk"); box.innerHTML = "";
+  for (const m of cellar) {
+    if (m.role === "user" && m.content === "I climb down through the trapdoor.") continue;
+    const p = document.createElement("p"); p.className = m.role === "user" ? "u" : "b"; p.textContent = m.content; box.appendChild(p);
+  }
+  if (extra) box.appendChild(extra);
+  box.scrollTop = box.scrollHeight;
+}
+function cellarProgress(st) {
+  $("ceProgress").textContent = `${st.finished} assignment${st.finished === 1 ? "" : "s"} submitted · ${st.unlocked.length} of 6 chambers open` +
+    (st.next ? ` · ${st.next.need - st.finished} more opens ${st.next.name}` : " · every door is open");
+}
+async function cellarTurn() {
+  const wait = document.createElement("p"); wait.className = "b thinking"; wait.textContent = "…"; drawCellar(wait);
+  try {
+    const d = await api("/cellar", { method: "POST", body: JSON.stringify({ messages: cellar }) });
+    cellar.push({ role: "assistant", content: d.reply }); saveCellar(); drawCellar(); cellarProgress(d);
+  } catch (err) { const p = document.createElement("p"); p.className = "b err"; p.textContent = err.message; drawCellar(p); }
+}
+async function loadCellar() {
+  try { cellarProgress(await api("/cellar")); } catch {}
+  if (!cellar.length) { cellar = [{ role: "user", content: "I climb down through the trapdoor." }]; cellarTurn(); }
+  else drawCellar();
+  setTimeout(() => $("ceIn").focus(), 100);
+}
+$("ceForm").addEventListener("submit", (e) => {
+  e.preventDefault(); const a = $("ceIn").value.trim(); if (!a) return;
+  $("ceIn").value = ""; cellar.push({ role: "user", content: a }); saveCellar(); cellarTurn();
+});
+$("ceRestart").addEventListener("click", () => { if (!confirm("Start the cellar over from the top of the stairs?")) return; cellar = []; saveCellar(); loadCellar(); });
+
 // ---------- routing ----------
 function route() {
-  const room = ["#paper", "#reach", "#away"].includes(location.hash) ? location.hash.slice(1) : null;
+  const room = ["#paper", "#reach", "#away", "#study", "#cellar"].includes(location.hash) ? location.hash.slice(1) : null;
   $("hub").classList.toggle("hidden", !!room);
-  for (const id of ["paper", "reach", "away"]) $(id).classList.toggle("hidden", room !== id);
+  for (const id of ["paper", "reach", "away", "study", "cellar"]) $(id).classList.toggle("hidden", room !== id);
+  if (room === "study" && token) loadStudy();
+  if (room === "cellar" && token) loadCellar();
   if (room === "away" && token) loadAway();
   if (room === "reach" && token) loadReachRoom();
   window.scrollTo(0, 0);

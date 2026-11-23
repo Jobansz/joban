@@ -67,6 +67,20 @@
   .hp { position: absolute; left: -9999px; }
   .note { min-height: 22px; font-size: 14px; text-align: center; color: var(--muted); }
   .note.ok { color: var(--green); } .note.err { color: #ff6b6b; }
+  .replies { width: 100%; max-width: 380px; margin-top: 28px; display: grid; gap: 10px; }
+  .reply { border: 1px solid rgba(61,220,132,.35); border-radius: 16px; padding: 14px 16px; background: rgba(61,220,132,.05); }
+  .reply .lbl { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--green); }
+  .reply .yours { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .reply .his { font-size: 16px; margin-top: 4px; line-height: 1.45; }
+  .ask { width: 100%; max-width: 380px; margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--line); text-align: center; }
+  .ask h2 { font-size: 18px; font-weight: 600; }
+  .ask form { margin-top: 0; }
+  .convo { display: grid; gap: 10px; margin-bottom: 12px; text-align: left; }
+  .convo p { line-height: 1.45; font-size: 15px; max-width: 88%; }
+  .convo .q { justify-self: end; background: #1d1d1f; border-radius: 14px 14px 4px 14px; padding: 9px 13px; }
+  .convo .a { justify-self: start; color: #d8d8d4; }
+  .convo .a::before { content: "Bernard · "; color: var(--muted); font-size: 13px; }
+  .convo .err { color: #ff6b6b; }
   footer { margin-top: auto; padding-top: 40px; font-size: 12px; color: #555; }
   footer a { color: inherit; }
 </style>
@@ -94,6 +108,20 @@
     </div>
     <p class="note" id="note" role="status"></p>
   </form>
+
+  <!-- replies to notes this browser left -->
+  <section class="replies" id="replies" hidden></section>
+
+  <!-- guestbook: ask Bernard about Joban -->
+  <section class="ask">
+    <h2>Ask Bernard about Joban</h2>
+    <p class="sub" style="margin:0 auto 14px">Joban's doorman knows a few things he's allowed to share.</p>
+    <div class="convo" id="convo" aria-live="polite"></div>
+    <form id="askForm" autocomplete="off">
+      <input id="askQ" maxlength="300" placeholder="What's he building at the moment?">
+      <div class="row"><span class="count" id="askNote"></span><button id="askBtn" type="submit">Ask</button></div>
+    </form>
+  </section>
 
   <footer><a href="index.html">joban.me</a></footer>
 
@@ -338,6 +366,7 @@ $("form").addEventListener("submit", async (e) => {
     });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || "Couldn't send. Try again.");
+    if (d.id) rememberSent(d.id, text);
     setMessage(text);
     note(d.delivered ? "Sent. It's lighting up on his desk now." : "Left on his desk. He'll see it when he's back.", "ok");
     $("text").value = ""; updateCount();
@@ -347,8 +376,65 @@ $("form").addEventListener("submit", async (e) => {
   }
 });
 
+// ---------- replies: this browser remembers the notes it left ----------
+function sentList() { try { return JSON.parse(localStorage.getItem("reachSent") || "[]"); } catch { return []; } }
+function rememberSent(id, text) {
+  const list = sentList().filter((m) => Date.now() - m.at < 60 * 86400000);
+  list.push({ id, text, at: Date.now() });
+  try { localStorage.setItem("reachSent", JSON.stringify(list.slice(-20))); } catch {}
+}
+async function loadReplies() {
+  const list = sentList(); if (!list.length) return;
+  try {
+    const r = await fetch(API + "/replies?ids=" + encodeURIComponent(list.map((m) => m.id).join(",")), { cache: "no-store" });
+    const { replies } = await r.json();
+    const box = $("replies"); box.innerHTML = "";
+    for (const m of [...list].reverse()) {
+      const rep = replies[m.id]; if (!rep) continue;
+      const card = document.createElement("div"); card.className = "reply";
+      const lbl = document.createElement("div"); lbl.className = "lbl"; lbl.textContent = "Joban replied";
+      const yours = document.createElement("div"); yours.className = "yours"; yours.textContent = "You: " + m.text;
+      const his = document.createElement("div"); his.className = "his"; his.textContent = rep.text;
+      card.append(lbl, yours, his); box.appendChild(card);
+    }
+    box.hidden = !box.children.length;
+  } catch {}
+}
+
+// ---------- guestbook: ask Bernard ----------
+const LOUNGE = "https://lounge.jobanxy.workers.dev";
+let asked = [];
+try { asked = JSON.parse(sessionStorage.getItem("askBernard") || "[]"); } catch {}
+function drawConvo(extra) {
+  const box = $("convo"); box.innerHTML = "";
+  for (const m of asked) { const p = document.createElement("p"); p.className = m.role === "user" ? "q" : "a"; p.textContent = m.content; box.appendChild(p); }
+  if (extra) box.appendChild(extra);
+}
+$("askForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const q = $("askQ").value.trim(); if (!q) return;
+  $("askQ").value = ""; $("askBtn").disabled = true;
+  const wait = document.createElement("p"); wait.className = "a"; wait.textContent = "One moment…";
+  asked.push({ role: "user", content: q }); drawConvo(wait);
+  try {
+    const r = await fetch(LOUNGE + "/ask", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: q, history: asked.slice(0, -1) }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || "Bernard didn't catch that.");
+    asked.push({ role: "assistant", content: d.answer });
+    try { sessionStorage.setItem("askBernard", JSON.stringify(asked.slice(-10))); } catch {}
+    drawConvo();
+  } catch (err) {
+    asked.pop(); $("askQ").value = q;
+    const p = document.createElement("p"); p.className = "a err"; p.textContent = err.message; drawConvo(p);
+  }
+  $("askBtn").disabled = false;
+});
+drawConvo();
+
 updateCount();
 loadStatus(); setInterval(loadStatus, 30000);
+loadReplies();
 </script>
 </body>
 </html>
