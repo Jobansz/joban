@@ -79,7 +79,7 @@ async function askClaude(projects) {
     headers: { "x-api-key": String(env.ANTHROPIC_API_KEY).replace(/\s+/g, ""), "anthropic-version": "2023-06-01", "content-type": "application/json" },
     body: JSON.stringify({
       model: "claude-haiku-5-5",
-      max_tokens: 500,
+      max_tokens: 4000,
       system:
         "You write the 'What I'm building' note at the top of Joban Singh's personal website, joban.me. Joban is a CS student at UNBC who builds apps, " +
         "ESP32 gadgets (Reach, a desk clock; Away, a train display; an e-ink morning paper) and shoots film. Write in his voice: first person, casual, warm, a little proud, never salesy. " +
@@ -90,7 +90,9 @@ async function askClaude(projects) {
     }),
   });
   if (!res.ok) throw new Error(String(res.status));
-  const text = (await res.json()).content.map((c) => c.text || "").join("");
+  const out = await res.json();
+  const text = (out.content || []).filter((c) => c.type === "text").map((c) => c.text).join("");
+  if (!text.includes("{")) throw new Error("no JSON (stop_reason " + out.stop_reason + ")");
   const j = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
   return { headline: String(j.headline || "This week in the workshop"), body: String(j.body || ""), items: (j.items || []).slice(0, 4).map(String) };
 }
