@@ -1,21 +1,30 @@
 {
   "week_of": "November 23",
-  "updated": "2026-11-23T08:00:00.000Z",
-  "changes": 0,
+  "updated": "2026-11-23T07:50:35.969Z",
+  "changes": 40,
   "projects": [
-    "joban"
+    "joban",
+    "snippy-privacy"
   ],
   "new_pages": [
     {
       "title": "Reach",
       "href": "reach.html"
+    },
+    {
+      "title": "Away",
+      "href": "away.html"
+    },
+    {
+      "title": "Snippy",
+      "href": "snippy.html"
+    },
+    {
+      "title": "SweetTreat",
+      "href": "sweettreat.html"
     }
   ],
-  "headline": "My desk clock talks back now",
-  "body": "Reach, the little round clock on my desk, can now reply to the notes you leave it. You can also ask my doorman Bernard about me, and he'll answer what I've told him he can share.",
-  "items": [
-    "Replies to your Reach notes",
-    "Ask Bernard about me",
-    "Weekly updates right here"
-  ]
+  "headline": "This week in the workshop",
+  "body": "40 changes across joban, snippy-privacy.",
+  "items": []
 }
