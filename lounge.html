@@ -327,14 +327,16 @@
     background: repeating-radial-gradient(circle at 30% 40%, rgba(0,0,0,.25) 0 1px, transparent 1px 3px); }
   .items { position: relative; display: grid; grid-template-columns: repeat(var(--n, 4), 150px); justify-content: center; gap: 22px; }
   .tile { position: relative; width: 150px; height: 128px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-    text-decoration: none; color: #2a1a0c; border-radius: 3px; background: linear-gradient(160deg, #fbf7ee, #ece2cf);
-    box-shadow: inset 0 0 0 2px #c9a46a, inset 0 0 0 4px #fbf7ee, inset 0 0 0 5px rgba(201,164,106,.6), 0 8px 14px rgba(0,0,0,.45);
+    text-decoration: none; color: #efe3cf; border-radius: 3px;
+    background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.06), transparent 60%), linear-gradient(160deg, #4a1015, #2e080b);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), inset 0 0 0 5px #3a0c10, inset 0 0 0 6px rgba(201,164,106,.55), 0 8px 14px rgba(0,0,0,.5);
     transition: transform .3s cubic-bezier(.2,.75,.2,1), box-shadow .3s; }
   .tile:hover, .tile:focus-visible { transform: translateY(-5px); outline: none;
-    box-shadow: inset 0 0 0 2px #c9a46a, inset 0 0 0 4px #fbf7ee, inset 0 0 0 5px rgba(201,164,106,.6), 0 16px 22px rgba(0,0,0,.5); }
-  .tile .seal { position: static; margin: 0 0 6px; width: 34px; height: 34px; }
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), inset 0 0 0 5px #3a0c10, inset 0 0 0 6px var(--brass), 0 16px 22px rgba(0,0,0,.55); }
+  .tile .seal { position: static; margin: 0 0 6px; width: 34px; height: 34px; color: #3a2410;
+    background: radial-gradient(circle at 35% 30%, #f3dca2, #c49a52 55%, #7d5a26); box-shadow: 0 2px 3px rgba(0,0,0,.5); }
   .tile b { font-family: "Fraunces", serif; font-weight: 600; font-size: 1.1rem; line-height: 1.1; }
-  .tile small { font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: #6b5233; }
+  .tile small { font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: var(--brass); }
   @media (max-width: 760px) { .items { grid-template-columns: repeat(2, 140px); gap: 14px; } .tile { width: 140px; height: 118px; } }
   .items.swap { animation: slidein .5s cubic-bezier(.2,.75,.2,1); }
   @keyframes slidein { from { opacity: 0; transform: translateX(var(--from, 40px)); } to { opacity: 1; transform: none; } }
