@@ -7,7 +7,7 @@
 <meta name="description" content="A room for guests. Mix your way in, then leave your glass on the table.">
 <meta name="theme-color" content="#140d09">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=Caveat:wght@500;700&family=Reenie+Beanie&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=Caveat:wght@500;700&family=Reenie+Beanie&family=Alfa+Slab+One&display=swap" rel="stylesheet">
 <style>
   :root { --ink: #0f0b09; --brass: #c9a46a; --brass-dim: #7d6743; --cream: #efe3cf; --muted: #a8957c; --rose: #e39a8f; --line: rgba(201,164,106,.25);
     --rust: #b4532a; --mustard: #c9932c; --teal: #2e6a6c; --ox: #4b0b11; }
@@ -91,6 +91,105 @@
   .scrap .sig { font-family: "Reenie Beanie", "Caveat", cursive; font-size: 1.3rem; color: #3a1f0f; display: block; }
   .scrap small { display: block; font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: #8a6a4a; margin-top: 2px; }
   .scrap.mine .paper { box-shadow: inset 0 0 0 2px #c9a46a; }
+  /* ---------- surfaces: the thing you zoomed into ---------- */
+  .zoom-back { position: absolute; left: 12px; top: 12px; z-index: 6; display: none; background: rgba(14,8,6,.85); color: var(--cream); border: 1px solid var(--brass); border-radius: 99px; padding: 7px 14px; font-size: .78rem; }
+  #vault.zoomed:not(.surfaced) .zoom-back { display: block; }
+  #vault.surfaced .room { display: none; }
+  .surface { position: relative; width: 100%; aspect-ratio: 1200 / 700; border-radius: 6px; overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,.6), 0 0 0 1px var(--line); animation: sf-in .45s ease both; touch-action: manipulation; }
+  .surface.auto { aspect-ratio: auto; overflow: visible; padding: 56px 18px 20px; background: linear-gradient(180deg, #2a1207, #1a0b05); }
+  @keyframes sf-in { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+  @media (max-width: 760px) { .surface:not(.auto) { aspect-ratio: auto; height: 76vh; min-height: 480px; } }
+  .sf-top { position: absolute; left: 12px; top: 12px; right: 12px; z-index: 50; display: flex; align-items: center; gap: 12px; pointer-events: none; }
+  .sf-back { pointer-events: auto; background: rgba(14,8,6,.85); color: var(--cream); border: 1px solid var(--brass); border-radius: 99px; padding: 7px 14px; font-size: .78rem; }
+  .sf-title { font-family: "Fraunces", serif; font-style: italic; font-size: 1.1rem; color: var(--cream); text-shadow: 0 2px 8px rgba(0,0,0,.8); }
+  .sf-line { font-family: "Fraunces", serif; font-style: italic; color: var(--cream); margin-bottom: 14px; }
+  .ghost { position: fixed; z-index: 9999; pointer-events: none; transform: translate(-50%, -50%) rotate(-4deg) scale(1.05); filter: drop-shadow(0 18px 14px rgba(0,0,0,.45)); }
+  .ghost-sheet { width: 120px; height: 120px; background: #f7f0e1; clip-path: polygon(0 3%, 30% 0, 62% 2%, 100% 0, 98% 40%, 100% 100%, 60% 97%, 25% 100%, 0 98%, 2% 50%); }
+  .swatches { display: flex; gap: 7px; flex-wrap: wrap; margin: 8px 0; }
+  .sw { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(255,255,255,.3); background: var(--c); padding: 0; }
+  .sw.on { border-color: var(--brass); box-shadow: 0 0 0 2px #140806, 0 0 0 4px var(--brass); }
+  .d-card { position: absolute; left: 50%; top: calc(100% + 10px); transform: translateX(-50%) rotate(calc(-1 * var(--r, 0deg))); z-index: 60; width: 250px; padding: 12px 14px;
+    background: rgba(14,8,6,.95); border-radius: 6px; box-shadow: inset 0 0 0 1px var(--brass), 0 14px 30px rgba(0,0,0,.6); color: var(--cream); text-align: left; }
+  .d-card .d-row { display: flex; gap: 12px; align-items: center; margin-top: 4px; }
+  .d-card .btn { padding: 8px 14px; white-space: nowrap; } .d-card .link { white-space: nowrap; } .d-card small { display: block; margin-top: 6px; font-size: .68rem; }
+  .d-card input { width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--brass-dim); color: var(--cream); font: inherit; font-size: 16px; padding: 6px 2px; outline: none; }
+  .lifted { cursor: grabbing; filter: drop-shadow(0 22px 16px rgba(0,0,0,.45)) !important; }
+
+  /* the board, up close */
+  .surface.board { background: #2a1207; padding: 16px; }
+  .cork-area { position: absolute; inset: 16px; border-radius: 3px; box-shadow: inset 0 0 0 3px #c9a46a, inset 0 0 50px rgba(0,0,0,.45);
+    background: radial-gradient(circle at 30% 40%, rgba(255,220,170,.18), transparent 50%), radial-gradient(rgba(60,30,10,.4) 1px, transparent 1.7px) 0 0 / 7px 7px, radial-gradient(rgba(255,220,170,.14) 1px, transparent 1.7px) 3px 4px / 9px 9px, linear-gradient(135deg, #a8774a, #b98957 40%, #9c6a3f); }
+  .cork-area .bare { position: absolute; inset: 0; display: grid; place-items: center; font-family: "Caveat", cursive; font-size: 1.8rem; color: #3a1f0f; pointer-events: none; }
+  .cork-area .scrap { position: absolute; width: clamp(130px, 21%, 200px); transform: translate(-50%, -50%) rotate(var(--r, 0deg)); cursor: pointer; }
+  .cork-area .scrap:hover { transform: translate(-50%, -50%) rotate(0deg) scale(1.04); }
+  .cork-area .scrap .paper { min-height: 0; padding: 24px 14px 14px; }
+  .cork-area .scrap p { font-size: clamp(1.05rem, 1.8vw, 1.35rem); }
+  .cork-area .scrap.draft { width: clamp(190px, 28%, 250px); cursor: grab; }
+  .scrap.draft .paper { padding: 26px 14px 14px; }
+  .scrap.draft input, .scrap.draft textarea { width: 100%; background: transparent; border: 0; border-bottom: 1px dashed rgba(90,58,32,.35); color: #2a1a0c; font-family: "Caveat", cursive; font-size: 1.3rem; outline: none; resize: none; }
+  .scrap.draft .d-to { font-family: "Inter", sans-serif; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; }
+  .scrap.draft .d-name { font-family: "Reenie Beanie", "Caveat", cursive; font-size: 1.3rem; }
+  .pad { position: absolute; right: 30px; bottom: 26px; z-index: 40; width: 96px; height: 96px; display: grid; place-items: center; text-align: center; cursor: grab; touch-action: none;
+    background: #f7f0e1; color: #3a1f0f; font-family: "Caveat", cursive; font-size: 1rem; line-height: 1; box-shadow: 0 10px 18px rgba(0,0,0,.45); transform: rotate(3deg); animation: nudge 2.4s ease-in-out infinite; }
+  .pad i { position: absolute; inset: 0; background: #efe5cf; transform: translate(4px, 4px) rotate(-3deg); z-index: -1; box-shadow: 0 6px 10px rgba(0,0,0,.3); }
+  .pad i + i { transform: translate(8px, 7px) rotate(2deg); z-index: -2; }
+  @media (max-width: 760px) { .pad, .tray { right: auto; left: 22px; } }
+  @keyframes nudge { 50% { transform: rotate(3deg) translateY(-4px); } }
+
+  /* the table, up close (looking down) */
+  .surface.tablesurf { background: radial-gradient(ellipse at 50% 50%, #7a0e12, #4a0609 70%, #2a0406); }
+  .tabletop { position: absolute; left: 7%; right: 7%; top: 9%; bottom: 7%; border-radius: 50%;
+    background: radial-gradient(ellipse at 32% 28%, #b8ccff 0, #5a7ae0 18%, #2a46b0 45%, #13277a 75%, #0a1450 100%);
+    box-shadow: 0 0 0 6px #0a1033, 0 0 0 8px #cfe0ff, 0 30px 50px rgba(0,0,0,.6), inset 0 -20px 60px rgba(0,0,0,.4); }
+  .tabletop::after { content: ""; position: absolute; left: 12%; top: 10%; width: 46%; height: 30%; border-radius: 50%; border-top: 3px solid rgba(255,255,255,.35); transform: rotate(-12deg); pointer-events: none; }
+  .table-area { position: absolute; inset: 8% 6%; }
+  .ring { position: absolute; width: clamp(96px, 17%, 160px); aspect-ratio: 1; transform: translate(-50%, -50%); cursor: pointer; }
+  .ring svg { width: 100%; height: 100%; filter: brightness(1.35) saturate(1.1); }
+  .ring.mine svg { filter: brightness(1.35) saturate(1.1) drop-shadow(0 0 6px rgba(201,164,106,.6)); }
+  .ring.draft { width: clamp(130px, 22%, 200px); cursor: grab; z-index: 30; }
+  .ring.draft .stain-now { width: 100%; height: 100%; animation: soak 1.2s ease both; }
+  .ring.draft .stain-now svg { width: 100%; height: 100%; filter: brightness(1.35) saturate(1.1); }
+  @keyframes soak { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
+  .ring.draft.up .d-card, .scrap.draft.up .d-card { top: auto; bottom: calc(100% + 10px); }
+  .scrap.draft.left .d-card { left: auto; right: 30%; transform: rotate(calc(-1 * var(--r, 0deg))); }
+  .scrap.draft.right .d-card { left: 30%; transform: rotate(calc(-1 * var(--r, 0deg))); }
+  #vault.surfaced .room-say { top: 62px; }
+  .ring.draft.left .d-card { left: auto; right: 40%; transform: none; }
+  .ring.draft.right .d-card { left: 40%; transform: none; }
+  .ring .d-card { transform: translateX(-50%); }
+  .tray { position: absolute; right: 18px; bottom: 16px; z-index: 40; display: grid; justify-items: center; gap: 4px; padding: 10px 12px; border-radius: 8px; cursor: grab; touch-action: none;
+    background: rgba(14,8,6,.8); box-shadow: inset 0 0 0 1px var(--brass); color: var(--cream); font-size: .7rem; text-align: center; animation: nudge 2.4s ease-in-out infinite; }
+  .ghost-glass svg { display: block; }
+
+  /* the record player, up close */
+  .rec-wrap { display: grid; grid-template-columns: minmax(220px, 1fr) 1.2fr; gap: 26px; align-items: start; }
+  @media (max-width: 760px) { .rec-wrap { grid-template-columns: 1fr; } }
+  .deck { position: relative; padding: 22px; border-radius: 8px; background: linear-gradient(160deg, #6b3a1e, #4a2614); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 18px 30px rgba(0,0,0,.5); }
+  .platter { width: min(100%, 300px); aspect-ratio: 1; margin: 0 auto; border-radius: 50%; background: #1b1b1d; display: grid; place-items: center; box-shadow: inset 0 0 0 6px #2a2a2c; }
+  .vinyl { width: 92%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center;
+    background: repeating-radial-gradient(circle, #0c0c0d 0 2px, #161618 2px 3px), #0c0c0d; box-shadow: inset 0 0 0 1px #2a2a2c; }
+  .vinyl::after { content: ""; position: absolute; width: 40%; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(from 30deg, transparent, rgba(255,255,255,.12), transparent 30%); }
+  .vinyl { position: relative; }
+  .vinyl.spin { animation: spin 1.8s linear infinite; }
+  .vlabel { width: 34%; aspect-ratio: 1; border-radius: 50%; background: #b4532a; box-shadow: inset 0 0 0 6px rgba(0,0,0,.15); }
+  .vlabel::after { content: ""; display: block; width: 10%; aspect-ratio: 1; margin: 45% auto; border-radius: 50%; background: #111; }
+  .tonearm { position: absolute; right: 26px; top: 26px; width: 14px; height: 46%; border-radius: 7px; background: linear-gradient(90deg, #8c6a30, #f0d69c, #8c6a30); transform-origin: 50% 7px; transform: rotate(24deg); box-shadow: 0 6px 8px rgba(0,0,0,.4); }
+  .np { margin-top: 16px; text-align: center; color: var(--muted); font-size: .85rem; display: grid; gap: 2px; }
+  .np b { font-family: "Fraunces", serif; font-style: italic; font-weight: 400; font-size: 1.15rem; color: var(--cream); }
+  .np a { color: var(--brass); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; margin-top: 4px; }
+  .sleeves { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-top: 10px; }
+  .sleeve { position: relative; aspect-ratio: 1; border: 0; border-radius: 3px; padding: 12px; text-align: left; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; overflow: hidden; color: #fff8ea;
+    background: radial-gradient(circle at 70% 25%, rgba(255,255,255,.18), transparent 50%), var(--c, #b4532a); box-shadow: 0 10px 16px rgba(0,0,0,.45); transition: transform .25s; }
+  .sleeve:hover { transform: translateY(-4px); }
+  .sleeve.on { box-shadow: 0 0 0 2px var(--brass), 0 10px 16px rgba(0,0,0,.45); }
+  .sleeve .disc { position: absolute; right: -28%; top: 10%; width: 70%; aspect-ratio: 1; border-radius: 50%; background: repeating-radial-gradient(circle, #0c0c0d 0 2px, #1a1a1c 2px 3px); }
+  .sleeve b { position: relative; font-family: "Caveat", cursive; font-size: 1.2rem; line-height: 1.05; }
+  .sleeve small { position: relative; font-size: .64rem; letter-spacing: .14em; text-transform: uppercase; opacity: .8; }
+  .sleeve.blank { background: repeating-linear-gradient(45deg, #efe3cf 0 8px, #e6d7bc 8px 16px); color: #3a1f0f; align-items: center; justify-content: center; text-align: center; }
+  .sleeve.blank b { font-family: "Fraunces", serif; font-size: 2rem; }
+  .sleeve.blank.editing { aspect-ratio: auto; grid-column: 1 / -1; justify-content: flex-start; align-items: stretch; text-align: left; gap: 8px; padding: 16px; }
+  .sleeve.blank.editing input { background: transparent; border: 0; border-bottom: 1px solid rgba(58,31,15,.4); color: #2a1a0c; font-family: "Caveat", cursive; font-size: 1.4rem; outline: none; padding: 4px 2px; }
+  .sleeve .d-row { display: flex; gap: 12px; align-items: center; } .sleeve .link { color: #5a3a20; } .sleeve .toast { color: #7a1426; }
   /* ---------- the wall (deco doors over the room) ---------- */
   .leaves { position: absolute; inset: 0; z-index: 5; border-radius: 6px; overflow: hidden; pointer-events: auto; }
   .leaf { position: absolute; top: 0; bottom: 0; width: 50.2%; transition: transform 1.6s cubic-bezier(.6,.05,.25,1);
@@ -451,14 +550,11 @@
       <rect width="1200" height="700" fill="url(#vignette)" pointer-events="none"/>
     </svg>
     <p class="room-say" id="roomSay" aria-live="polite"></p>
+    <button class="zoom-back" id="zoomBack" type="button">← Back to the room</button>
+    <div class="surface" id="surface" hidden></div>
     <div class="hint-row" id="hintRow" role="group" aria-label="Places in the room">
       <button data-go="hotBar">The bar</button><button data-go="hotPit">The table</button><button data-go="hotBoard">Memo board</button><button data-go="hotRecord">Record player</button><button data-go="hotWindow">Window</button><button data-go="hotLamp">Lamp</button><button data-go="hotChair">Chair</button>
     </div>
-    <section class="closeup" id="closeup" hidden aria-live="polite">
-      <div class="cu-head"><div><span class="eyebrow" id="cuKicker"></span><h3 id="cuTitle"></h3></div><button class="link" id="cuBack">← Back to the room</button></div>
-      <div id="cuBody"></div>
-    </section>
-    <div class="now-playing" id="nowPlaying" hidden><span class="eyebrow">Now playing</span><a id="npSong" target="_blank" rel="noopener"></a><small id="npBy"></small><button class="link" id="npNext">Next →</button></div>
   </div>
 
   <!-- the bar, in front of the wall -->
@@ -577,159 +673,331 @@ function drawRoom() {
     svgEl("path", { d: `M${gx} 375 V382 M${gx - 6} 382 H${gx + 6}`, stroke: "#e8f2f6", "stroke-width": 1.4 }, cg);
   }
 }
+// ---------- what you can see from the room ----------
+function hashStr(t) { let h = 2166136261; for (const c of String(t)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return Math.abs(h); }
+const STAINS = { espresso: "#5a3418", latte: "#a8743c", wine: "#7a1426", matcha: "#4f7a2a", ink: "#23356e", black: "#1e120a" };
+const STAIN_NAMES = { espresso: "Espresso", latte: "Latte", wine: "Red wine", matcha: "Matcha", ink: "Ink", black: "Black coffee" };
+const PAPERS = ["#f7f0e1", "#fff3b0", "#e9dcc3", "#ffe0db", "#dfe9f2", "#e3f0d8"];
+const SLEEVES = ["#b4532a", "#2e6a6c", "#c9932c", "#7a1426", "#23356e", "#4f7a2a", "#5a3f9a", "#1e120a"];
+const clamp = (v) => Math.min(0.94, Math.max(0.06, v));
+// older things left before you could choose a spot get a steady spot of their own
+const spot = (m) => (typeof m.x === "number" ? m : { ...m, x: 0.14 + (hashStr(m.member + ":" + m.at) % 72) / 100, y: 0.16 + (hashStr(m.at + "/" + m.member) % 66) / 100 });
 function drawTableGlasses(marks) {
   const g = $("tableGlasses"); g.innerHTML = "";
-  const n = Math.min(marks.length, 14);
-  for (let i = 0; i < n; i++) {
-    const m = marks[marks.length - 1 - i];
-    const row = i < 7 ? 0 : 1, col = row ? i - 7 : i, per = Math.min(7, row ? n - 7 : n);
-    const gx = 600 + (col - (per - 1) / 2) * 34, gy = 626 + row * 14;
-    const grp = svgEl("g", {}, g);
-    svgEl("ellipse", { cx: gx, cy: gy + 2, rx: 9, ry: 2.6, fill: m.member === myMember ? "#c9a46a" : "#efe3cf", opacity: .9 }, grp);
-    svgEl("path", { d: `M${gx - 9} ${gy - 20} L${gx + 9} ${gy - 20} L${gx} ${gy - 9} Z`, fill: "#2a1408", stroke: "#e8f2f6", "stroke-width": 1.2 }, grp);
-    svgEl("path", { d: `M${gx - 7} ${gy - 18.8} H${gx + 7}`, stroke: "#d9b98a", "stroke-width": 1.6 }, grp);
-    svgEl("path", { d: `M${gx} ${gy - 9} V${gy + 1}`, stroke: "#e8f2f6", "stroke-width": 1.2 }, grp);
-    const t = svgEl("title", {}, grp); t.textContent = m.name;
+  const list = marks.slice(-24).map(spot);
+  for (const m of list) {
+    const gx = 600 + (m.x - 0.5) * 250, gy = 634 + (m.y - 0.5) * 44;
+    svgEl("ellipse", { cx: gx, cy: gy, rx: 9, ry: 2.8, fill: "none", stroke: STAINS[m.color] || STAINS.espresso, "stroke-width": 2.4, opacity: .9 }, g);
+  }
+  for (const m of list.slice(-3)) { // the last few glasses are still standing
+    const gx = 600 + (m.x - 0.5) * 250 + 8, gy = 634 + (m.y - 0.5) * 44 - 2;
+    svgEl("path", { d: `M${gx - 9} ${gy - 20} L${gx + 9} ${gy - 20} L${gx} ${gy - 9} Z`, fill: "#2a1408", stroke: "#e8f2f6", "stroke-width": 1.2 }, g);
+    svgEl("path", { d: `M${gx - 7} ${gy - 18.8} H${gx + 7}`, stroke: "#d9b98a", "stroke-width": 1.6 }, g);
+    svgEl("path", { d: `M${gx} ${gy - 9} V${gy} M${gx - 5} ${gy} H${gx + 5}`, stroke: "#e8f2f6", "stroke-width": 1.2 }, g);
+  }
+}
+function drawCork(list) {
+  const g = $("corkPapers"); g.innerHTML = "";
+  for (const m of list.slice(-16).map(spot)) {
+    const k = hashStr(m.member + ":" + m.at);
+    const px = 66 + m.x * 178, top = 212 + ((px - 66) * 33) / 178, bot = 374 - ((px - 66) * 31) / 178, py = top + m.y * (bot - top);
+    const grp = svgEl("g", { transform: `rotate(${(m.r ?? (k % 80) / 10 - 4).toFixed(1)} ${px} ${py})` }, g);
+    svgEl("rect", { x: px - 12, y: py - 10, width: 24, height: 20, fill: PAPERS[m.paper ?? k % PAPERS.length] }, grp);
+    for (let l = 0; l < 3; l++) svgEl("rect", { x: px - 8, y: py - 3 + l * 4.5, width: 14 - (l * 3), height: 1.2, fill: "#5a3a20", opacity: .5 }, grp);
+    svgEl("circle", { cx: px, cy: py - 8, r: 2.2, fill: "#c0392b" }, grp);
   }
 }
 
-// hotspots
+// ---------- the coffee-ring stain, the name soaked into it in fat slab letters ----------
+function stainSVG(name, seedKey, colorKey) {
+  const col = STAINS[colorKey] || STAINS.espresso;
+  const rnd = seeded((hashStr(seedKey) % 200000) + 11), id = "st" + hashStr(seedKey + name + colorKey).toString(36);
+  const cx = 100, cy = 100, r = 62, W = 30;
+  const letters = [...String(name || "").trim().slice(0, 18)];
+  const fs = letters.length > 9 ? 20 : 26, step = (fs * 0.74) / r;
+  const gap = letters.length ? letters.length * step + 0.3 : 0.35;
+  const a0 = -Math.PI / 2 + gap / 2, a1 = -Math.PI / 2 - gap / 2 + Math.PI * 2;
+  const P = (a, rr = r) => `${(cx + rr * Math.cos(a)).toFixed(1)} ${(cy + rr * Math.sin(a)).toFixed(1)}`;
+  const arc = (rr) => `M${P(a0, rr)} A${rr} ${rr} 0 1 1 ${P(a1, rr)}`;
+  let blots = "";
+  for (let i = 0; i < 4; i++) {
+    const s0 = a0 + rnd() * (a1 - a0 - 0.6), len = 0.25 + rnd() * 0.55;
+    blots += `<path d="M${P(s0)} A${r} ${r} 0 0 1 ${P(s0 + len)}" stroke="${col}" stroke-opacity="${(0.3 + rnd() * 0.3).toFixed(2)}" stroke-width="${W - 4 + rnd() * 8}" fill="none" stroke-linecap="round"/>`;
+  }
+  let drips = "";
+  for (let i = 0; i < 3; i++) { const a = a0 + 0.3 + rnd() * (a1 - a0 - 0.6), rr = r + W / 2 + 4 + rnd() * 8; drips += `<circle cx="${(cx + rr * Math.cos(a)).toFixed(1)}" cy="${(cy + rr * Math.sin(a)).toFixed(1)}" r="${(1.5 + rnd() * 3.5).toFixed(1)}" fill="${col}" fill-opacity=".5"/>`; }
+  let text = "";
+  letters.forEach((ch, i) => {
+    const a = -Math.PI / 2 + (i - (letters.length - 1) / 2) * step, rr = r + (rnd() - 0.5) * 4;
+    const x = (cx + rr * Math.cos(a)).toFixed(1), y = (cy + rr * Math.sin(a)).toFixed(1), deg = ((a * 180) / Math.PI + 90 + (rnd() - 0.5) * 14).toFixed(1);
+    text += `<text x="${x}" y="${y}" transform="rotate(${deg} ${x} ${y})" text-anchor="middle" dominant-baseline="central" font-family="Alfa Slab One, Rockwell, Georgia, serif" font-size="${(fs + (rnd() - 0.5) * 4).toFixed(1)}"
+      fill="${col}" fill-opacity="${(0.42 + rnd() * 0.2).toFixed(2)}" stroke="${col}" stroke-opacity=".8" stroke-width="1.3">${ch.replace(/[<&>"]/g, "")}</text>`;
+  });
+  return `<svg viewBox="0 0 200 200" aria-hidden="true">
+    <defs><filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="3" seed="${hashStr(seedKey) % 97}"/><feDisplacementMap in="SourceGraphic" scale="8"/></filter>
+    <filter id="${id}t" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="${hashStr(name) % 97}" result="n"/><feColorMatrix in="n" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1.25" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in"/></filter>
+    <filter id="${id}s" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".12" numOctaves="2" seed="${hashStr(seedKey + "s") % 97}"/><feDisplacementMap in="SourceGraphic" scale="3.5"/></filter></defs>
+    <g filter="url(#${id})"><g filter="url(#${id}t)">
+      <path d="${arc(r)}" stroke="${col}" stroke-opacity=".55" stroke-width="${W}" fill="none" stroke-linecap="round"/>
+      ${blots}
+      <path d="${arc(r + W / 2 - 2)}" stroke="${col}" stroke-opacity=".85" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="${arc(r - W / 2 + 2)}" stroke="${col}" stroke-opacity=".6" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>${drips}</g>
+    <g filter="url(#${id}s)">${text}</g>
+  </svg>`;
+}
+
+// ---------- hotspots and zooming in, like the desk in the Lounge ----------
 const WINDOW_LINES = ["Prince George? Not tonight. Tonight it's forty floors up somewhere.", "The city never quite sleeps from up here.", "Mr. Singh says every good room needs a view.", "Count the lit windows. Bernard stopped at 214."];
-const SIGN_LINES = ["Open late. Always.", "The neon was Mr. Singh's idea. Bernard approves.", "Mind the step down into the Pit."];
-let wi = 0, si = 0, playlist = [], pi = 0, memos = [];
-// ---------- zooming in, like the desk in the Lounge ----------
+const BAR_LINES = ["Another espresso martini? On the house, of course.", "Bernard polishes a glass and nods.", "The bar's open as long as you are."];
+const CHAIR_LINES = ["Mr. Singh's chair. Bernard keeps it warm.", "Best seat for the skyline. Reserved, naturally.", "Oxblood leather, older than the building. Sit, if you're brave."];
+const PALM_LINES = ["Bernard waters it every Sunday. It has never once said thank you.", "It came with the building. Nobody knows how old it is.", "Somewhere a florist is very proud of this palm."];
+let wi = 0, bi = 0, ci = 0, pli = 0, playlist = [], pi = 0, memos = [], lastMarks = [], surfaceRefresh = null, drafting = false;
+let myName = ""; try { myName = localStorage.getItem("pitName") || ""; } catch {}
+const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
 const FULL = [0, 0, 1200, 700];
 let vb = FULL.slice(), zoomAnim = 0, zoomedOn = null;
 function setVB(v) { vb = v; $("room").setAttribute("viewBox", v.map((n) => n.toFixed(1)).join(" ")); }
-function animateVB(to, ms = 750) {
+function animateVB(to, ms = 700) {
   cancelAnimationFrame(zoomAnim);
-  const from = vb.slice(), t0 = performance.now(), ease = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-  const step = (now) => { const t = Math.min(1, (now - t0) / ms), e = ease(t); setVB(from.map((f, i) => f + (to[i] - f) * e)); if (t < 1) zoomAnim = requestAnimationFrame(step); };
-  zoomAnim = requestAnimationFrame(step);
+  return new Promise((done) => {
+    const from = vb.slice(), t0 = performance.now(), ease = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const step = (now) => { const t = Math.min(1, (now - t0) / ms), e = ease(t); setVB(from.map((f, i) => f + (to[i] - f) * e)); if (t < 1) zoomAnim = requestAnimationFrame(step); else done(); };
+    zoomAnim = requestAnimationFrame(step);
+  });
 }
 function zoomBox(el, pad = 0.35) {
   const b = el.getBBox();
   let w = b.width * (1 + pad * 2), h = b.height * (1 + pad * 2);
-  if (w / h > 1200 / 700) h = w * 700 / 1200; else w = h * 1200 / 700;
-  w = Math.max(w, 300); h = w * 700 / 1200;
-  let x = b.x + b.width / 2 - w / 2, y = b.y + b.height / 2 - h / 2;
-  x = Math.max(0, Math.min(1200 - w, x)); y = Math.max(0, Math.min(700 - h, y));
+  if (w / h > 1200 / 700) h = (w * 700) / 1200; else w = (h * 1200) / 700;
+  w = Math.max(w, 260); h = (w * 700) / 1200;
+  const x = Math.max(0, Math.min(1200 - w, b.x + b.width / 2 - w / 2)), y = Math.max(0, Math.min(700 - h, b.y + b.height / 2 - h / 2));
   return [x, y, w, h];
 }
-function closeup(id, kicker, title, html) {
-  zoomedOn = id;
-  animateVB(zoomBox($(id), id === "hotWindow" ? 0.08 : 0.35));
-  $("cuKicker").textContent = kicker; $("cuTitle").textContent = title; $("cuBody").innerHTML = html;
-  $("closeup").hidden = false; $("nowPlaying").hidden = true;
-  setTimeout(() => $("vault").scrollIntoView({ behavior: "smooth", block: innerWidth < 760 ? "start" : "center" }), 50);
+async function zoomTo(id, pad) {
+  if (zoomedOn && $("vault").classList.contains("surfaced")) closeSurface();
+  zoomedOn = id; $("vault").classList.add("zoomed");
+  $("vault").scrollIntoView({ behavior: "smooth", block: innerWidth < 760 ? "start" : "center" });
+  await animateVB(zoomBox($(id), pad));
 }
 function backToRoom() {
-  zoomedOn = null; animateVB(FULL); $("closeup").hidden = true;
+  if (!zoomedOn) return;
+  zoomedOn = null; closeSurface(); $("vault").classList.remove("zoomed");
   document.querySelectorAll(".hint-row button").forEach((b) => b.classList.remove("on"));
+  animateVB(FULL);
 }
-$("cuBack").addEventListener("click", backToRoom);
+$("zoomBack").addEventListener("click", (e) => { e.stopPropagation(); backToRoom(); });
 addEventListener("keydown", (e) => { if (e.key === "Escape" && zoomedOn) backToRoom(); });
-const esc = (t) => String(t || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-let lastMarks = [];
-let myName = ""; try { myName = localStorage.getItem("pitName") || ""; } catch {}
-const nameField = (ph) => `<div class="field"><label for="cuName">Your name <span>${esc(who(myMember))}</span></label><input id="cuName" maxlength="18" value="${esc(myName)}" placeholder="${ph}"></div>`;
-async function leave(path, body, okText) {
-  const btn = $("cuGo"), toast = $("cuToast");
-  myName = $("cuName").value.trim(); try { localStorage.setItem("pitName", myName); } catch {}
+$("room").addEventListener("click", () => { if (zoomedOn) backToRoom(); });
+
+// a surface: the thing you zoomed into, big enough to work on
+function openSurface(kind, title, build) {
+  const s = $("surface");
+  s.className = "surface " + kind; s.innerHTML = `<div class="sf-top"><button class="sf-back" type="button">← The room</button><span class="sf-title">${esc(title)}</span></div>`;
+  s.querySelector(".sf-back").addEventListener("click", backToRoom);
+  surfaceRefresh = null; drafting = false;
+  build(s);
+  s.hidden = false; $("vault").classList.add("surfaced");
+}
+function closeSurface() { const s = $("surface"); s.hidden = true; s.innerHTML = ""; surfaceRefresh = null; drafting = false; $("vault").classList.remove("surfaced"); }
+
+// drag something off the pad / tray and drop it where you want it
+function dragOnto(src, area, makeGhost, onDrop) {
+  src.addEventListener("pointerdown", (e) => {
+    if (drafting) { say("Finish the one you're holding first.", true); return; }
+    e.preventDefault();
+    const ghost = makeGhost(); ghost.classList.add("ghost"); document.body.appendChild(ghost);
+    const move = (ev) => { ghost.style.left = ev.clientX + "px"; ghost.style.top = ev.clientY + "px"; };
+    move(e);
+    const up = (ev) => {
+      removeEventListener("pointermove", move); removeEventListener("pointerup", up); removeEventListener("pointercancel", up); ghost.remove();
+      const r = area.getBoundingClientRect(), x = (ev.clientX - r.left) / r.width, y = (ev.clientY - r.top) / r.height;
+      if (Math.hypot(ev.clientX - e.clientX, ev.clientY - e.clientY) < 8) onDrop(0.5, 0.45);
+      else if (x >= 0 && x <= 1 && y >= 0 && y <= 1) onDrop(clamp(x), clamp(y));
+      else say("Drop it right where you want it.");
+    };
+    addEventListener("pointermove", move); addEventListener("pointerup", up); addEventListener("pointercancel", up);
+  });
+}
+// pick up what you've just put down, and move it
+function movable(el, area, onMove) {
+  el.addEventListener("pointerdown", (e) => {
+    if (e.target.closest("input,textarea,button,.d-card")) return;
+    e.preventDefault(); el.setPointerCapture(e.pointerId); el.classList.add("lifted");
+    const r = area.getBoundingClientRect();
+    const mv = (ev) => { const x = clamp((ev.clientX - r.left) / r.width), y = clamp((ev.clientY - r.top) / r.height); el.style.left = x * 100 + "%"; el.style.top = y * 100 + "%"; onMove(x, y); };
+    const up = () => { el.classList.remove("lifted"); el.removeEventListener("pointermove", mv); el.removeEventListener("pointerup", up); el.removeEventListener("pointercancel", up); };
+    el.addEventListener("pointermove", mv); el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+  });
+}
+async function leave(path, body, okText, btn, toast) {
+  myName = String(body.name || "").trim(); try { localStorage.setItem("pitName", myName); } catch {}
   btn.disabled = true; toast.classList.remove("err"); toast.textContent = "Bernard is on it…";
   try {
-    const r = await fetch(API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pass: myPass, name: myName, ...body }) });
+    const r = await fetch(API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pass: myPass, ...body }) });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(d.error || "Bernard couldn't manage that. Try again.");
-    toast.textContent = okText; await loadPit(); refreshCloseup(); say(okText);
-  } catch (err) { toast.textContent = err.message; toast.classList.add("err"); }
-  btn.disabled = false;
+    say(okText); drafting = false; await loadPit(); return true;
+  } catch (err) { toast.textContent = err.message; toast.classList.add("err"); btn.disabled = false; return false; }
 }
-// a torn edge, different for every scrap of paper
+const swatches = (list, cur, cls) => `<div class="swatches">${list.map(([k, c, label]) => `<button type="button" class="sw ${cls}${k === cur ? " on" : ""}" data-k="${k}" style="--c:${c}" aria-label="${label}"></button>`).join("")}</div>`;
+
+// ---- the memo board ----
 function tornClip(seedKey) {
   const r = seeded((hashStr(seedKey) % 200000) + 3), pts = [];
-  const j = (n) => (r() * n).toFixed(1);
-  for (let x = 0; x <= 100; x += 4 + r() * 5) pts.push(`${Math.min(x, 100).toFixed(1)}% ${j(3)}%`);
+  for (let x = 0; x <= 100; x += 4 + r() * 5) pts.push(`${Math.min(x, 100).toFixed(1)}% ${(r() * 3).toFixed(1)}%`);
   for (let y = 0; y <= 100; y += 4 + r() * 5) pts.push(`${(100 - r() * 3).toFixed(1)}% ${Math.min(y, 100).toFixed(1)}%`);
   for (let x = 100; x >= 0; x -= 4 + r() * 5) pts.push(`${Math.max(x, 0).toFixed(1)}% ${(100 - r() * 3.5).toFixed(1)}%`);
-  for (let y = 100; y >= 0; y -= 4 + r() * 5) pts.push(`${j(3)}% ${Math.max(y, 0).toFixed(1)}%`);
+  for (let y = 100; y >= 0; y -= 4 + r() * 5) pts.push(`${(r() * 3).toFixed(1)}% ${Math.max(y, 0).toFixed(1)}%`);
   return `polygon(${pts.join(",")})`;
 }
-const PAPERS = ["#f7f0e1", "#fff3b0", "#e9dcc3", "#ffe0db", "#dfe9f2", "#f2e6c8"];
-function scrapsHTML(list) {
-  if (!list.length) return '<p class="empty">The board\'s bare. Pin the first memo.</p>';
-  return list.slice().reverse().map((m) => {
-    const k = hashStr(m.member + ":" + m.at), mine = m.member === myMember && myPass;
-    return `<div class="scrap${k % 3 === 0 ? " tape" : ""}${mine ? " mine" : ""}" style="--r:${((k % 80) / 10 - 4).toFixed(1)}deg;--torn:${tornClip(m.member + ":" + m.at)};--paper:${PAPERS[k % PAPERS.length]}">
-      <div class="paper${k % 2 ? " lined" : ""}">${m.to ? `<span class="to">For ${esc(m.to)}</span>` : ""}<p>${esc(m.note)}</p>
-      <span class="sig">— ${esc(m.name)}</span><small>${m.member === 0 ? "The host" : "Member No. " + m.member} · ${new Date(m.at).toLocaleDateString("en-CA", { month: "short", day: "numeric" })}</small></div></div>`;
-  }).join("");
+function scrapEl(m) {
+  const k = hashStr(m.member + ":" + m.at), el = document.createElement("div");
+  el.className = "scrap" + (k % 3 === 0 ? " tape" : "") + (m.member === myMember && myPass ? " mine" : "");
+  el.style.cssText = `left:${m.x * 100}%;top:${m.y * 100}%;--r:${(m.r ?? (k % 80) / 10 - 4).toFixed(1)}deg;--torn:${tornClip(m.member + ":" + m.at)};--paper:${PAPERS[m.paper ?? k % PAPERS.length]}`;
+  el.innerHTML = `<div class="paper${k % 2 ? " lined" : ""}">${m.to ? `<span class="to">For ${esc(m.to)}</span>` : ""}<p>${esc(m.note)}</p><span class="sig">— ${esc(m.name)}</span>
+    <small>${m.member === 0 ? "The host" : "No. " + m.member} · ${new Date(m.at).toLocaleDateString("en-CA", { month: "short", day: "numeric" })}</small></div>`;
+  el.addEventListener("click", (e) => { e.stopPropagation(); el.style.zIndex = ++topZ; });
+  return el;
 }
-function refreshCloseup() {
-  if (zoomedOn === "hotBoard" && $("cuList")) $("cuList").innerHTML = scrapsHTML(memos);
-  if (zoomedOn === "hotRecord" && $("cuList")) $("cuList").innerHTML = crateHTML();
-  if (zoomedOn === "hotPit" && $("cuList")) $("cuList").innerHTML = coastersHTML();
+let topZ = 10;
+function buildBoard(s) {
+  s.insertAdjacentHTML("beforeend", `<div class="cork-area" id="area"></div>
+    <div class="pad" id="pad" role="button" aria-label="Drag a sheet onto the board"><i></i><i></i><span>Drag a sheet<br>onto the board</span></div>`);
+  const area = $("area");
+  const render = () => {
+    area.querySelectorAll(".scrap:not(.draft)").forEach((n) => n.remove());
+    if (!memos.length && !area.querySelector(".draft")) area.insertAdjacentHTML("afterbegin", '<p class="bare">The board\'s bare. Pin the first memo.</p>');
+    else area.querySelector(".bare")?.remove();
+    memos.map(spot).forEach((m) => area.appendChild(scrapEl(m)));
+  };
+  render(); surfaceRefresh = render;
+  dragOnto($("pad"), area, () => { const g = document.createElement("div"); g.className = "ghost-sheet"; return g; }, (x, y) => draftMemo(area, x, y));
 }
-const crateHTML = () => playlist.length
-  ? playlist.map((m, i) => `<li data-i="${i}"${i === pi % playlist.length ? ' class="on"' : ""}><div><b>${esc(m.song)}</b><br><small>Left by ${esc(m.name)}</small></div><a href="https://open.spotify.com/search/${encodeURIComponent(m.song)}" target="_blank" rel="noopener">Spotify ↗</a></li>`).join("")
-  : '<li><small>Nothing in the crate yet.</small></li>';
-const coastersHTML = () => lastMarks.slice().reverse().map((m) => `<button type="button" aria-label="${esc(m.name)}'s ring">${stainSVG(m.name, "m" + m.member + ":" + m.at)}</button>`).join("") || '<p class="muted">Not a ring on it yet.</p>';
+function draftMemo(area, x, y) {
+  drafting = true; area.querySelector(".bare")?.remove();
+  const st = { x, y, r: Math.round((Math.random() * 8 - 4) * 10) / 10, paper: Math.floor(Math.random() * PAPERS.length) };
+  const el = document.createElement("div");
+  const side = (nx, ny) => { el.classList.toggle("up", ny > 0.5); el.classList.toggle("left", nx > 0.7); el.classList.toggle("right", nx < 0.3); };
+  el.className = "scrap draft"; el.style.cssText = `left:${x * 100}%;top:${y * 100}%;--r:${st.r}deg;--torn:${tornClip("draft" + Date.now())};--paper:${PAPERS[st.paper]};z-index:${++topZ}`;
+  el.innerHTML = `<div class="paper"><input class="d-to" maxlength="24" placeholder="For… (optional)"><textarea class="d-note" maxlength="160" rows="4" placeholder="Write your memo…"></textarea>
+      <input class="d-name" maxlength="18" placeholder="— signed" value="${esc(myName)}"></div>
+    <div class="d-card">${swatches(PAPERS.map((c, i) => [String(i), c, "Paper " + (i + 1)]), String(st.paper), "paper-sw")}
+      <div class="d-row"><button type="button" class="btn solid d-go">Pin it</button><button type="button" class="link d-x">Tear it up</button></div><span class="toast"></span>
+      <small class="muted">Drag the paper to move it.</small></div>`;
+  area.appendChild(el); side(x, y);
+  el.querySelector(".d-note").focus({ preventScroll: true });
+  movable(el, area, (nx, ny) => { st.x = nx; st.y = ny; side(nx, ny); });
+  el.querySelectorAll(".paper-sw").forEach((b) => b.addEventListener("click", () => {
+    st.paper = Number(b.dataset.k); el.style.setProperty("--paper", PAPERS[st.paper]);
+    el.querySelectorAll(".paper-sw").forEach((o) => o.classList.toggle("on", o === b));
+  }));
+  el.querySelector(".d-x").addEventListener("click", () => { el.remove(); drafting = false; surfaceRefresh && surfaceRefresh(); });
+  el.querySelector(".d-go").addEventListener("click", async () => {
+    const note = el.querySelector(".d-note").value.trim();
+    if (!note) { el.querySelector(".toast").textContent = "Write something first."; return; }
+    const ok = await leave("/pit/memo", { name: el.querySelector(".d-name").value, to: el.querySelector(".d-to").value, note, x: st.x, y: st.y, r: st.r, paper: st.paper },
+      "Pinned. Someone will read it.", el.querySelector(".d-go"), el.querySelector(".toast"));
+    if (ok) { el.remove(); surfaceRefresh && surfaceRefresh(); }
+  });
+  say("Write on it, pick a paper, then pin it.");
+}
 
-const BAR_LINES = ["Another espresso martini? On the house, of course.", "Bernard polishes a glass and nods.", "The bar's open as long as you are."];
-let bi = 0;
-const CHAIR_LINES = ["Mr. Singh's chair. Bernard keeps it warm.", "Best seat for the skyline. Reserved, naturally.", "Oxblood leather, older than the building. Sit, if you're brave."];
-const PALM_LINES = ["Bernard waters it every Sunday. It has never once said thank you.", "It came with the building. Nobody knows how old it is.", "Somewhere a florist is very proud of this palm."];
-let ci = 0, pli = 0;
+// ---- the table ----
+function ringEl(m) {
+  const el = document.createElement("div");
+  el.className = "ring" + (m.member === myMember && myPass ? " mine" : "");
+  el.style.cssText = `left:${m.x * 100}%;top:${m.y * 100}%`;
+  el.innerHTML = stainSVG(m.name, "m" + m.member + ":" + m.at, m.color);
+  el.addEventListener("click", (e) => { e.stopPropagation(); say(`${m.name}'s ring. ${STAIN_NAMES[m.color] || "Espresso"}, ${m.member === 0 ? "left by the host" : "Member No. " + m.member}.`); });
+  return el;
+}
+function buildTable(s) {
+  s.insertAdjacentHTML("beforeend", `<div class="tabletop"><div class="table-area" id="area"></div></div>
+    <div class="tray" id="tray" role="button" aria-label="Drag your glass onto the table">${PitBar.martiniSVG(1, 3, 46, 64)}<span>Drag your glass<br>onto the table</span></div>`);
+  const area = $("area");
+  const render = () => { area.querySelectorAll(".ring:not(.draft)").forEach((n) => n.remove()); lastMarks.map(spot).forEach((m) => area.appendChild(ringEl(m))); };
+  render(); surfaceRefresh = render;
+  dragOnto($("tray"), area, () => { const g = document.createElement("div"); g.className = "ghost-glass"; g.innerHTML = PitBar.martiniSVG(1, 3, 46, 64); return g; }, (x, y) => draftRing(area, x, y));
+}
+function draftRing(area, x, y) {
+  drafting = true;
+  const st = { x, y, color: "espresso" };
+  const el = document.createElement("div");
+  el.className = "ring draft" + (y > 0.55 ? " up" : "") + (x > 0.7 ? " left" : x < 0.3 ? " right" : "");
+  el.style.cssText = `left:${x * 100}%;top:${y * 100}%;z-index:${++topZ}`;
+  el.innerHTML = `<div class="stain-now"></div><div class="d-card"><input class="d-name" maxlength="18" placeholder="Your name, in the stain" value="${esc(myName)}">
+    ${swatches(Object.keys(STAINS).map((k) => [k, STAINS[k], STAIN_NAMES[k]]), st.color, "stain-sw")}
+    <div class="d-row"><button type="button" class="btn solid d-go">Set it down</button><button type="button" class="link d-x">Pick it up</button></div><span class="toast"></span>
+    <small class="muted">Drag the ring to move it.</small></div>`;
+  area.appendChild(el);
+  const draw = () => { el.querySelector(".stain-now").innerHTML = stainSVG(el.querySelector(".d-name").value, "me" + (myPass || "guest"), st.color); };
+  draw(); el.querySelector(".d-name").addEventListener("input", draw);
+  movable(el, area, (nx, ny) => { st.x = nx; st.y = ny; el.classList.toggle("up", ny > 0.55); el.classList.toggle("left", nx > 0.7); el.classList.toggle("right", nx < 0.3); });
+  el.querySelectorAll(".stain-sw").forEach((b) => b.addEventListener("click", () => {
+    st.color = b.dataset.k; draw(); el.querySelectorAll(".stain-sw").forEach((o) => o.classList.toggle("on", o === b));
+  }));
+  el.querySelector(".d-x").addEventListener("click", () => { el.remove(); drafting = false; });
+  el.querySelector(".d-go").addEventListener("click", async () => {
+    const ok = await leave("/pit/mark", { name: el.querySelector(".d-name").value, x: st.x, y: st.y, color: st.color },
+      "Your ring's on the table. Bernard won't wipe it.", el.querySelector(".d-go"), el.querySelector(".toast"));
+    if (ok) { el.remove(); surfaceRefresh && surfaceRefresh(); }
+  });
+  say("Type your name and pick a colour. Watch it soak in.");
+}
+
+// ---- the record player ----
+function buildRecords(s) {
+  s.insertAdjacentHTML("beforeend", `<div class="rec-wrap">
+      <div class="deck"><div class="platter"><div class="vinyl" id="vinyl"><div class="vlabel" id="vlabel"></div></div></div><div class="tonearm"></div>
+        <p class="np" id="np">Nothing on yet. Pick a record from the crate.</p></div>
+      <div class="crate-box"><span class="eyebrow">The crate</span><div class="sleeves" id="area"></div></div></div>`);
+  const area = $("area");
+  const play = (i) => {
+    pi = i; const m = playlist[i], c = SLEEVES[hashStr(m.song) % SLEEVES.length];
+    $("vinyl").classList.add("spin"); $("vlabel").style.background = c; $("room").classList.add("playing");
+    $("np").innerHTML = `<span class="eyebrow">Now playing</span><b>${esc(m.song)}</b><small>Brought by ${esc(m.name)}</small><a href="https://open.spotify.com/search/${encodeURIComponent(m.song)}" target="_blank" rel="noopener">Play on Spotify ↗</a>`;
+    area.querySelectorAll(".sleeve[data-i]").forEach((x) => x.classList.toggle("on", Number(x.dataset.i) === i));
+  };
+  const render = () => {
+    area.innerHTML = `<button type="button" class="sleeve blank" id="blank"><b>+</b><span>Bring a record</span></button>` +
+      playlist.map((m, i) => `<button type="button" class="sleeve" data-i="${i}" style="--c:${SLEEVES[hashStr(m.song) % SLEEVES.length]}"><span class="disc"></span><b>${esc(m.song)}</b><small>${esc(m.name)}</small></button>`).join("");
+    area.querySelectorAll(".sleeve[data-i]").forEach((b) => b.addEventListener("click", () => { play(Number(b.dataset.i)); say("Bernard drops the needle."); }));
+    $("blank").addEventListener("click", () => {
+      if (drafting) return; drafting = true;
+      const b = $("blank"); b.outerHTML = `<div class="sleeve blank editing" id="blank"><input class="d-song" maxlength="70" placeholder="Song – Artist"><input class="d-name" maxlength="18" placeholder="Brought by…" value="${esc(myName)}">
+        <div class="d-row"><button type="button" class="btn solid d-go">Into the crate</button><button type="button" class="link d-x">Never mind</button></div><span class="toast"></span></div>`;
+      const ed = $("blank"); ed.querySelector(".d-song").focus({ preventScroll: true });
+      ed.querySelector(".d-x").addEventListener("click", () => { drafting = false; render(); });
+      ed.querySelector(".d-go").addEventListener("click", async () => {
+        const song = ed.querySelector(".d-song").value.trim();
+        if (!song) { ed.querySelector(".toast").textContent = "Which record?"; return; }
+        if (await leave("/pit/song", { name: ed.querySelector(".d-name").value, song }, "In the crate. Bernard approves.", ed.querySelector(".d-go"), ed.querySelector(".toast"))) { render(); play(0); }
+      });
+    });
+  };
+  render(); surfaceRefresh = () => { if (!drafting) render(); };
+  if (playlist.length) play(pi % playlist.length);
+}
 
 const actions = {
-  hotBar: () => {
-    closeup("hotBar", "The bar", "Bernard's bar", `<p class="cu-line">${esc(BAR_LINES[bi++ % BAR_LINES.length])} Mix one for practice; the glass is on him.</p><div id="cuBar"></div>`);
-    PitBar.mount($("cuBar"), { compact: true, practice: true, say: (t, err) => say(t, err) });
-  },
-  hotPit: () => {
-    closeup("hotPit", "The table", "Rings on the table", `<p class="cu-line">${lastMarks.length ? "Every ring is someone who found their way in." : "Not a ring on it yet. Be the first."}</p>
-      <div class="coasters" id="cuList">${coastersHTML()}</div>
-      <div class="cu-form cu-split"><div class="coaster" id="coaster" aria-hidden="true"></div>
-        <div><span class="eyebrow">Leave your glass</span>${nameField("Your name goes in the stain")}
-        <div class="row"><button class="btn solid" id="cuGo">Set it down</button><span class="toast" id="cuToast"></span></div></div></div>`);
-    const draw = () => { $("coaster").innerHTML = stainSVG($("cuName").value, "me" + (myPass || "guest")); };
-    draw(); $("cuName").addEventListener("input", draw);
-    $("cuGo").addEventListener("click", () => leave("/pit/mark", {}, "Your glass is on the table. Bernard won't wipe it."));
-  },
-  hotBoard: () => {
-    closeup("hotBoard", "The memo board", "Notes from the room", `<p class="cu-line">${memos.length ? "Pinned by whoever came before you. Read them, then leave one." : "Nothing pinned yet. Be the first."}</p>
-      <div class="board cu-board" id="cuList">${scrapsHTML(memos)}</div>
-      <div class="cu-form"><span class="eyebrow">Pin a memo</span>
-        <div class="field"><label for="cuTo">For <span>optional</span></label><input id="cuTo" maxlength="24" placeholder="Everyone, or someone in particular"></div>
-        <div class="field"><label for="cuNote">Your memo</label><textarea id="cuNote" maxlength="160" rows="3" placeholder="Leave a note for whoever comes in next…"></textarea></div>
-        ${nameField("Signed…")}
-        <div class="row"><button class="btn solid" id="cuGo">Pin it up</button><span class="toast" id="cuToast"></span></div></div>`);
-    $("cuGo").addEventListener("click", () => leave("/pit/memo", { to: $("cuTo").value, note: $("cuNote").value }, "Pinned. Someone will read it.").then(() => { if (!$("cuToast").classList.contains("err")) { $("cuNote").value = ""; $("cuTo").value = ""; } }));
-  },
-  hotRecord: () => {
-    closeup("hotRecord", "The record player", "The crate", `<p class="cu-line">${playlist.length ? "Bernard drops the needle. Tap a record to put it on." : "Nothing in the crate yet. Bring one."}</p>
-      <ul class="crate" id="cuList">${crateHTML()}</ul>
-      <div class="cu-form"><span class="eyebrow">Add a record</span>
-        <div class="field"><label for="cuSong">Song</label><input id="cuSong" maxlength="70" placeholder="Song – Artist"></div>
-        ${nameField("Who brought it?")}
-        <div class="row"><button class="btn solid" id="cuGo">Into the crate</button><span class="toast" id="cuToast"></span></div></div>`);
-    $("room").classList.add("playing");
-    $("cuList").addEventListener("click", (e) => {
-      const li = e.target.closest("li[data-i]"); if (!li || e.target.tagName === "A") return;
-      pi = Number(li.dataset.i); $("cuList").querySelectorAll("li").forEach((x) => x.classList.toggle("on", x === li)); say("Now playing: " + playlist[pi].song);
+  hotBar: async () => {
+    await zoomTo("hotBar");
+    openSurface("bar auto", "Bernard's bar", (s) => {
+      s.insertAdjacentHTML("beforeend", `<p class="sf-line">${esc(BAR_LINES[bi++ % BAR_LINES.length])} Mix one for practice; the glass is on him.</p><div id="sfBar"></div>`);
+      PitBar.mount($("sfBar"), { compact: true, practice: true, say });
     });
-    $("cuGo").addEventListener("click", () => leave("/pit/song", { song: $("cuSong").value }, "In the crate. Bernard approves.").then(() => { if (!$("cuToast").classList.contains("err")) $("cuSong").value = ""; }));
   },
-  hotWindow: () => {
-    const t = new Date().toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit" });
-    closeup("hotWindow", "The window", "Forty floors up", `<p class="cu-line">${esc(WINDOW_LINES[wi++ % WINDOW_LINES.length])}</p><p class="muted">It's ${t}. Somewhere down there a train is running late and a café is just closing. Nobody up here minds.</p>`);
-  },
-  hotChair: () => closeup("hotChair", "The chair", "The club chair", `<p class="cu-line">${esc(CHAIR_LINES[ci++ % CHAIR_LINES.length])}</p>`),
-  hotPalm: () => closeup("hotPalm", "The palm", "The palm", `<p class="cu-line">${esc(PALM_LINES[pli++ % PALM_LINES.length])}</p>`),
+  hotBoard: async () => { await zoomTo("hotBoard", 0.15); openSurface("board", "The memo board", buildBoard); },
+  hotPit: async () => { await zoomTo("hotPit", 0.1); openSurface("tablesurf", "The table", buildTable); },
+  hotRecord: async () => { await zoomTo("hotRecord", 0.2); openSurface("records auto", "The record player", buildRecords); },
+  hotWindow: async () => { say(WINDOW_LINES[wi++ % WINDOW_LINES.length]); await zoomTo("hotWindow", 0.04); },
+  hotChair: async () => { say(CHAIR_LINES[ci++ % CHAIR_LINES.length]); await zoomTo("hotChair", 0.6); },
+  hotPalm: async () => { say(PALM_LINES[pli++ % PALM_LINES.length]); await zoomTo("hotPalm", 0.3); },
   hotLamp: () => { const off = $("room").classList.toggle("lamp-off"); say(off ? "Lamp off. Moodier." : "Lamp on. Much better."); },
   hotDoor: () => { location.href = "index.html"; },
 };
-// make the furniture tappable too
 for (const [gid, hid, label] of [["chair", "hotChair", "The club chair"], ["palm", "hotPalm", "The palm"], ["lamp", "hotLamp", "The lamp"]]) {
   const g = $(gid); g.id = hid; g.classList.add("hot"); g.setAttribute("tabindex", "0"); g.setAttribute("role", "button"); g.setAttribute("aria-label", label);
 }
@@ -744,61 +1012,6 @@ for (const id in actions) {
   el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(id); } });
 }
 document.querySelectorAll(".hint-row button").forEach((b) => b.addEventListener("click", () => act(b.dataset.go)));
-// tapping empty room while zoomed goes back
-$("room").addEventListener("click", () => { if (zoomedOn) backToRoom(); });
-function playNext(fromClick) {
-  if (!playlist.length) {
-    $("room").classList.add("playing"); setTimeout(() => $("room").classList.remove("playing"), 2600);
-    say("Nothing on the turntable yet. Leave a song with your glass and Bernard will put it on."); return;
-  }
-  const m = playlist[pi++ % playlist.length];
-  $("room").classList.add("playing"); $("nowPlaying").hidden = false;
-  $("npSong").textContent = m.song; $("npSong").href = "https://open.spotify.com/search/" + encodeURIComponent(m.song);
-  $("npBy").textContent = "Left by " + m.name;
-  if (fromClick) say("Bernard drops the needle.");
-}
-$("npNext").addEventListener("click", () => playNext(false));
-
-// ---------- the coffee-ring stain, with a name scrawled where the ring breaks ----------
-function hashStr(t) { let h = 2166136261; for (const c of String(t)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return Math.abs(h); }
-function stainSVG(name, seedKey) {
-  const rnd = seeded((hashStr(seedKey) % 200000) + 11), id = "st" + hashStr(seedKey + name).toString(36);
-  const cx = 100, cy = 100, r = 64, W = 32;
-  const letters = [...String(name || "").trim().slice(0, 18)];
-  const fs = letters.length > 10 ? 20 : 24, step = (fs * 0.62) / r;        // radians per letter
-  const gap = letters.length ? letters.length * step + 0.28 : 0.35;       // break in the ring for the name
-  const a0 = -Math.PI / 2 + gap / 2, a1 = -Math.PI / 2 - gap / 2 + Math.PI * 2;
-  const P = (a, rr = r) => `${(cx + rr * Math.cos(a)).toFixed(1)} ${(cy + rr * Math.sin(a)).toFixed(1)}`;
-  const arc = (rr) => `M${P(a0, rr)} A${rr} ${rr} 0 1 1 ${P(a1, rr)}`;
-  // darker blotches where the glass sat longer
-  let blots = "";
-  for (let i = 0; i < 4; i++) {
-    const s0 = a0 + rnd() * (a1 - a0 - 0.6), len = 0.25 + rnd() * 0.55;
-    blots += `<path d="M${P(s0)} A${r} ${r} 0 0 1 ${P(s0 + len)}" stroke="#3e1f0a" stroke-opacity="${(0.35 + rnd() * 0.35).toFixed(2)}" stroke-width="${W - 4 + rnd() * 8}" fill="none" stroke-linecap="round"/>`;
-  }
-  // a drip or two
-  let drips = "";
-  for (let i = 0; i < 2; i++) { const a = a0 + 0.4 + rnd() * (a1 - a0 - 0.8), rr = r + W / 2 + 4 + rnd() * 6; drips += `<circle cx="${(cx + rr * Math.cos(a)).toFixed(1)}" cy="${(cy + rr * Math.sin(a)).toFixed(1)}" r="${(2 + rnd() * 3).toFixed(1)}" fill="#5a3418" fill-opacity=".45"/>`; }
-  // the name, letter by letter, a little drunk
-  let text = "";
-  letters.forEach((ch, i) => {
-    const a = -Math.PI / 2 + (i - (letters.length - 1) / 2) * step, rr = r + (rnd() - 0.5) * 5;
-    const deg = (a * 180) / Math.PI + 90 + (rnd() - 0.5) * 22;
-    text += `<text x="${(cx + rr * Math.cos(a)).toFixed(1)}" y="${(cy + rr * Math.sin(a)).toFixed(1)}" transform="rotate(${deg.toFixed(1)} ${(cx + rr * Math.cos(a)).toFixed(1)} ${(cy + rr * Math.sin(a)).toFixed(1)})"
-      text-anchor="middle" dominant-baseline="central" font-family="Reenie Beanie, Caveat, cursive" font-size="${(fs + (rnd() - 0.5) * 6).toFixed(1)}" fill="#3a1d0a" fill-opacity="${(0.65 + rnd() * 0.3).toFixed(2)}">${ch.replace(/[<&>"]/g, "")}</text>`;
-  });
-  return `<svg viewBox="0 0 200 200" aria-hidden="true">
-    <defs><filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="3" seed="${hashStr(seedKey) % 97}"/><feDisplacementMap in="SourceGraphic" scale="9"/></filter>
-    <filter id="${id}t" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="${hashStr(name) % 97}" result="n"/><feColorMatrix in="n" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1.25" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in"/></filter></defs>
-    <g filter="url(#${id})"><g filter="url(#${id}t)">
-      <path d="${arc(r)}" stroke="#6b3818" stroke-opacity=".62" stroke-width="${W}" fill="none" stroke-linecap="round"/>
-      ${blots}
-      <path d="${arc(r + W / 2 - 2)}" stroke="#4a2810" stroke-opacity=".55" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-      <path d="${arc(r - W / 2 + 2)}" stroke="#4a2810" stroke-opacity=".35" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    </g>${drips}</g>
-    <g filter="url(#${id})">${text}</g>
-  </svg>`;
-}
 
 // ---------- card + pit ----------
 function showCard(n) {
@@ -830,23 +1043,9 @@ async function loadPit() {
     $("topCount").textContent = `${count} member${count === 1 ? "" : "s"}`;
     lastMarks = d.marks || []; memos = d.memos || []; playlist = (d.songs || []).slice().reverse();
     drawTableGlasses(lastMarks); drawCork(memos);
+    if (surfaceRefresh && !drafting) surfaceRefresh();
   } catch {}
 }
-// little scraps of paper on the cork board in the room
-function drawCork(list) {
-  const g = $("corkPapers"); g.innerHTML = "";
-  const r = seeded(99), cols = ["#f7f0e1", "#fff3b0", "#ffe0db", "#dfe9f2"];
-  const n = Math.min(list.length || 3, 9);
-  for (let i = 0; i < n; i++) {
-    const col = i % 3, row = Math.floor(i / 3), x = 76 + col * 56 + r() * 10, y = 224 + row * 44 + col * 10 + r() * 6;
-    const w = 34 + r() * 10, h = 26 + r() * 8;
-    const grp = svgEl("g", { transform: `rotate(${(r() * 16 - 8).toFixed(1)} ${x + w / 2} ${y + h / 2})`, opacity: list.length ? 1 : .35 }, g);
-    svgEl("rect", { x, y, width: w, height: h, fill: cols[i % cols.length] }, grp);
-    for (let l = 0; l < 3; l++) svgEl("rect", { x: x + 5, y: y + 7 + l * 6, width: w - 12 - r() * 8, height: 1.4, fill: "#5a3a20", opacity: .45 }, grp);
-    svgEl("circle", { cx: x + w / 2, cy: y + 2, r: 2.4, fill: "#c0392b" }, grp);
-  }
-}
-
 // ---------- start ----------
 drawRoom(); drawCork([]); loadPit(); setInterval(loadPit, 20000);
 if (myPass) {
