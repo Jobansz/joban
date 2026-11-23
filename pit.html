@@ -72,6 +72,25 @@
   .room.lamp-off #lamp circle, .room.lamp-off #lampWash { opacity: 0; }
   .room.lamp-off #lamp path:nth-of-type(2) { fill: #b9a888; }
   #lamp circle { transition: opacity .4s; }
+  .cu-form { display: grid; gap: 4px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .cu-form .row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+  .cu-split { display: grid; grid-template-columns: 220px 1fr; gap: 26px; align-items: center; }
+  @media (max-width: 760px) { .cu-split { grid-template-columns: 1fr; justify-items: center; } .cu-split > div:last-child { width: 100%; } }
+  .toast { font-size: .8rem; color: var(--brass); } .toast.err { color: var(--rose); }
+  .board.cu-board { min-height: 200px; }
+  .scrap { position: relative; filter: drop-shadow(0 8px 8px rgba(0,0,0,.35)); transform: rotate(var(--r, 0deg)); transition: transform .3s; }
+  .scrap:hover { transform: rotate(0deg) scale(1.03); z-index: 2; }
+  .scrap .paper { padding: 30px 20px 20px; min-height: 160px; color: #2a1a0c; clip-path: var(--torn);
+    background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.5), transparent 60%), var(--paper, #f7f0e1); }
+  .scrap .paper.lined { background: linear-gradient(180deg, transparent 0 25px, rgba(70,110,170,.2) 25px 26px) 0 6px / 100% 26px, var(--paper, #f7f0e1); }
+  .scrap::before { content: ""; position: absolute; left: 50%; top: 6px; z-index: 3; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ffb4a8, #c0392b 55%, #6e1410); box-shadow: 0 3px 3px rgba(0,0,0,.45); }
+  .scrap.tape::before { width: 70px; height: 20px; margin-left: -35px; top: -4px; border-radius: 1px; background: rgba(240,230,200,.7); box-shadow: none; transform: rotate(-4deg); }
+  .scrap .to { font-family: "Inter", sans-serif; font-size: .6rem; letter-spacing: .22em; text-transform: uppercase; color: #8a5a2a; }
+  .scrap p { font-family: "Caveat", cursive; font-size: 1.45rem; line-height: 1.1; margin: 4px 0 10px; word-wrap: break-word; }
+  .scrap .sig { font-family: "Reenie Beanie", "Caveat", cursive; font-size: 1.3rem; color: #3a1f0f; display: block; }
+  .scrap small { display: block; font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: #8a6a4a; margin-top: 2px; }
+  .scrap.mine .paper { box-shadow: inset 0 0 0 2px #c9a46a; }
   /* ---------- the wall (deco doors over the room) ---------- */
   .leaves { position: absolute; inset: 0; z-index: 5; border-radius: 6px; overflow: hidden; pointer-events: auto; }
   .leaf { position: absolute; top: 0; bottom: 0; width: 50.2%; transition: transform 1.6s cubic-bezier(.6,.05,.25,1);
@@ -138,7 +157,7 @@
   .modal .close { position: absolute; right: 0; top: 0; }
   .locked-note { font-size: .88rem; margin: -4px 0 6px; }
   fieldset:disabled { opacity: .4; }
-  #pitStage { margin-top: 10px; }
+  #pitStage { margin-top: 18px; text-align: center; }
   /* ---------- the pit ---------- */
   .pit-scene { position: relative; border-radius: 4px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,.5), inset 0 0 0 1px var(--line); }
   .pit-wall { height: 120px; background: radial-gradient(ellipse 60% 90% at 50% 0%, rgba(255,190,110,.16), transparent 70%), repeating-linear-gradient(90deg, rgba(0,0,0,.16) 0 1px, transparent 1px 7px), linear-gradient(180deg, #3a080c, #5a0f16 70%, #4b0b11); position: relative; }
@@ -326,15 +345,14 @@
         <polygon points="1176,27 1200,16 1200,700 1176,684" fill="url(#drape)"/>
       </g>
 
-      <!-- the sign on the left wall -->
-      <g class="hot" id="hotSign" tabindex="0" role="button" aria-label="The sign">
-        <polygon points="60,204.4 250,239.5 250,348.7 60,381.6" fill="#140608" stroke="url(#brassG)" stroke-width="4"/>
-        <g transform="matrix(1,0.185,0,0.78,60,204.4)" filter="url(#neon)">
-          <text x="95" y="62" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-size="46" fill="#ff7aa8">the Pit</text>
-          <path d="M20 84 H170" stroke="#ffd28a" stroke-width="2"/>
-          <text x="95" y="112" text-anchor="middle" font-family="Inter, sans-serif" font-size="13" letter-spacing="5" fill="#ffd28a">OPEN LATE</text>
-          <path d="M60 140 l35 -18 l35 18" stroke="#ffd28a" stroke-width="2" fill="none"/>
-        </g>
+      <!-- the memo board on the left wall: cork, brass frame, torn paper squares -->
+      <g class="hot" id="hotBoard" tabindex="0" role="button" aria-label="The memo board">
+        <clipPath id="corkClip"><polygon points="66,212 244,245 244,343 66,374"/></clipPath>
+        <polygon points="56,202 254,238 254,350 56,384" fill="#2a1207"/>
+        <polygon points="60,206 250,241 250,347 60,380" fill="none" stroke="url(#brassG)" stroke-width="3"/>
+        <polygon points="66,212 244,245 244,343 66,374" fill="#a8774a"/>
+        <g clip-path="url(#corkClip)"><g id="corkDots"></g><g id="corkPapers"></g></g>
+        <polygon points="66,212 244,245 244,343 66,374" fill="url(#lampGlow)" opacity=".35"/>
       </g>
 
       <!-- the door -->
@@ -434,7 +452,7 @@
     </svg>
     <p class="room-say" id="roomSay" aria-live="polite"></p>
     <div class="hint-row" id="hintRow" role="group" aria-label="Places in the room">
-      <button data-go="hotBar">The bar</button><button data-go="hotPit">The pit</button><button data-go="hotRecord">Record player</button><button data-go="hotWindow">Window</button><button data-go="hotLamp">Lamp</button><button data-go="hotChair">Chair</button>
+      <button data-go="hotBar">The bar</button><button data-go="hotPit">The table</button><button data-go="hotBoard">Memo board</button><button data-go="hotRecord">Record player</button><button data-go="hotWindow">Window</button><button data-go="hotLamp">Lamp</button><button data-go="hotChair">Chair</button>
     </div>
     <section class="closeup" id="closeup" hidden aria-live="polite">
       <div class="cu-head"><div><span class="eyebrow" id="cuKicker"></span><h3 id="cuTitle"></h3></div><button class="link" id="cuBack">← Back to the room</button></div>
@@ -460,29 +478,7 @@
   </section>
 
   <!-- leave your mark -->
-  <section id="pitStage" hidden>
-    <div class="pit-info"><h2>Leave your mark</h2><span class="eyebrow" id="pitCount"></span></div>
-    <form class="panel mark-form" id="markForm" autocomplete="off">
-      <div class="coaster-wrap">
-        <span class="eyebrow">Your coaster</span>
-        <div class="coaster" id="coaster" aria-hidden="true"></div>
-        <small class="muted">Your glass leaves a ring. Your name goes in the stain.</small>
-      </div>
-      <div>
-        <span class="eyebrow">Leave a glass &amp; a memo</span>
-        <p class="muted locked-note" id="lockedNote">Members only. Mix an espresso martini at the bar first.</p>
-        <fieldset id="markFields" style="border:0">
-          <div class="field"><label for="mName">Your name <span id="cardNo"></span></label><input id="mName" maxlength="18" placeholder="Scrawled in the stain"></div>
-          <div class="field"><label for="mTo">For <span>optional</span></label><input id="mTo" maxlength="24" placeholder="Everyone, or someone in particular"></div>
-          <div class="field"><label for="mNote">Your memo</label><textarea id="mNote" maxlength="160" rows="3" placeholder="Leave a note for whoever comes in next…"></textarea></div>
-          <div class="field"><label for="mSong">A song for the record player <span>optional</span></label><input id="mSong" maxlength="70" placeholder="Song – Artist"></div>
-          <div style="display:flex;gap:14px;align-items:center;margin-top:18px;flex-wrap:wrap"><button class="btn solid" type="submit" id="markBtn">Leave my glass</button><span class="toast" id="markToast"></span></div>
-        </fieldset>
-      </div>
-    </form>
-    <div class="board-head"><h2>The memo board</h2><span class="eyebrow">Notes from the room</span></div>
-    <div class="board" id="marks"></div>
-  </section>
+  <section id="pitStage" hidden><p class="eyebrow pit-count" id="pitCount"></p>  </section>
 </div>
 
 <script src="pit-bar.js"></script>
@@ -571,6 +567,8 @@ function drawRoom() {
     svgEl("path", { d: `M1125 610 Q${mx} ${my} ${ex} ${ey}`, stroke: "#123a22", "stroke-width": 9 }, fr);
     svgEl("path", { d: `M1125 610 Q${mx} ${my} ${ex} ${ey}`, stroke: i % 2 ? "#2e7a44" : "#3f9a58", "stroke-width": 4, "stroke-dasharray": "2 3" }, fr);
   }
+  const cd = $("corkDots"), rc = seeded(17);
+  for (let i = 0; i < 260; i++) svgEl("circle", { cx: 66 + rc() * 178, cy: 212 + rc() * 162, r: .6 + rc(), fill: rc() < .5 ? "#6a4426" : "#d4a676", opacity: .55 }, cd);
   // martinis on the bar
   const cg = $("counterGlasses");
   for (const gx of [575, 760]) {
@@ -598,7 +596,7 @@ function drawTableGlasses(marks) {
 // hotspots
 const WINDOW_LINES = ["Prince George? Not tonight. Tonight it's forty floors up somewhere.", "The city never quite sleeps from up here.", "Mr. Singh says every good room needs a view.", "Count the lit windows. Bernard stopped at 214."];
 const SIGN_LINES = ["Open late. Always.", "The neon was Mr. Singh's idea. Bernard approves.", "Mind the step down into the Pit."];
-let wi = 0, si = 0, playlist = [], pi = 0;
+let wi = 0, si = 0, playlist = [], pi = 0, memos = [];
 // ---------- zooming in, like the desk in the Lounge ----------
 const FULL = [0, 0, 1200, 700];
 let vb = FULL.slice(), zoomAnim = 0, zoomedOn = null;
@@ -633,6 +631,49 @@ $("cuBack").addEventListener("click", backToRoom);
 addEventListener("keydown", (e) => { if (e.key === "Escape" && zoomedOn) backToRoom(); });
 const esc = (t) => String(t || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 let lastMarks = [];
+let myName = ""; try { myName = localStorage.getItem("pitName") || ""; } catch {}
+const nameField = (ph) => `<div class="field"><label for="cuName">Your name <span>${esc(who(myMember))}</span></label><input id="cuName" maxlength="18" value="${esc(myName)}" placeholder="${ph}"></div>`;
+async function leave(path, body, okText) {
+  const btn = $("cuGo"), toast = $("cuToast");
+  myName = $("cuName").value.trim(); try { localStorage.setItem("pitName", myName); } catch {}
+  btn.disabled = true; toast.classList.remove("err"); toast.textContent = "Bernard is on it…";
+  try {
+    const r = await fetch(API + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pass: myPass, name: myName, ...body }) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error || "Bernard couldn't manage that. Try again.");
+    toast.textContent = okText; await loadPit(); refreshCloseup(); say(okText);
+  } catch (err) { toast.textContent = err.message; toast.classList.add("err"); }
+  btn.disabled = false;
+}
+// a torn edge, different for every scrap of paper
+function tornClip(seedKey) {
+  const r = seeded((hashStr(seedKey) % 200000) + 3), pts = [];
+  const j = (n) => (r() * n).toFixed(1);
+  for (let x = 0; x <= 100; x += 4 + r() * 5) pts.push(`${Math.min(x, 100).toFixed(1)}% ${j(3)}%`);
+  for (let y = 0; y <= 100; y += 4 + r() * 5) pts.push(`${(100 - r() * 3).toFixed(1)}% ${Math.min(y, 100).toFixed(1)}%`);
+  for (let x = 100; x >= 0; x -= 4 + r() * 5) pts.push(`${Math.max(x, 0).toFixed(1)}% ${(100 - r() * 3.5).toFixed(1)}%`);
+  for (let y = 100; y >= 0; y -= 4 + r() * 5) pts.push(`${j(3)}% ${Math.max(y, 0).toFixed(1)}%`);
+  return `polygon(${pts.join(",")})`;
+}
+const PAPERS = ["#f7f0e1", "#fff3b0", "#e9dcc3", "#ffe0db", "#dfe9f2", "#f2e6c8"];
+function scrapsHTML(list) {
+  if (!list.length) return '<p class="empty">The board\'s bare. Pin the first memo.</p>';
+  return list.slice().reverse().map((m) => {
+    const k = hashStr(m.member + ":" + m.at), mine = m.member === myMember && myPass;
+    return `<div class="scrap${k % 3 === 0 ? " tape" : ""}${mine ? " mine" : ""}" style="--r:${((k % 80) / 10 - 4).toFixed(1)}deg;--torn:${tornClip(m.member + ":" + m.at)};--paper:${PAPERS[k % PAPERS.length]}">
+      <div class="paper${k % 2 ? " lined" : ""}">${m.to ? `<span class="to">For ${esc(m.to)}</span>` : ""}<p>${esc(m.note)}</p>
+      <span class="sig">— ${esc(m.name)}</span><small>${m.member === 0 ? "The host" : "Member No. " + m.member} · ${new Date(m.at).toLocaleDateString("en-CA", { month: "short", day: "numeric" })}</small></div></div>`;
+  }).join("");
+}
+function refreshCloseup() {
+  if (zoomedOn === "hotBoard" && $("cuList")) $("cuList").innerHTML = scrapsHTML(memos);
+  if (zoomedOn === "hotRecord" && $("cuList")) $("cuList").innerHTML = crateHTML();
+  if (zoomedOn === "hotPit" && $("cuList")) $("cuList").innerHTML = coastersHTML();
+}
+const crateHTML = () => playlist.length
+  ? playlist.map((m, i) => `<li data-i="${i}"${i === pi % playlist.length ? ' class="on"' : ""}><div><b>${esc(m.song)}</b><br><small>Left by ${esc(m.name)}</small></div><a href="https://open.spotify.com/search/${encodeURIComponent(m.song)}" target="_blank" rel="noopener">Spotify ↗</a></li>`).join("")
+  : '<li><small>Nothing in the crate yet.</small></li>';
+const coastersHTML = () => lastMarks.slice().reverse().map((m) => `<button type="button" aria-label="${esc(m.name)}'s ring">${stainSVG(m.name, "m" + m.member + ":" + m.at)}</button>`).join("") || '<p class="muted">Not a ring on it yet.</p>';
 
 const BAR_LINES = ["Another espresso martini? On the house, of course.", "Bernard polishes a glass and nods.", "The bar's open as long as you are."];
 let bi = 0;
@@ -646,31 +687,43 @@ const actions = {
     PitBar.mount($("cuBar"), { compact: true, practice: true, say: (t, err) => say(t, err) });
   },
   hotPit: () => {
-    const coasters = lastMarks.slice().reverse().map((m, i) => `<button type="button" data-i="${i}" aria-label="${esc(m.name)}'s coaster">${stainSVG(m.name, "m" + m.member + ":" + m.at)}</button>`).join("");
-    closeup("hotPit", "The table", "Rings on the table", `<p class="cu-line">${lastMarks.length ? "Every ring is someone who found their way in. Tap one to read their memo." : "Not a ring on it yet. Be the first."}</p>
-      <div class="coasters">${coasters}</div><div class="cu-actions"><button class="btn solid" id="cuLeave">${isHost ? "Leave a memo" : "Leave my glass"}</button></div>`);
-    $("cuLeave").addEventListener("click", () => $("pitStage").scrollIntoView({ behavior: "smooth" }));
-    $("cuBody").querySelectorAll(".coasters button").forEach((b) => b.addEventListener("click", () => {
-      const memo = $("marks").children[Number(b.dataset.i)]; if (!memo) return;
-      memo.scrollIntoView({ behavior: "smooth", block: "center" }); memo.animate([{ transform: "scale(1.08)" }, { transform: "scale(1)" }], { duration: 700 });
-    }));
+    closeup("hotPit", "The table", "Rings on the table", `<p class="cu-line">${lastMarks.length ? "Every ring is someone who found their way in." : "Not a ring on it yet. Be the first."}</p>
+      <div class="coasters" id="cuList">${coastersHTML()}</div>
+      <div class="cu-form cu-split"><div class="coaster" id="coaster" aria-hidden="true"></div>
+        <div><span class="eyebrow">Leave your glass</span>${nameField("Your name goes in the stain")}
+        <div class="row"><button class="btn solid" id="cuGo">Set it down</button><span class="toast" id="cuToast"></span></div></div></div>`);
+    const draw = () => { $("coaster").innerHTML = stainSVG($("cuName").value, "me" + (myPass || "guest")); };
+    draw(); $("cuName").addEventListener("input", draw);
+    $("cuGo").addEventListener("click", () => leave("/pit/mark", {}, "Your glass is on the table. Bernard won't wipe it."));
+  },
+  hotBoard: () => {
+    closeup("hotBoard", "The memo board", "Notes from the room", `<p class="cu-line">${memos.length ? "Pinned by whoever came before you. Read them, then leave one." : "Nothing pinned yet. Be the first."}</p>
+      <div class="board cu-board" id="cuList">${scrapsHTML(memos)}</div>
+      <div class="cu-form"><span class="eyebrow">Pin a memo</span>
+        <div class="field"><label for="cuTo">For <span>optional</span></label><input id="cuTo" maxlength="24" placeholder="Everyone, or someone in particular"></div>
+        <div class="field"><label for="cuNote">Your memo</label><textarea id="cuNote" maxlength="160" rows="3" placeholder="Leave a note for whoever comes in next…"></textarea></div>
+        ${nameField("Signed…")}
+        <div class="row"><button class="btn solid" id="cuGo">Pin it up</button><span class="toast" id="cuToast"></span></div></div>`);
+    $("cuGo").addEventListener("click", () => leave("/pit/memo", { to: $("cuTo").value, note: $("cuNote").value }, "Pinned. Someone will read it.").then(() => { if (!$("cuToast").classList.contains("err")) { $("cuNote").value = ""; $("cuTo").value = ""; } }));
   },
   hotRecord: () => {
-    const rows = playlist.map((m, i) => `<li data-i="${i}"><div><b>${esc(m.song)}</b><br><small>Left by ${esc(m.name)}</small></div><a href="https://open.spotify.com/search/${encodeURIComponent(m.song)}" target="_blank" rel="noopener">Spotify ↗</a></li>`).join("");
-    closeup("hotRecord", "The record player", "The crate", playlist.length ? `<p class="cu-line">Bernard drops the needle. Tap a record to put it on.</p><ul class="crate">${rows}</ul>` : `<p class="cu-line">Nothing in the crate yet. Leave a song with your glass and Bernard will put it on.</p>`);
+    closeup("hotRecord", "The record player", "The crate", `<p class="cu-line">${playlist.length ? "Bernard drops the needle. Tap a record to put it on." : "Nothing in the crate yet. Bring one."}</p>
+      <ul class="crate" id="cuList">${crateHTML()}</ul>
+      <div class="cu-form"><span class="eyebrow">Add a record</span>
+        <div class="field"><label for="cuSong">Song</label><input id="cuSong" maxlength="70" placeholder="Song – Artist"></div>
+        ${nameField("Who brought it?")}
+        <div class="row"><button class="btn solid" id="cuGo">Into the crate</button><span class="toast" id="cuToast"></span></div></div>`);
     $("room").classList.add("playing");
-    const crate = $("cuBody").querySelector(".crate");
-    if (crate) {
-      const mark = (i) => crate.querySelectorAll("li").forEach((li) => li.classList.toggle("on", Number(li.dataset.i) === i));
-      mark(pi % playlist.length);
-      crate.querySelectorAll("li").forEach((li) => li.addEventListener("click", (e) => { if (e.target.tagName !== "A") { mark(Number(li.dataset.i)); say("Now playing: " + playlist[li.dataset.i].song); } }));
-    }
+    $("cuList").addEventListener("click", (e) => {
+      const li = e.target.closest("li[data-i]"); if (!li || e.target.tagName === "A") return;
+      pi = Number(li.dataset.i); $("cuList").querySelectorAll("li").forEach((x) => x.classList.toggle("on", x === li)); say("Now playing: " + playlist[pi].song);
+    });
+    $("cuGo").addEventListener("click", () => leave("/pit/song", { song: $("cuSong").value }, "In the crate. Bernard approves.").then(() => { if (!$("cuToast").classList.contains("err")) $("cuSong").value = ""; }));
   },
   hotWindow: () => {
     const t = new Date().toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit" });
     closeup("hotWindow", "The window", "Forty floors up", `<p class="cu-line">${esc(WINDOW_LINES[wi++ % WINDOW_LINES.length])}</p><p class="muted">It's ${t}. Somewhere down there a train is running late and a café is just closing. Nobody up here minds.</p>`);
   },
-  hotSign: () => closeup("hotSign", "The sign", "Open late", `<p class="cu-line">${esc(SIGN_LINES[si++ % SIGN_LINES.length])}</p>`),
   hotChair: () => closeup("hotChair", "The chair", "The club chair", `<p class="cu-line">${esc(CHAIR_LINES[ci++ % CHAIR_LINES.length])}</p>`),
   hotPalm: () => closeup("hotPalm", "The palm", "The palm", `<p class="cu-line">${esc(PALM_LINES[pli++ % PALM_LINES.length])}</p>`),
   hotLamp: () => { const off = $("room").classList.toggle("lamp-off"); say(off ? "Lamp off. Moodier." : "Lamp on. Much better."); },
@@ -746,7 +799,6 @@ function stainSVG(name, seedKey) {
     <g filter="url(#${id})">${text}</g>
   </svg>`;
 }
-function drawCoaster() { $("coaster").innerHTML = stainSVG($("mName").value, "me" + (myPass || "guest")); }
 
 // ---------- card + pit ----------
 function showCard(n) {
@@ -766,71 +818,37 @@ const isHost = !!myPass && myPass.startsWith("0.");
 function openVault(fresh) {
   $("barStage").hidden = true; $("cardStage").hidden = true;
   $("hintRow").hidden = false; $("pitStage").hidden = false;
-  unlockForm();
   $("vault").scrollIntoView({ behavior: "smooth", block: "start" });
   setTimeout(() => $("vault").classList.add("vault-open"), fresh ? 500 : 250);
   say(isHost ? "Good evening, Mr. Singh. Your usual seat." : fresh ? `Welcome, ${who(myMember)}. Mind the step down.` : `Welcome back, ${who(myMember)}.`);
 }
-function unlockForm() {
-  const ok = !!myPass;
-  $("markFields").disabled = !ok; $("lockedNote").hidden = ok;
-  $("cardNo").textContent = myPass ? who(myMember) : "";
-}
-
 async function loadPit() {
   try {
     const d = await (await fetch(API + "/pit", { cache: "no-store" })).json();
     const count = d.count || 0;
     $("pitCount").textContent = `${count} guest${count === 1 ? " has" : "s have"} found their way in`;
     $("topCount").textContent = `${count} member${count === 1 ? "" : "s"}`;
-    lastMarks = d.marks || []; drawTable(lastMarks); drawTableGlasses(lastMarks);
-    playlist = (d.marks || []).filter((m) => m.song).reverse();
+    lastMarks = d.marks || []; memos = d.memos || []; playlist = (d.songs || []).slice().reverse();
+    drawTableGlasses(lastMarks); drawCork(memos);
   } catch {}
 }
-function drawTable(marks) {
-  const board = $("marks");
-  board.innerHTML = "";
-  if (!marks.length) { board.innerHTML = '<p class="empty">The board\'s empty. Pin the first memo.</p>'; return; }
-  const tints = ["", "yellow", "", "pink", ""];
-  for (const m of [...marks].reverse()) {
-    const memo = document.createElement("article");
-    const k = hashStr(m.member + ":" + m.at);
-    memo.className = "memo " + tints[k % tints.length] + (m.member === myMember && myPass ? " mine" : "");
-    memo.style.setProperty("--r", ((k % 70) / 10 - 3.5).toFixed(1) + "deg");
-    if (m.to) { const t = document.createElement("span"); t.className = "to"; t.textContent = "For " + m.to; memo.appendChild(t); }
-    if (m.note) { const p = document.createElement("p"); p.textContent = m.note; memo.appendChild(p); }
-    if (m.song) {
-      const a = document.createElement("a"); a.href = "https://open.spotify.com/search/" + encodeURIComponent(m.song); a.target = "_blank"; a.rel = "noopener";
-      a.textContent = "♪ " + m.song; memo.appendChild(a);
-    }
-    const sig = document.createElement("span"); sig.className = "sig"; sig.textContent = "— " + m.name; memo.appendChild(sig);
-    const sm = document.createElement("small"); sm.textContent = `${m.member === 0 ? "The host" : "Member No. " + m.member} · ${new Date(m.at).toLocaleDateString("en-CA", { month: "short", day: "numeric" })}`; memo.appendChild(sm);
-    const st = document.createElement("div"); st.className = "stain"; st.innerHTML = stainSVG(m.name, "m" + m.member + ":" + m.at); memo.appendChild(st);
-    board.appendChild(memo);
-    if (m.member === myMember && myPass && !$("mName").value && !$("mNote").value) {
-      $("mName").value = m.name; $("mNote").value = m.note || ""; $("mSong").value = m.song || ""; $("mTo").value = m.to || "";
-      $("markBtn").textContent = "Update my glass"; drawCoaster();
-    }
+// little scraps of paper on the cork board in the room
+function drawCork(list) {
+  const g = $("corkPapers"); g.innerHTML = "";
+  const r = seeded(99), cols = ["#f7f0e1", "#fff3b0", "#ffe0db", "#dfe9f2"];
+  const n = Math.min(list.length || 3, 9);
+  for (let i = 0; i < n; i++) {
+    const col = i % 3, row = Math.floor(i / 3), x = 76 + col * 56 + r() * 10, y = 224 + row * 44 + col * 10 + r() * 6;
+    const w = 34 + r() * 10, h = 26 + r() * 8;
+    const grp = svgEl("g", { transform: `rotate(${(r() * 16 - 8).toFixed(1)} ${x + w / 2} ${y + h / 2})`, opacity: list.length ? 1 : .35 }, g);
+    svgEl("rect", { x, y, width: w, height: h, fill: cols[i % cols.length] }, grp);
+    for (let l = 0; l < 3; l++) svgEl("rect", { x: x + 5, y: y + 7 + l * 6, width: w - 12 - r() * 8, height: 1.4, fill: "#5a3a20", opacity: .45 }, grp);
+    svgEl("circle", { cx: x + w / 2, cy: y + 2, r: 2.4, fill: "#c0392b" }, grp);
   }
-  seen = new Set(marks.map((m) => m.member + ":" + m.at));
 }
 
-$("markForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  $("markBtn").disabled = true; $("markToast").textContent = "Bernard is setting it down…"; $("markToast").classList.remove("err");
-  try {
-    const r = await fetch(API + "/pit/mark", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pass: myPass, name: $("mName").value, to: $("mTo").value, note: $("mNote").value, song: $("mSong").value }) });
-    const d = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(d.error || "Couldn't set it down. Try again.");
-    $("markToast").textContent = "Your memo's on the board."; $("markBtn").textContent = "Update my glass";
-    loadPit();
-  } catch (err) { $("markToast").textContent = err.message; $("markToast").classList.add("err"); }
-  $("markBtn").disabled = false;
-});
-
 // ---------- start ----------
-drawRoom(); unlockForm(); drawCoaster(); $("mName").addEventListener("input", drawCoaster); loadPit(); setInterval(loadPit, 20000);
+drawRoom(); drawCork([]); loadPit(); setInterval(loadPit, 20000);
 if (myPass) {
   $("barStage").hidden = true;
   setTimeout(() => openVault(false), 350);

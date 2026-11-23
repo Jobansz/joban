@@ -1448,22 +1448,29 @@ $("rcFactsSave").addEventListener("click", async () => {
 async function loadPitMarks() {
   try {
     const d = await (await fetch(API + "/pit", { cache: "no-store" })).json();
-    $("pitStat").textContent = `${d.count || 0} guests have mixed their way in. Tap × to clear a glass.`;
-    renderPitMarks(d.marks || []);
+    $("pitStat").textContent = `${d.count || 0} guests have mixed their way in. Tap × to clear everything a guest left.`;
+    renderPitMarks(d);
   } catch {}
 }
-function renderPitMarks(marks) {
+function renderPitMarks(d) {
   const box = $("pitMarks"); box.innerHTML = "";
-  if (!marks.length) { box.innerHTML = '<li class="empty">No glasses on the table yet.</li>'; return; }
-  for (const m of [...marks].reverse()) {
+  // one row per guest: their glass, memos and records together
+  const by = new Map();
+  const add = (m, line) => { const g = by.get(m.member) || { member: m.member, name: m.name, at: 0, lines: [] }; g.lines.push(line); g.at = Math.max(g.at, m.at); by.set(m.member, g); };
+  for (const m of d.marks || []) add(m, "left a glass");
+  for (const m of d.memos || []) add(m, "memo" + (m.to ? " for " + m.to : "") + ": " + m.note);
+  for (const m of d.songs || []) add(m, "♪ " + m.song);
+  const rows = [...by.values()].sort((a, b) => b.at - a.at);
+  if (!rows.length) { box.innerHTML = '<li class="empty">Nothing left in the Pit yet.</li>'; return; }
+  for (const g of rows) {
     const li = document.createElement("li");
-    const b = document.createElement("b"); b.textContent = (m.note || "") + (m.song ? (m.note ? " · ♪ " : "♪ ") + m.song : "");
-    const x = document.createElement("button"); x.textContent = "×"; x.setAttribute("aria-label", "Remove this glass");
+    const b = document.createElement("b"); b.textContent = g.lines.join(" · ");
+    const x = document.createElement("button"); x.textContent = "×"; x.setAttribute("aria-label", "Clear everything this guest left");
     x.addEventListener("click", async () => {
-      if (!confirm(`Remove ${m.name}'s glass from the table?`)) return;
-      try { renderPitMarks((await api("/pit/mark?member=" + m.member, { method: "DELETE" })).marks); } catch (err) { alert(err.message); }
+      if (!confirm(`Clear everything ${g.name} left in the Pit?`)) return;
+      try { await api("/pit/mark?member=" + g.member, { method: "DELETE" }); loadPitMarks(); } catch (err) { alert(err.message); }
     });
-    const sm = document.createElement("small"); sm.textContent = `${m.name} · Member No. ${m.member} · ${ago(m.at)}`;
+    const sm = document.createElement("small"); sm.textContent = `${g.name} · ${g.member === 0 ? "the host" : "Member No. " + g.member} · ${ago(g.at)}`;
     li.append(b, x, sm); box.appendChild(li);
   }
 }
