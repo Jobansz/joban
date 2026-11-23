@@ -76,7 +76,7 @@ async function newPages() {
 async function askClaude(projects) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+    headers: { "x-api-key": String(env.ANTHROPIC_API_KEY).replace(/\s+/g, ""), "anthropic-version": "2023-06-01", "content-type": "application/json" },
     body: JSON.stringify({
       model: "claude-haiku-5-5",
       max_tokens: 500,
