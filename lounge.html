@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Lounge</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#140d09">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0b09; --walnut: #2a1a10; --leather: #17110e; --panel: rgba(20, 13, 9, .72);
+    --brass: #c9a46a; --brass-dim: #7d6743; --cream: #efe3cf; --muted: #a8957c; --rose: #e39a8f;
+    --line: rgba(201, 164, 106, .22);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--ink); }
+  body {
+    min-height: 100vh; color: var(--cream); font-family: "Inter", system-ui, sans-serif; line-height: 1.5;
+    -webkit-font-smoothing: antialiased; position: relative;
+  }
+  /* walnut panelling with a warm light from above; fixed layer works on iPad Safari too */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 38% at 50% -4%, rgba(255, 214, 160, .20), transparent 70%),
+      radial-gradient(ellipse 90% 60% at 50% 120%, rgba(0, 0, 0, .65), transparent 70%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.35) 0 1px, transparent 1px 220px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.10) 0 2px, transparent 2px 7px, rgba(255,235,200,.025) 7px 8px, transparent 8px 19px),
+      linear-gradient(90deg, #24160d, #2f1c10 22%, #261710 48%, #321e11 74%, #24160d);
+  }
+  .serif { font-family: "Fraunces", Georgia, serif; }
+  .eyebrow { font-size: .72rem; letter-spacing: .32em; text-transform: uppercase; color: var(--brass); font-weight: 500; }
+  .muted { color: var(--muted); }
+  .hidden { display: none !important; }
+  button { font: inherit; cursor: pointer; }
+  a { color: inherit; }
+
+  /* ---------- the door ---------- */
+  #door { min-height: 100vh; display: grid; place-items: center; padding: 40px 24px; }
+  .door-inner { width: min(100%, 380px); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 22px; animation: rise .9s ease both; }
+  .seal {
+    width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center;
+    border: 1px solid var(--brass); box-shadow: inset 0 0 0 5px transparent, inset 0 0 0 6px var(--line), 0 0 60px rgba(201,164,106,.12);
+    font-family: "Fraunces", serif; font-style: italic; font-size: 2.6rem; color: var(--brass);
+  }
+  .door-inner h1 { font-family: "Fraunces", serif; font-weight: 400; font-style: italic; font-size: clamp(2.8rem, 9vw, 3.6rem); line-height: 1; }
+  .door-inner p { font-size: .92rem; color: var(--muted); max-width: 30ch; }
+  .key { width: 100%; display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+  .key input {
+    width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--brass-dim); color: var(--cream);
+    font: inherit; font-size: 1.1rem; text-align: center; letter-spacing: .3em; padding: 10px 4px; outline: none; transition: border-color .3s;
+  }
+  .key input:focus { border-color: var(--brass); }
+  .btn-brass {
+    align-self: center; background: transparent; color: var(--brass); border: 1px solid var(--brass);
+    padding: 11px 34px; letter-spacing: .28em; text-transform: uppercase; font-size: .75rem; transition: background .3s, color .3s;
+  }
+  .btn-brass:hover, .btn-brass:focus-visible { background: var(--brass); color: var(--ink); outline: none; }
+  .btn-brass:disabled { opacity: .4; }
+  .note { min-height: 1.4em; font-size: .85rem; color: var(--rose); }
+
+  /* ---------- inside ---------- */
+  .wrap { width: min(100% - 40px, 1040px); margin: 0 auto; padding: 28px 0 120px; animation: rise .7s ease both; }
+  header.bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .brand .mini { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--brass); display: grid; place-items: center; font-family: "Fraunces", serif; font-style: italic; color: var(--brass); }
+  .brand span { font-family: "Fraunces", serif; font-style: italic; font-size: 1.2rem; }
+  .link { background: none; border: 0; color: var(--muted); font-size: .75rem; letter-spacing: .24em; text-transform: uppercase; text-decoration: none; }
+  .link:hover { color: var(--brass); }
+
+  .hello { padding: 56px 0 40px; display: flex; flex-direction: column; gap: 10px; }
+  .hello h2 { font-family: "Fraunces", serif; font-weight: 400; font-size: clamp(2.6rem, 7vw, 4.6rem); line-height: 1; }
+  .hello h2 em { color: var(--brass); }
+
+  /* the paper clipping */
+  .clipping {
+    background: linear-gradient(180deg, #f1e6d2, #e6d7bd); color: #23180f; padding: 28px 30px 26px; position: relative;
+    box-shadow: 0 30px 60px rgba(0,0,0,.45), 0 2px 0 rgba(255,255,255,.4) inset; transform: rotate(-.4deg);
+  }
+  .clipping .mast { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid #23180f; padding-bottom: 8px; margin-bottom: 14px; gap: 12px; }
+  .clipping .mast b { font-family: "Fraunces", serif; font-size: 1.05rem; letter-spacing: .06em; }
+  .clipping .mast small { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; opacity: .7; }
+  .clipping h3 { font-family: "Fraunces", serif; font-weight: 600; font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.05; margin-bottom: 10px; }
+  .clipping p { font-family: "Fraunces", serif; font-size: 1.02rem; line-height: 1.45; opacity: .85; max-width: 62ch; }
+  .clipping ul { margin-top: 14px; list-style: none; display: grid; gap: 6px; columns: 2; column-gap: 30px; }
+  .clipping li { font-size: .9rem; padding-left: 20px; position: relative; break-inside: avoid; }
+  .clipping li::before { content: ""; position: absolute; left: 0; top: .35em; width: 10px; height: 10px; border: 1.5px solid #23180f; }
+
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin: 64px 0 18px; }
+  .section-head h4 { font-family: "Fraunces", serif; font-weight: 400; font-style: italic; font-size: 1.7rem; }
+
+  .rooms { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  .room {
+    position: relative; min-height: 220px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between;
+    background:
+      radial-gradient(ellipse 80% 60% at 30% 0%, rgba(255,255,255,.05), transparent 60%),
+      linear-gradient(160deg, #1d1612, #120d0b);
+    border: 1px solid var(--line); text-decoration: none; color: inherit; transition: border-color .35s, transform .35s;
+  }
+  a.room:hover, a.room:focus-visible { border-color: var(--brass); transform: translateY(-3px); outline: none; }
+  .room .num { font-family: "Fraunces", serif; font-style: italic; color: var(--brass); font-size: 1rem; }
+  .room h5 { font-family: "Fraunces", serif; font-weight: 400; font-size: 1.7rem; line-height: 1.05; margin-top: 30px; }
+  .room p { font-size: .85rem; color: var(--muted); margin-top: 6px; }
+  .tag { display: inline-flex; align-items: center; gap: 8px; font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-top: 18px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--brass-dim); }
+  .dot.on { background: #7fc98a; box-shadow: 0 0 10px rgba(127,201,138,.6); }
+  .room.locked { opacity: .55; }
+
+  /* ---------- Morning Paper room ---------- */
+  .room-title { padding: 48px 0 8px; display: flex; flex-direction: column; gap: 8px; }
+  .room-title h2 { font-family: "Fraunces", serif; font-weight: 400; font-size: clamp(2.4rem, 6vw, 3.8rem); line-height: 1; }
+  .panel { background: var(--panel); border: 1px solid var(--line); padding: 24px 26px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .panel + .panel { margin-top: 14px; }
+  .panel .eyebrow { display: block; margin-bottom: 14px; }
+  .grid2 { display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; align-items: start; }
+  .grid2 .panel + .panel { margin-top: 0; }
+
+  .day { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(201,164,106,.1); }
+  .day:last-child { border-bottom: 0; }
+  .day b { font-family: "Fraunces", serif; font-weight: 400; font-style: italic; font-size: 1.25rem; }
+  .day input[type=time] {
+    background: transparent; border: 0; border-bottom: 1px solid var(--brass-dim); color: var(--cream); font: inherit; font-size: 1.05rem;
+    padding: 6px 2px; color-scheme: dark; width: 100%; max-width: 160px; outline: none;
+  }
+  .day input[type=time]:focus { border-color: var(--brass); }
+  .day input[type=time]:disabled { opacity: .3; }
+  .sw { position: relative; width: 48px; height: 26px; }
+  .sw input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .sw span { position: absolute; inset: 0; border-radius: 99px; border: 1px solid var(--brass-dim); transition: .25s; cursor: pointer; }
+  .sw span::after { content: ""; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--brass-dim); transition: .25s; }
+  .sw input:checked + span { background: rgba(201,164,106,.18); border-color: var(--brass); }
+  .sw input:checked + span::after { transform: translateX(22px); background: var(--brass); }
+  .sw input:focus-visible + span { box-shadow: 0 0 0 2px var(--brass); }
+
+  .sounds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .sound { background: transparent; border: 1px solid var(--line); color: var(--cream); padding: 14px 8px; text-align: center; transition: .25s; }
+  .sound small { display: block; color: var(--muted); font-size: .7rem; margin-top: 4px; letter-spacing: .08em; }
+  .sound.on { border-color: var(--brass); background: rgba(201,164,106,.1); }
+  .sound .serif { font-style: italic; font-size: 1.1rem; }
+  .field { margin-top: 22px; }
+  .field label { display: flex; justify-content: space-between; font-size: .72rem; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .field label output { color: var(--brass); letter-spacing: .05em; }
+  input[type=range] { width: 100%; accent-color: var(--brass); }
+  .preview { margin-top: 22px; width: 100%; }
+
+  .todos { list-style: none; display: grid; gap: 8px; }
+  .todos li { padding-left: 22px; position: relative; font-size: .92rem; }
+  .todos li::before { content: ""; position: absolute; left: 0; top: .4em; width: 10px; height: 10px; border: 1px solid var(--brass); }
+  .edition-head { font-family: "Fraunces", serif; font-size: 1.5rem; line-height: 1.15; margin-bottom: 6px; }
+
+  .savebar {
+    position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 140%); transition: transform .4s ease, opacity .4s, visibility .4s;
+    display: flex; align-items: center; gap: 16px; padding: 12px 14px 12px 22px; background: #120c09; border: 1px solid var(--brass);
+    box-shadow: 0 20px 50px rgba(0,0,0,.6); z-index: 10; width: max-content; max-width: calc(100% - 32px);
+    visibility: hidden; opacity: 0;
+  }
+  .savebar.show { transform: translate(-50%, 0); visibility: visible; opacity: 1; }
+  .savebar .btn-brass { padding: 9px 24px; }
+  .toast { font-size: .85rem; color: var(--muted); }
+  .toast.err { color: var(--rose); }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 760px) {
+    .grid2 { grid-template-columns: 1fr; }
+    .clipping ul { columns: 1; }
+    .clipping { padding: 22px 20px; }
+    .clipping .mast { flex-direction: column; gap: 2px; }
+    .sounds { grid-template-columns: 1fr; }
+    .sound { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px; }
+    .sound small { margin-top: 0; }
+    .hello { padding: 40px 0 28px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- ============ the door ============ -->
+<main id="door" class="hidden">
+  <form class="door-inner" id="keyForm">
+    <div class="seal">J</div>
+    <span class="eyebrow">Members only</span>
+    <h1>The Lounge</h1>
+    <p>Private rooms for the things I build.</p>
+    <div class="key">
+      <input id="pw" type="password" autocomplete="current-password" aria-label="Password" placeholder="••••••" required>
+      <button class="btn-brass" type="submit" id="enter">Enter</button>
+      <div class="note" id="doorNote" role="status"></div>
+    </div>
+  </form>
+</main>
+
+<!-- ============ the lounge ============ -->
+<div id="inside" class="hidden">
+  <div class="wrap">
+    <header class="bar">
+      <a class="brand" href="#lounge"><div class="mini">J</div><span>The Lounge</span></a>
+      <button class="link" id="leave">Leave</button>
+    </header>
+
+    <!-- hub -->
+    <section id="hub">
+      <div class="hello">
+        <span class="eyebrow" id="today"></span>
+        <h2 id="greeting">Good evening, <em>Joban.</em></h2>
+      </div>
+
+      <article class="clipping" id="clipping">
+        <div class="mast"><b>THE MORNING PAPER</b><small id="clipDate">Loading…</small></div>
+        <h3 id="clipHead">&nbsp;</h3>
+        <p id="clipSummary"></p>
+        <ul id="clipTodos"></ul>
+      </article>
+
+      <div class="section-head"><h4>The rooms</h4><span class="eyebrow" id="roomCount"></span></div>
+      <div class="rooms">
+        <a class="room" href="#paper">
+          <div><span class="num">No. 01</span><h5>Morning Paper</h5><p>Alarm, chime and the daily edition.</p></div>
+          <span class="tag"><i class="dot on"></i><span id="alarmTag">Open</span></span>
+        </a>
+        <a class="room" href="reach.html">
+          <div><span class="num">No. 02</span><h5>Reach</h5><p>The desk clock and its messages.</p></div>
+          <span class="tag"><i class="dot" id="reachDot"></i><span id="reachTag">Checking…</span></span>
+        </a>
+        <div class="room locked">
+          <div><span class="num">No. 03</span><h5>Away</h5><p>The Miranda train display.</p></div>
+          <span class="tag"><i class="dot"></i>In the workshop</span>
+        </div>
+        <div class="room locked">
+          <div><span class="num">No. 04</span><h5>Reserved</h5><p>For the next thing.</p></div>
+          <span class="tag"><i class="dot"></i>Coming soon</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Morning Paper room -->
+    <section id="paper" class="hidden">
+      <div class="room-title">
+        <a class="link" href="#lounge">← The Lounge</a>
+        <span class="eyebrow" style="margin-top:22px">No. 01</span>
+        <h2>Morning Paper</h2>
+      </div>
+
+      <div class="grid2" style="margin-top:28px">
+        <div class="panel">
+          <span class="eyebrow">Wake up at</span>
+          <div id="days"></div>
+        </div>
+        <div>
+          <div class="panel">
+            <span class="eyebrow">The chime</span>
+            <div class="sounds" id="sounds">
+              <button type="button" class="sound" data-s="bells"><span class="serif">Bells</span><small>bright, ringing</small></button>
+              <button type="button" class="sound" data-s="marimba"><span class="serif">Marimba</span><small>warm, playful</small></button>
+              <button type="button" class="sound" data-s="soft-rise"><span class="serif">Soft rise</span><small>slow, gentle</small></button>
+            </div>
+            <div class="field"><label for="volume">Volume <output id="volumeVal"></output></label><input id="volume" type="range" min="1" max="10"></div>
+            <div class="field"><label for="fade">Fade in <output id="fadeVal"></output></label><input id="fade" type="range" min="0" max="120" step="5"></div>
+            <div class="field"><label for="snooze">Snooze <output id="snoozeVal"></output></label><input id="snooze" type="range" min="1" max="30"></div>
+            <button class="btn-brass preview" type="button" id="preview">Listen</button>
+          </div>
+          <div class="panel">
+            <span class="eyebrow">Today's edition</span>
+            <div class="edition-head" id="edHead">&nbsp;</div>
+            <ul class="todos" id="edTodos"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="savebar" id="savebar" role="status">
+  <span class="toast" id="toast">Unsaved changes</span>
+  <button class="btn-brass" id="save">Save</button>
+</div>
+
+<script>
+const API = "https://lounge.jobanxy.workers.dev";
+const REACH = "https://reach.jobanxy.workers.dev";
+const DAYS = [["mon","Mon"],["tue","Tue"],["wed","Wed"],["thu","Thu"],["fri","Fri"],["sat","Sat"],["sun","Sun"]];
+const $ = (id) => document.getElementById(id);
+
+let token = null, sha = null, settings = null, edition = null;
+try { token = localStorage.getItem("loungeToken"); } catch {}
+
+async function api(path, opts = {}) {
+  const r = await fetch(API + path, {
+    ...opts,
+    headers: { "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) },
+  });
+  const data = await r.json().catch(() => ({}));
+  if (r.status === 401 && path !== "/login") { leave(); throw new Error("Session ended."); }
+  if (!r.ok) throw new Error(data.error || "Something went wrong.");
+  return data;
+}
+
+// ---------- door ----------
+$("keyForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  $("enter").disabled = true; $("doorNote").textContent = "";
+  try {
+    const d = await api("/login", { method: "POST", body: JSON.stringify({ password: $("pw").value }) });
+    token = d.token;
+    try { localStorage.setItem("loungeToken", token); } catch {}
+    $("pw").value = "";
+    enter();
+  } catch (err) { $("doorNote").textContent = err.message; }
+  $("enter").disabled = false;
+});
+
+function leave() {
+  token = null;
+  try { localStorage.removeItem("loungeToken"); } catch {}
+  $("inside").classList.add("hidden"); $("door").classList.remove("hidden");
+  $("savebar").classList.remove("show");
+  setTimeout(() => $("pw").focus(), 50);
+}
+$("leave").addEventListener("click", leave);
+
+function enter() {
+  $("door").classList.add("hidden"); $("inside").classList.remove("hidden");
+  greet(); route(); loadPaper(); loadReach();
+}
+
+// ---------- hub ----------
+function greet() {
+  const now = new Date(), h = now.getHours();
+  const part = h < 5 ? "Late night" : h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  $("greeting").innerHTML = `${part}, <em>Joban.</em>`;
+  $("today").textContent = now.toLocaleDateString("en-CA", { weekday: "long", month: "long", day: "numeric" });
+  $("roomCount").textContent = "2 open · 2 coming";
+}
+
+async function loadPaper() {
+  try {
+    const [e, s] = await Promise.all([api("/paper/edition"), api("/paper/settings")]);
+    edition = e.edition; settings = s.settings; sha = s.sha;
+    renderEdition(); renderSettings(); updateAlarmTag();
+  } catch (err) { $("clipDate").textContent = err.message; }
+}
+
+function renderEdition() {
+  const ed = edition || {};
+  $("clipDate").textContent = (ed.date || "") + (ed.updated ? " · " + ed.updated : "");
+  $("clipHead").textContent = ed.headline || "No edition yet";
+  $("clipSummary").textContent = ed.summary || "";
+  const todos = (ed.todos || []).slice(0, 6);
+  $("clipTodos").innerHTML = ""; $("edTodos").innerHTML = "";
+  for (const t of todos) {
+    const li = document.createElement("li"); li.textContent = t;
+    $("clipTodos").appendChild(li); $("edTodos").appendChild(li.cloneNode(true));
+  }
+  $("edHead").textContent = ed.headline || "";
+}
+
+function updateAlarmTag() {
+  const keys = ["sun","mon","tue","wed","thu","fri","sat"];
+  const now = new Date();
+  for (let i = 0; i < 8; i++) {
+    const d = new Date(now); d.setDate(now.getDate() + i);
+    const v = settings.alarm[keys[d.getDay()]];
+    if (v === "off") continue;
+    const [hh, mm] = v.split(":").map(Number);
+    d.setHours(hh, mm, 0, 0);
+    if (d <= now) continue;
+    const t = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    const day = i === 0 ? "today" : i === 1 ? "tomorrow" : d.toLocaleDateString("en-CA", { weekday: "long" });
+    $("alarmTag").textContent = `${day[0].toUpperCase() + day.slice(1)} · ${t}`;
+    return;
+  }
+  $("alarmTag").textContent = "No alarms set";
+}
+
+async function loadReach() {
+  try {
+    const r = await fetch(REACH + "/status", { cache: "no-store" });
+    const s = await r.json();
+    const here = s.state === "reachable";
+    $("reachDot").classList.toggle("on", here);
+    $("reachTag").textContent = here ? "At the desk" : "Away";
+  } catch { $("reachTag").textContent = "Offline"; }
+}
+
+// ---------- Morning Paper room ----------
+function renderSettings() {
+  $("days").innerHTML = "";
+  for (const [key, label] of DAYS) {
+    const v = settings.alarm[key], on = v !== "off";
+    const row = document.createElement("div");
+    row.className = "day";
+    row.innerHTML = `<b>${label}</b><input type="time" aria-label="${label} alarm" value="${on ? v : "07:30"}" ${on ? "" : "disabled"}>
+      <label class="sw"><input type="checkbox" aria-label="${label} alarm on" ${on ? "checked" : ""}><span></span></label>`;
+    const time = row.querySelector("input[type=time]"), sw = row.querySelector("input[type=checkbox]");
+    const update = () => { time.disabled = !sw.checked; settings.alarm[key] = sw.checked ? (time.value || "07:30") : "off"; dirty(); };
+    time.addEventListener("change", update); sw.addEventListener("change", update);
+    $("days").appendChild(row);
+  }
+  document.querySelectorAll(".sound").forEach((b) => b.classList.toggle("on", b.dataset.s === settings.chime.sound));
+  bindRange("volume", settings.chime.volume, (v) => (settings.chime.volume = v), (v) => v + " / 10");
+  bindRange("fade", settings.chime.fade_in_seconds, (v) => (settings.chime.fade_in_seconds = v), (v) => (v ? v + " sec" : "Off"));
+  bindRange("snooze", settings.snooze_minutes, (v) => (settings.snooze_minutes = v), (v) => v + " min");
+}
+
+function bindRange(id, value, set, fmt) {
+  const el = $(id), out = $(id + "Val");
+  el.value = value; out.textContent = fmt(value);
+  el.oninput = () => { const v = Number(el.value); set(v); out.textContent = fmt(v); dirty(); };
+}
+
+document.querySelectorAll(".sound").forEach((b) => b.addEventListener("click", () => {
+  settings.chime.sound = b.dataset.s;
+  document.querySelectorAll(".sound").forEach((x) => x.classList.toggle("on", x === b));
+  play(b.dataset.s); dirty();
+}));
+
+function dirty() {
+  $("toast").textContent = "Unsaved changes"; $("toast").classList.remove("err");
+  $("savebar").classList.add("show"); $("save").disabled = false;
+}
+
+$("save").addEventListener("click", async () => {
+  $("save").disabled = true; $("toast").textContent = "Saving…";
+  try {
+    const d = await api("/paper/settings", { method: "PUT", body: JSON.stringify({ settings, sha }) });
+    sha = d.sha; settings = d.settings; updateAlarmTag();
+    $("toast").textContent = "Saved. The paper picks it up at 4:30am.";
+    setTimeout(() => $("savebar").classList.remove("show"), 2200);
+  } catch (err) { $("toast").textContent = err.message; $("toast").classList.add("err"); $("save").disabled = false; }
+});
+
+// chime preview: the same three sounds the board plays
+let ctx;
+function play(sound) {
+  ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+  const vol = Number($("volume").value || 6) / 10 * 0.5, now = ctx.currentTime;
+  const note = (freq, t, len, partials, gain) => {
+    for (const [mult, amp] of partials) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = "sine"; o.frequency.value = freq * mult;
+      g.gain.setValueAtTime(0.0001, now + t);
+      g.gain.exponentialRampToValueAtTime(gain * amp, now + t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + t + len);
+      o.connect(g).connect(ctx.destination); o.start(now + t); o.stop(now + t + len + 0.05);
+    }
+  };
+  if (sound === "bells") [659, 784, 988, 784].forEach((f, i) => note(f, i * 0.45, 2.2, [[1, 1], [2.76, 0.4], [5.4, 0.15]], vol));
+  else if (sound === "marimba") [523, 659, 784, 1047, 784, 659].forEach((f, i) => note(f, i * 0.22, 0.6, [[1, 1], [4, 0.25]], vol));
+  else [392, 494, 587, 784].forEach((f, i) => note(f, i * 0.8, 2.8, [[1, 1], [2, 0.2]], vol * (0.4 + i * 0.2)));
+}
+$("preview").addEventListener("click", () => play(settings ? settings.chime.sound : "bells"));
+
+// ---------- routing ----------
+function route() {
+  const paper = location.hash === "#paper";
+  $("hub").classList.toggle("hidden", paper);
+  $("paper").classList.toggle("hidden", !paper);
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", route);
+window.addEventListener("beforeunload", (e) => { if ($("savebar").classList.contains("show") && !$("save").disabled) e.preventDefault(); });
+
+if (token) enter(); else leave();
+</script>
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "c01f82de83be4114945edd5516633616"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>
