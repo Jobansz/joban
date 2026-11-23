@@ -269,6 +269,92 @@
   .msgs li button { grid-row: 1 / span 2; grid-column: 2; background: none; border: 0; color: var(--muted); font-size: 1.1rem; padding: 2px 6px; }
   .msgs li button:hover { color: var(--rose); }
   .msgs .empty { color: var(--muted); font-style: italic; border: 0; }
+  .msgs.history li { grid-template-columns: 1fr auto; }
+  .msgs.history .when { grid-row: 1 / span 2; grid-column: 2; font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding-top: 4px; }
+  .msgs.history .when.waiting { color: var(--brass); }
+  .msgs .day-head { grid-template-columns: 1fr; padding: 14px 0 2px; border: 0; font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: var(--brass-dim); }
+  /* ---------- the desk ---------- */
+  .desk { position: relative; margin-top: 4px; padding: 34px 34px 0; border-radius: 6px 6px 3px 3px;
+    background:
+      radial-gradient(ellipse 50% 70% at 18% 0%, rgba(255,200,130,.18), transparent 70%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.16) 0 1px, transparent 1px 4px, rgba(255,230,190,.03) 4px 5px, transparent 5px 11px),
+      linear-gradient(100deg, #4a2614, #6a3a1d 30%, #4f2a15 55%, #62361b 80%, #4a2614);
+    box-shadow: 0 30px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,220,170,.15); }
+  .blotter { position: relative; margin: 0 auto; max-width: 820px; min-height: 240px; display: flex; align-items: center; justify-content: center; padding: 30px 26px 44px; border-radius: 3px;
+    background: radial-gradient(ellipse at 50% 30%, #2f4a37, #1f3326 80%);
+    box-shadow: inset 0 0 0 6px #3b1f10, inset 0 0 0 7px rgba(201,164,106,.45), inset 0 0 30px rgba(0,0,0,.5), 0 4px 10px rgba(0,0,0,.4); }
+  .blotter::before { content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: .35;
+    background: repeating-radial-gradient(circle at 30% 40%, rgba(0,0,0,.25) 0 1px, transparent 1px 3px); }
+  .items { position: relative; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 30px 34px; }
+  .items.swap { animation: slidein .5s cubic-bezier(.2,.75,.2,1); }
+  @keyframes slidein { from { opacity: 0; transform: translateX(var(--from, 40px)); } to { opacity: 1; transform: none; } }
+  .obj { position: relative; display: block; text-decoration: none; color: #2a1a0c; transform: rotate(var(--r, 0deg));
+    transition: transform .35s cubic-bezier(.2,.75,.2,1), filter .35s; filter: drop-shadow(0 8px 10px rgba(0,0,0,.45)); }
+  .obj:hover, .obj:focus-visible { transform: rotate(0deg) translateY(-6px) scale(1.04); filter: drop-shadow(0 16px 18px rgba(0,0,0,.5)); outline: none; }
+  .obj .cap { position: absolute; left: 50%; bottom: -26px; transform: translateX(-50%); white-space: nowrap; font-size: .66rem; letter-spacing: .18em;
+    text-transform: uppercase; font-family: "Inter", sans-serif; font-style: normal; color: rgba(239,227,207,.75); transition: color .3s; }
+  .obj:hover .cap { color: var(--brass); }
+  /* envelope with a wax seal */
+  .envelope { width: 150px; height: 96px; background: linear-gradient(160deg, #f3e9d4, #e2d3b4); border-radius: 2px; }
+  .envelope::before { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom right, transparent 49.5%, rgba(0,0,0,.08) 50%, transparent 51%),
+      linear-gradient(to bottom left, transparent 49.5%, rgba(0,0,0,.08) 50%, transparent 51%); }
+  .envelope::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 56%; background: linear-gradient(180deg, #ece0c6, #dccaa6);
+    clip-path: polygon(0 0, 100% 0, 50% 100%); box-shadow: 0 2px 4px rgba(0,0,0,.2); }
+  .seal { position: absolute; left: 50%; top: 44%; z-index: 1; width: 30px; height: 30px; margin: -15px; border-radius: 50%; display: grid; place-items: center;
+    font-family: "Fraunces", serif; font-style: italic; font-size: .95rem; color: #f3d9b0;
+    background: radial-gradient(circle at 35% 30%, #c0392b, #7d1414 70%); box-shadow: 0 2px 3px rgba(0,0,0,.4), inset 0 0 0 3px rgba(0,0,0,.15); }
+  /* manila folder with a tab */
+  .folder { width: 150px; height: 104px; margin-top: 12px; background: linear-gradient(170deg, #e4c58a, #c9a462); border-radius: 0 3px 3px 3px; }
+  .folder::before { content: ""; position: absolute; left: 0; top: -12px; width: 56px; height: 14px; background: #ddbb7c; border-radius: 3px 8px 0 0; }
+  .folder .label { position: absolute; left: 14px; right: 14px; top: 26px; padding: 6px 8px; background: #fbf6ea; font-family: "Fraunces", serif;
+    font-size: .95rem; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+  /* leather notebook with an elastic band */
+  .notebook { width: 104px; height: 140px; border-radius: 3px 8px 8px 3px; background: linear-gradient(100deg, #1b1512, #2c221c 15%, #241c17); color: #c9a46a; }
+  .notebook::before { content: ""; position: absolute; top: 0; bottom: 0; right: 16px; width: 5px; background: linear-gradient(90deg, #5a0f16, #8c1c1e, #5a0f16); }
+  .notebook .title { position: absolute; left: 10px; right: 26px; top: 40%; text-align: center; font-family: "Fraunces", serif; font-style: italic; font-size: .95rem; line-height: 1.1; }
+  /* brass-edged card */
+  .card { width: 150px; height: 88px; padding: 14px 14px; background: linear-gradient(160deg, #fbf7ee, #ece2cf); border-radius: 3px;
+    box-shadow: inset 0 0 0 2px #c9a46a, inset 0 0 0 4px #fbf7ee, inset 0 0 0 5px rgba(201,164,106,.6); }
+  .card b { display: block; font-family: "Fraunces", serif; font-size: 1.05rem; }
+  .card small { font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: #6b5233; }
+  /* vinyl record */
+  .record { width: 128px; height: 128px; border-radius: 50%;
+    background: radial-gradient(circle, #c9a46a 0 13%, #7d1414 13.5% 27%, #111 27.5%), repeating-radial-gradient(circle, #111 0 1px, #1d1d1d 1px 3px);
+    background-blend-mode: normal; }
+  .record::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 30deg, transparent, rgba(255,255,255,.12), transparent 30%, transparent 50%, rgba(255,255,255,.1), transparent 80%); }
+  .record .hole { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border-radius: 50%; background: #1f3326; z-index: 1; }
+  .obj.record:hover { transform: rotate(160deg) translateY(0) scale(1.04); transition-duration: 1.2s; }
+  /* polaroid */
+  .polaroid { width: 112px; height: 132px; padding: 8px 8px 30px; background: #f7f3ea; }
+  .polaroid i { display: block; height: 100%; background: linear-gradient(170deg, #f2b27a, #c3523b 50%, #3a1c2e); }
+  .polaroid .scrawl { position: absolute; left: 0; right: 0; bottom: 6px; text-align: center; font-family: "Fraunces", serif; font-style: italic; font-size: .8rem; color: #3a2a1a; }
+  /* pinned note */
+  .note { width: 120px; height: 120px; padding: 22px 12px 10px; background: linear-gradient(170deg, #f6e7a8, #e9d27e); font-family: "Fraunces", serif; font-style: italic; text-align: center; }
+  .note::before { content: ""; position: absolute; left: 50%; top: 8px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ff8a7a, #b0201a); box-shadow: 0 2px 2px rgba(0,0,0,.4); }
+
+  .lamp { position: absolute; left: 26px; top: -40px; width: 90px; height: 120px; pointer-events: none; z-index: 2; }
+  .lamp .shade { position: absolute; left: 6px; top: 0; width: 80px; height: 30px; border-radius: 40px 40px 6px 6px;
+    background: linear-gradient(180deg, #1f4a33, #13301f); box-shadow: inset 0 -3px 0 #c9a46a, 0 18px 40px 6px rgba(255,200,120,.25); }
+  .lamp .neck { position: absolute; left: 44px; top: 28px; width: 4px; height: 50px; background: linear-gradient(90deg, #8c6a30, #e9cd8c, #8c6a30); }
+  .lamp .foot { position: absolute; left: 26px; top: 76px; width: 40px; height: 9px; border-radius: 50%; background: linear-gradient(180deg, #e9cd8c, #8c6a30); }
+  .desk-front { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 26px -34px 0; padding: 16px 0 18px;
+    background: linear-gradient(180deg, #3a1d0e, #52301a 30%, #3a1d0e); box-shadow: inset 0 2px 0 rgba(255,220,170,.12), inset 0 -2px 6px rgba(0,0,0,.5); border-radius: 0 0 3px 3px; }
+  .desk-plate { min-width: 210px; padding: 8px 20px 9px; text-align: center; border-radius: 2px; color: #2a1a0c;
+    background: linear-gradient(180deg, #ecd39a, #c79c55 55%, #a77c3c); box-shadow: 0 4px 10px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.5); }
+  .desk-plate .eyebrow { color: #4a3214; font-size: .6rem; display: block; }
+  .desk-plate b { font-family: "Fraunces", serif; font-weight: 600; font-size: 1.2rem; }
+  .desk-arrow { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--brass); background: rgba(0,0,0,.25); color: var(--brass);
+    font-family: "Fraunces", serif; font-size: 1.6rem; line-height: 1; padding-bottom: 4px; transition: background .25s, color .25s; }
+  .desk-arrow:hover, .desk-arrow:focus-visible { background: var(--brass); color: var(--ink); outline: none; }
+  @media (max-width: 760px) {
+    .desk { padding: 26px 12px 0; margin-left: -8px; margin-right: -8px; }
+    .blotter { padding: 24px 10px 34px; }
+    .items { gap: 30px 18px; }
+    .lamp { display: none; }
+    .desk-front { margin: 22px -12px 0; }
+    .obj { transform: rotate(var(--r, 0deg)) scale(.86); }
+  }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   @media (max-width: 760px) {
     .lounge-room { --k: .5; margin-left: -8px; margin-right: -8px; }
@@ -383,6 +469,18 @@
           </div>
         </div>
       </div>
+
+      <!-- the desk: swap between desks, everything you use within reach -->
+      <div class="section-head"><h4>The desk</h4><span class="eyebrow">Swap desks with the arrows</span></div>
+      <div class="desk" id="desk">
+        <div class="lamp" aria-hidden="true"><i class="shade"></i><i class="neck"></i><i class="foot"></i></div>
+        <div class="blotter"><div class="items" id="deskItems"></div></div>
+        <div class="desk-front">
+          <button class="desk-arrow" id="deskPrev" aria-label="Previous desk">‹</button>
+          <div class="desk-plate"><span class="eyebrow" id="deskNo"></span><b id="deskName"></b></div>
+          <button class="desk-arrow" id="deskNext" aria-label="Next desk">›</button>
+        </div>
+      </div>
     </section>
 
     <!-- Morning Paper room -->
@@ -439,6 +537,11 @@
             <span class="eyebrow">Messages waiting</span>
             <ul class="msgs" id="rcMsgs"></ul>
             <div class="row-save" style="margin-top:12px"><button class="btn-brass" id="rcClear">Clear all</button><span class="toast" id="rcMsgToast"></span></div>
+          </div>
+          <div class="panel">
+            <span class="eyebrow">History</span>
+            <ul class="msgs history" id="rcHistory"></ul>
+            <div class="row-save" style="margin-top:12px"><button class="btn-brass" id="rcClearHistory">Clear history</button><span class="toast" id="rcHistToast"></span></div>
           </div>
         </div>
         <div class="panel">
@@ -851,6 +954,65 @@ function play(sound) {
 }
 $("preview").addEventListener("click", () => play(settings ? settings.chime.sound : "bells"));
 
+// ---------- the desk ----------
+const DESKS = [
+  { name: "The study", items: [
+    { kind: "envelope", label: "Gmail", mark: "G", href: "https://mail.google.com/", r: -4 },
+    { kind: "envelope", label: "UNBC mail", mark: "U", href: "https://outlook.com/owa/unbc.ca", r: 3 },
+    { kind: "notebook", label: "Moodle", title: "Moodle", href: "https://moodle.unbc.ca/my/", r: -2 },
+  ] },
+  { name: "The workshop", items: [
+    { kind: "notebook", label: "GitHub", title: "GitHub", href: "https://github.com/Jobansz", r: 3 },
+    { kind: "card", label: "Cloudflare", title: "Cloudflare", sub: "Workers & Pages", href: "https://dash.cloudflare.com/", r: -3 },
+    { kind: "card", label: "App Store Connect", title: "App Store", sub: "Connect", href: "https://appstoreconnect.apple.com/", r: 2 },
+    { kind: "folder", label: "Chrome Web Store", title: "Snippy", href: "https://chrome.google.com/webstore/devconsole", r: -2 },
+  ] },
+  { name: "The den", items: [
+    { kind: "record", label: "Spotify", href: "https://open.spotify.com/", r: 0 },
+    { kind: "polaroid", label: "Instagram", title: "@filmbyjoban", href: "https://www.instagram.com/filmbyjoban/", r: 4 },
+    { kind: "note", label: "Pinterest", title: "ideas, doors, rooms", href: "https://www.pinterest.com/", r: -3 },
+    { kind: "folder", label: "Google Drive", title: "Drive", href: "https://drive.google.com/", r: 2 },
+  ] },
+];
+let deskIndex = 0;
+try { deskIndex = Math.min(DESKS.length - 1, Number(localStorage.getItem("loungeDesk")) || 0); } catch {}
+
+function deskObject(it) {
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const inner = {
+    envelope: `<span class="seal">${esc(it.mark)}</span>`,
+    folder: `<span class="label">${esc(it.title)}</span>`,
+    notebook: `<span class="title">${esc(it.title)}</span>`,
+    card: `<b>${esc(it.title)}</b><small>${esc(it.sub || "")}</small>`,
+    record: `<span class="hole"></span>`,
+    polaroid: `<i></i><span class="scrawl">${esc(it.title)}</span>`,
+    note: esc(it.title),
+  }[it.kind];
+  return `<a class="obj ${it.kind}" style="--r:${it.r}deg" href="${it.href}" target="_blank" rel="noopener" aria-label="${esc(it.label)} (opens in a new tab)">${inner}<span class="cap">${esc(it.label)}</span></a>`;
+}
+
+function showDesk(i, dir = 0) {
+  deskIndex = (i + DESKS.length) % DESKS.length;
+  try { localStorage.setItem("loungeDesk", deskIndex); } catch {}
+  const d = DESKS[deskIndex], box = $("deskItems");
+  $("deskNo").textContent = `Desk ${deskIndex + 1} of ${DESKS.length}`;
+  $("deskName").textContent = d.name;
+  box.innerHTML = d.items.map(deskObject).join("");
+  box.style.setProperty("--from", dir < 0 ? "-40px" : "40px");
+  box.classList.remove("swap"); void box.offsetWidth; if (dir) box.classList.add("swap");
+}
+$("deskPrev").addEventListener("click", () => showDesk(deskIndex - 1, -1));
+$("deskNext").addEventListener("click", () => showDesk(deskIndex + 1, 1));
+// swipe between desks on a phone
+let swipeX = null;
+$("desk").addEventListener("touchstart", (e) => (swipeX = e.touches[0].clientX), { passive: true });
+$("desk").addEventListener("touchend", (e) => {
+  if (swipeX === null) return;
+  const dx = e.changedTouches[0].clientX - swipeX; swipeX = null;
+  if (Math.abs(dx) > 50) showDesk(deskIndex + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+}, { passive: true });
+showDesk(deskIndex);
+
 // ---------- Reach room ----------
 let reachCfg = null;
 const ago = (t) => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? "just now" : m < 60 ? m + " min ago" : m < 1440 ? Math.round(m / 60) + " h ago" : Math.round(m / 1440) + " days ago"; };
@@ -863,6 +1025,7 @@ async function loadReachRoom() {
     $("rcState").textContent = here ? "At the desk" : "Away from the desk";
     $("rcSeen").textContent = d.status.lastSeen ? "The clock last checked in " + ago(d.status.lastSeen) + "." : "The clock hasn't checked in yet.";
     renderMsgs(d.messages);
+    renderHistory(d.history || [], d.messages);
     reachCfg = d.config;
     $("rcAccept").checked = reachCfg.accepting;
     $("rcNote").value = reachCfg.away_note;
@@ -886,6 +1049,29 @@ function renderMsgs(msgs) {
     li.append(b, x, sm); $("rcMsgs").appendChild(li);
   }
 }
+function renderHistory(history, waiting) {
+  const box = $("rcHistory"); box.innerHTML = "";
+  if (!history.length) { box.innerHTML = '<li class="empty">No past messages yet. New ones will be kept here.</li>'; $("rcClearHistory").disabled = true; return; }
+  $("rcClearHistory").disabled = false;
+  const waitingIds = new Set((waiting || []).map((m) => m.id));
+  let lastDay = "";
+  for (const m of [...history].reverse()) {
+    const day = new Date(m.at).toLocaleDateString("en-CA", { weekday: "long", month: "long", day: "numeric" });
+    if (day !== lastDay) { const h = document.createElement("li"); h.className = "day-head"; h.textContent = day; box.appendChild(h); lastDay = day; }
+    const li = document.createElement("li");
+    const b = document.createElement("b"); b.textContent = m.text;
+    const when = document.createElement("span"); when.className = "when" + (waitingIds.has(m.id) ? " waiting" : "");
+    when.textContent = waitingIds.has(m.id) ? "Waiting" : "Seen";
+    const sm = document.createElement("small");
+    sm.textContent = `${m.name || "Someone"} · ${new Date(m.at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`;
+    li.append(b, when, sm); box.appendChild(li);
+  }
+}
+$("rcClearHistory").addEventListener("click", async () => {
+  if (!confirm("Clear the whole message history? Messages still waiting stay in the queue.")) return;
+  try { await api("/reach/history", { method: "DELETE" }); renderHistory([], []); }
+  catch (err) { $("rcHistToast").textContent = err.message; $("rcHistToast").classList.add("err"); }
+});
 function reachDirty() { $("rcSave").disabled = false; $("rcToast").textContent = "Not saved yet"; $("rcToast").classList.remove("err"); }
 $("rcAccept").addEventListener("change", () => { reachCfg.accepting = $("rcAccept").checked; reachDirty(); });
 $("rcNote").addEventListener("input", () => { reachCfg.away_note = $("rcNote").value; reachDirty(); });
