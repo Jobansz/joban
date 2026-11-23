@@ -554,7 +554,9 @@ function showCard(n) {
 $("stepDown").addEventListener("click", () => openVault(true));
 
 let myPass = null, myMember = 0, seen = new Set();
+const who = (n) => (n === 0 ? "Mr. Singh" : "Member No. " + n);
 try { myPass = localStorage.getItem("pitPass"); myMember = Number(localStorage.getItem("pitMember")) || 0; } catch {}
+const isHost = !!myPass && myPass.startsWith("0.");
 
 function openVault(fresh) {
   $("barStage").hidden = true; $("cardStage").hidden = true;
@@ -562,12 +564,12 @@ function openVault(fresh) {
   unlockForm();
   $("vault").scrollIntoView({ behavior: "smooth", block: "start" });
   setTimeout(() => $("vault").classList.add("vault-open"), fresh ? 500 : 250);
-  say(fresh ? `Welcome, Member No. ${myMember}. Mind the step down.` : `Welcome back, Member No. ${myMember}.`);
+  say(isHost ? "Good evening, Mr. Singh. Your usual seat." : fresh ? `Welcome, ${who(myMember)}. Mind the step down.` : `Welcome back, ${who(myMember)}.`);
 }
 function unlockForm() {
   const ok = !!myPass;
   $("markFields").disabled = !ok; $("lockedNote").hidden = ok;
-  $("cardNo").textContent = myMember ? "Member No. " + myMember : "";
+  $("cardNo").textContent = myPass ? who(myMember) : "";
 }
 
 async function loadPit() {
@@ -592,7 +594,7 @@ function drawTable(marks) {
       const a = document.createElement("a"); a.href = "https://open.spotify.com/search/" + encodeURIComponent(m.song); a.target = "_blank"; a.rel = "noopener";
       a.textContent = "♪ " + m.song; li.appendChild(a);
     }
-    const sm = document.createElement("small"); sm.textContent = `Member No. ${m.member} · ${new Date(m.at).toLocaleDateString("en-CA", { month: "short", day: "numeric" })}`; li.appendChild(sm);
+    const sm = document.createElement("small"); sm.textContent = `${m.member === 0 ? "The host" : "Member No. " + m.member} · ${new Date(m.at).toLocaleDateString("en-CA", { month: "short", day: "numeric" })}`; li.appendChild(sm);
     list.appendChild(li);
     if (m.member === myMember && !$("mName").value && !$("mNote").value) { $("mName").value = m.name; $("mNote").value = m.note; $("mSong").value = m.song; $("markBtn").textContent = "Update my glass"; }
   }
