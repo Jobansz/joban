@@ -411,6 +411,34 @@
     .desk-front { margin: 22px -12px 0; }
     .obj { transform: rotate(var(--r, 0deg)) scale(.86); }
   }
+  /* ---------- Bernard ---------- */
+  .bell { position: fixed; right: 22px; bottom: 22px; z-index: 70; width: 64px; height: 58px; border: 0; background: none; cursor: pointer;
+    filter: drop-shadow(0 8px 14px rgba(0,0,0,.6)); transition: transform .2s; }
+  .bell:hover, .bell:focus-visible { transform: translateY(-3px); outline: none; }
+  .bell .dome { position: absolute; left: 8px; right: 8px; bottom: 12px; height: 34px; border-radius: 48px 48px 4px 4px;
+    background: radial-gradient(ellipse at 35% 25%, #fbe8b8, #c49a52 50%, #6c4e22); }
+  .bell .dome::before { content: ""; position: absolute; left: 50%; top: -7px; width: 7px; height: 9px; margin-left: -3.5px; border-radius: 3px 3px 1px 1px; background: #c49a52; }
+  .bell .base { position: absolute; left: 0; right: 0; bottom: 4px; height: 9px; border-radius: 3px; background: linear-gradient(180deg, #3a1d0e, #1a0d06); }
+  .bell.ring { animation: ring .5s; }
+  @keyframes ring { 20% { transform: rotate(-12deg); } 50% { transform: rotate(10deg); } 80% { transform: rotate(-5deg); } }
+  .bernard { position: fixed; right: 22px; bottom: 92px; z-index: 71; width: min(380px, calc(100vw - 32px)); max-height: min(560px, calc(100vh - 130px));
+    display: flex; flex-direction: column; border-radius: 4px; overflow: hidden;
+    background: linear-gradient(160deg, #3a0c10, #24070a); box-shadow: inset 0 0 0 1px rgba(201,164,106,.45), 0 30px 60px rgba(0,0,0,.6); animation: rise .35s ease both; }
+  .bernard[hidden] { display: none; }
+  .bernard header { display: flex; align-items: baseline; gap: 12px; padding: 16px 18px 12px; border-bottom: 1px solid rgba(201,164,106,.25); }
+  .bernard header b { font-size: 1.4rem; font-weight: 400; font-style: italic; }
+  .bernard header .link { margin-left: auto; }
+  .talk { flex: 1; overflow-y: auto; padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; min-height: 160px; }
+  .talk p { max-width: 88%; line-height: 1.45; font-size: .92rem; white-space: pre-wrap; }
+  .talk .b { align-self: flex-start; font-family: "Fraunces", serif; font-style: italic; font-size: 1rem; color: var(--cream); }
+  .talk .u { align-self: flex-end; padding: 8px 12px; border-radius: 12px 12px 2px 12px; background: rgba(201,164,106,.16); color: var(--cream); }
+  .talk .thinking { color: var(--muted); }
+  .talk .err { color: var(--rose); font-style: normal; font-family: "Inter", sans-serif; font-size: .85rem; }
+  #askForm { display: flex; gap: 10px; padding: 12px 14px 14px; border-top: 1px solid rgba(201,164,106,.25); }
+  #ask { flex: 1; min-width: 0; background: transparent; border: 0; border-bottom: 1px solid var(--brass-dim); color: var(--cream); font: inherit; font-size: .95rem; padding: 8px 2px; outline: none; }
+  #ask:focus { border-color: var(--brass); }
+  #askForm .btn-brass { padding: 8px 18px; }
+  @media (max-width: 760px) { .bell { right: 14px; bottom: 14px; } .bernard { right: 16px; bottom: 82px; } }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   @media (max-width: 760px) {
     .lounge-room { --k: .5; margin-left: -8px; margin-right: -8px; }
@@ -718,6 +746,13 @@
   </div>
 </div>
 
+<!-- Bernard, the concierge -->
+<button class="bell" id="bell" aria-label="Ring for Bernard" hidden><span class="dome"></span><span class="base"></span></button>
+<section class="bernard" id="bernard" aria-label="Talk to Bernard" hidden>
+  <header><span class="eyebrow">The concierge</span><b class="serif">Bernard</b><button class="link" id="bernardClose" aria-label="Close">Close</button></header>
+  <div class="talk" id="talk" aria-live="polite"></div>
+  <form id="askForm"><input id="ask" autocomplete="off" placeholder="Ask Bernard anything…" aria-label="Your question"><button class="btn-brass" type="submit" id="askBtn">Ask</button></form>
+</section>
 <div class="savebar" id="savebar" role="status">
   <span class="toast" id="toast">Bernard is holding your changes</span>
   <button class="btn-brass" id="save">Save</button>
@@ -762,13 +797,14 @@ function leave() {
   token = null;
   try { localStorage.removeItem("loungeToken"); } catch {}
   $("inside").classList.add("hidden"); $("door").classList.remove("hidden");
+  $("bell").hidden = true; $("bernard").hidden = true; talk = []; try { sessionStorage.removeItem("bernardTalk"); } catch {}
   $("savebar").classList.remove("show");
   setTimeout(() => $("pw").focus(), 50);
 }
 $("leave").addEventListener("click", leave);
 
 function enter() {
-  $("door").classList.add("hidden"); $("inside").classList.remove("hidden");
+  $("door").classList.add("hidden"); $("inside").classList.remove("hidden"); $("bell").hidden = false;
   greet(); route(); loadPaper(); loadReach();
 }
 
@@ -966,7 +1002,7 @@ function buildHall() {
 function resetPlaque() {
   $("plaqueNo").textContent = "The Lounge";
   $("plaqueName").textContent = "Choose a door";
-  $("plaqueNote").textContent = "Bernard is on duty";
+  $("plaqueNote").textContent = "Bernard is on duty · ring the bell";
 }
 
 function setActive(i) {
@@ -1269,6 +1305,46 @@ $("awSave").addEventListener("click", async () => {
     awaySha = d.sha; away = d.settings; renderAway();
     $("awToast").textContent = d.bertrand || "Filed.";
   } catch (err) { $("awToast").textContent = err.message; $("awToast").classList.add("err"); $("awSave").disabled = false; }
+});
+
+
+// ---------- Bernard, the concierge ----------
+let talk = [];
+try { talk = JSON.parse(sessionStorage.getItem("bernardTalk") || "[]"); } catch {}
+function saveTalk() { try { sessionStorage.setItem("bernardTalk", JSON.stringify(talk.slice(-20))); } catch {} }
+function renderTalk(extra) {
+  const box = $("talk"); box.innerHTML = "";
+  const lines = talk.length ? talk : [{ role: "assistant", content: "Good evening. I can tell you what's due, what's in the paper, or who's left you a note. What can I do for you?" }];
+  for (const m of lines) { const p = document.createElement("p"); p.className = m.role === "user" ? "u" : "b"; p.textContent = m.content; box.appendChild(p); }
+  if (extra) box.appendChild(extra);
+  box.scrollTop = box.scrollHeight;
+}
+function currentRoom() {
+  if (!$("deskView").hidden) return "the desk (" + DESKS[deskIndex].name + ")";
+  return { "#paper": "the Morning Paper room", "#reach": "the Reach room", "#away": "the Away room" }[location.hash] || "the hallway with the doors";
+}
+$("bell").addEventListener("click", () => {
+  const open = $("bernard").hidden;
+  $("bell").classList.remove("ring"); void $("bell").offsetWidth; $("bell").classList.add("ring");
+  $("bernard").hidden = !open;
+  if (open) { renderTalk(); setTimeout(() => $("ask").focus(), 50); }
+});
+$("bernardClose").addEventListener("click", () => { $("bernard").hidden = true; $("bell").focus(); });
+$("askForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const q = $("ask").value.trim(); if (!q) return;
+  $("ask").value = ""; $("askBtn").disabled = true;
+  talk.push({ role: "user", content: q }); saveTalk();
+  const wait = document.createElement("p"); wait.className = "b thinking"; wait.textContent = "One moment…";
+  renderTalk(wait);
+  try {
+    const d = await api("/bernard", { method: "POST", body: JSON.stringify({ messages: talk, room: currentRoom() }) });
+    talk.push({ role: "assistant", content: d.reply }); saveTalk(); renderTalk();
+  } catch (err) {
+    talk.pop(); saveTalk();
+    const p = document.createElement("p"); p.className = "b err"; p.textContent = err.message; renderTalk(p); $("ask").value = q;
+  }
+  $("askBtn").disabled = false; $("ask").focus();
 });
 
 // ---------- routing ----------
