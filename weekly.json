@@ -1,21 +1,35 @@
 {
   "week_of": "November 23",
-  "updated": "2026-11-23T08:00:00.000Z",
-  "changes": 0,
+  "updated": "2026-11-23T08:00:20.295Z",
+  "changes": 44,
   "projects": [
-    "joban"
+    "joban",
+    "snippy-privacy"
   ],
   "new_pages": [
     {
       "title": "Reach",
       "href": "reach.html"
+    },
+    {
+      "title": "Away",
+      "href": "away.html"
+    },
+    {
+      "title": "Snippy",
+      "href": "snippy.html"
+    },
+    {
+      "title": "SweetTreat",
+      "href": "sweettreat.html"
     }
   ],
-  "headline": "My desk clock talks back now",
-  "body": "Reach, the little round clock on my desk, can now reply to the notes you leave it. You can also ask my doorman Bernard about me, and he'll answer what I've told him he can share.",
+  "headline": "Gadgets, apps, and film photos this week",
+  "body": "I've been working on Away, a train display, and Reach, my desk clock, which now has a public page with a little LED-style preview. Snippy is live on the Chrome Web Store, and the Apps page got a fresh look where a swarm of cursors builds it up. I'm still shooting film too, and the photo gallery now has a neat square grid.",
   "items": [
-    "Replies to your Reach notes",
-    "Ask Bernard about me",
-    "Weekly updates right here"
+    "Snippy is live on the Chrome Web Store",
+    "Away gained a travel mode and display screens",
+    "SweetTreat, formerly Food Budget, has its own page",
+    "Photography page has a square grid and film Instagram"
   ]
 }
