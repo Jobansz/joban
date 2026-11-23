@@ -581,19 +581,22 @@ function doorPlank() {
 // No. 04: just a frame. The door is still on order.
 function doorFrame() {
   return `<svg viewBox="0 0 106 262" preserveAspectRatio="none">
-    <rect x="0" y="0" width="7" height="262" fill="url(#steel)"/><rect x="99" y="0" width="7" height="262" fill="url(#steel)"/>
-    <rect x="0" y="0" width="106" height="7" fill="url(#steel)"/>
-    <rect x="5" y="7" width="1.2" height="255" fill="#000" fill-opacity=".35"/><rect x="99.8" y="7" width="1.2" height="255" fill="#000" fill-opacity=".35"/>
-    <rect x="5" y="40" width="2.4" height="16" fill="#cfd1cf" stroke="#777" stroke-width=".4"/><rect x="5" y="190" width="2.4" height="16" fill="#cfd1cf" stroke="#777" stroke-width=".4"/>
-    <rect x="99" y="128" width="2" height="9" fill="#9da09d" stroke="#666" stroke-width=".4"/>
+    <g><rect x="0" y="0" width="7" height="262" fill="#4a2a17"/><rect x="99" y="0" width="7" height="262" fill="#4a2a17"/>
+    <rect x="0" y="0" width="106" height="7" fill="#4a2a17"/></g>
+    <rect x="0" y="0" width="7" height="262" filter="url(#grain)"/><rect x="99" y="0" width="7" height="262" filter="url(#grain)"/>
+    <rect x="0" y="0" width="106" height="7" filter="url(#grain)"/>
+    <rect x="0" y="0" width="1" height="262" fill="#fff" fill-opacity=".12"/><rect x="0" y="0" width="106" height="1" fill="#fff" fill-opacity=".12"/>
+    <rect x="5.6" y="7" width="1.4" height="255" fill="#000" fill-opacity=".45"/><rect x="99" y="7" width="1.4" height="255" fill="#000" fill-opacity=".45"/>
+    <rect x="5" y="40" width="2.4" height="16" fill="url(#brass)"/><rect x="5" y="190" width="2.4" height="16" fill="url(#brass)"/>
+    <rect x="99" y="128" width="2" height="9" fill="url(#brass)"/>
   </svg>`;
 }
 
 const ROOMS = [
-  { id: "paper", no: "01", name: "Morning Paper", h: 300, w: 132, frame: "#d8ccb4", leafEdge: "#2e5a3b", draw: doorLisbon, href: "#paper", note: "Open" },
-  { id: "reach", no: "02", name: "Reach", h: 296, w: 116, frame: "#8f8a80", leafEdge: "#5a2c13", draw: doorPorthole, href: "reach.html", note: "Checking the desk…" },
-  { id: "away", no: "03", name: "Away", h: 280, w: 118, frame: "#ebe8e1", leafEdge: "#6a3418", draw: doorPlank, locked: "In the workshop", note: "In the workshop" },
-  { id: "reserved", no: "04", name: "Reserved", h: 280, w: 112, frame: "#b9bcbf", leafEdge: "transparent", noLeaf: true, draw: doorFrame, locked: "The frame is up. The door is still on order", note: "Coming soon" },
+  { id: "paper", no: "01", name: "Morning Paper", h: 300, w: 132, frame: "#284f33", leafEdge: "#2e5a3b", draw: doorLisbon, href: "#paper", note: "Open" },
+  { id: "reach", no: "02", name: "Reach", h: 296, w: 116, frame: "#4e2610", leafEdge: "#5a2c13", draw: doorPorthole, href: "reach.html", note: "Checking the desk…" },
+  { id: "away", no: "03", name: "Away", h: 280, w: 118, frame: "#5c2c13", leafEdge: "#6a3418", draw: doorPlank, locked: "In the workshop", note: "In the workshop" },
+  { id: "reserved", no: "04", name: "Reserved", h: 280, w: 112, frame: "#4a2a17", leafEdge: "transparent", noLeaf: true, draw: doorFrame, locked: "The frame is up. The door is still on order", note: "Coming soon" },
 ];
 let activeRoom = 0, hoverRoom = null;
 
