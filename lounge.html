@@ -251,6 +251,14 @@
     background: repeating-linear-gradient(90deg, rgba(0,0,0,.35) 0 2px, transparent 2px 22px), linear-gradient(135deg, #3b2616, #24160d);
     box-shadow: inset 0 0 18px rgba(0,0,0,.7); }
   .trapdoor i { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px; border-radius: 50%; border: 3px solid #b8904f; }
+  .line-input { width: 100%; background: transparent; border: 0; border-bottom: 1px solid var(--brass-dim); color: var(--cream);
+    font-family: "Fraunces", serif; font-style: italic; font-size: 1.3rem; padding: 6px 2px; outline: none; }
+  .line-input:focus { border-color: var(--brass); }
+  #awDir { grid-template-columns: repeat(3, 1fr); }
+  #awDir .sound { padding: 12px 6px; }
+  #away .day input[type=time] { max-width: 160px; }
+  .row-save { display: flex; align-items: center; gap: 14px; margin-top: 18px; flex-wrap: wrap; }
+  .row-save .btn-brass { padding: 9px 26px; }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   @media (max-width: 760px) {
     .lounge-room { --k: .5; margin-left: -8px; margin-right: -8px; }
@@ -398,6 +406,44 @@
             <div class="edition-head" id="edHead">&nbsp;</div>
             <ul class="todos" id="edTodos"></ul>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Away room -->
+    <section id="away" class="hidden">
+      <div class="room-title">
+        <a class="link" href="#lounge">← The Lounge</a>
+        <span class="eyebrow" style="margin-top:22px">No. 03</span>
+        <h2>Away</h2>
+      </div>
+      <div class="grid2" style="margin-top:28px">
+        <div class="panel">
+          <span class="eyebrow">The platform</span>
+          <div class="field" style="margin-top:0"><label for="awStation">Home station</label>
+            <input id="awStation" class="line-input" list="awStations" maxlength="40" autocomplete="off">
+            <datalist id="awStations"><option>Miranda</option><option>Gymea</option><option>Kirrawee</option><option>Sutherland</option><option>Caringbah</option><option>Woolooware</option><option>Cronulla</option><option>Jannali</option><option>Central</option><option>Town Hall</option></datalist>
+          </div>
+          <div class="field"><label>Trains going</label>
+            <div class="sounds" id="awDir">
+              <button type="button" class="sound" data-d="both"><span class="serif">Both ways</span></button>
+              <button type="button" class="sound" data-d="city"><span class="serif">To the City</span></button>
+              <button type="button" class="sound" data-d="cronulla"><span class="serif">To Cronulla</span></button>
+            </div>
+          </div>
+          <div class="field"><label for="awTrains">Trains on the board <output id="awTrainsVal"></output></label><input id="awTrains" type="range" min="2" max="6"></div>
+          <div class="field"><label for="awWalk">Walk to the platform <output id="awWalkVal"></output></label><input id="awWalk" type="range" min="0" max="30"></div>
+          <p class="muted" style="font-size:.8rem;margin-top:6px">Trains leaving sooner than your walk are hidden, since you can't catch them.</p>
+        </div>
+        <div class="panel">
+          <span class="eyebrow">The screen</span>
+          <div class="field" style="margin-top:0"><label for="awBright">Brightness <output id="awBrightVal"></output></label><input id="awBright" type="range" min="1" max="10"></div>
+          <div class="day" style="grid-template-columns:1fr auto"><b>Dark at night</b><label class="sw"><input type="checkbox" id="awNight" aria-label="Dark at night"><span></span></label></div>
+          <div class="day" style="grid-template-columns:64px 1fr"><b>From</b><input type="time" id="awFrom" aria-label="Night starts"></div>
+          <div class="day" style="grid-template-columns:64px 1fr"><b>Until</b><input type="time" id="awTo" aria-label="Night ends"></div>
+          <div class="day" style="grid-template-columns:1fr auto"><b>Travel mode</b><label class="sw"><input type="checkbox" id="awTravel" aria-label="Travel mode"><span></span></label></div>
+          <p class="muted" style="font-size:.8rem;margin-top:6px">Double-click to board, click to get off, hold to go home.</p>
+          <div class="row-save"><button class="btn-brass" id="awSave" disabled>Save</button><span class="toast" id="awToast"></span></div>
         </div>
       </div>
     </section>
@@ -624,7 +670,7 @@ function doorFrame() {
 const ROOMS = [
   { id: "paper", no: "01", name: "Morning Paper", h: 300, w: 132, frame: "#284f33", leafEdge: "#2e5a3b", draw: doorLisbon, href: "#paper", note: "Open" },
   { id: "reach", no: "02", name: "Reach", h: 296, w: 116, frame: "#4e2610", leafEdge: "#5a2c13", draw: doorPorthole, href: "reach.html", note: "Checking the desk…" },
-  { id: "away", no: "03", name: "Away", h: 280, w: 118, frame: "#5c2c13", leafEdge: "#6a3418", draw: doorPlank, locked: "In the workshop", note: "In the workshop" },
+  { id: "away", no: "03", name: "Away", h: 280, w: 118, frame: "#5c2c13", leafEdge: "#6a3418", draw: doorPlank, href: "#away", note: "Station settings" },
   { id: "reserved", no: "04", name: "Reserved", h: 280, w: 112, frame: "#4a2a17", leafEdge: "transparent", noLeaf: true, draw: doorFrame, locked: "The frame is up. The door is still on order", note: "Coming soon" },
 ];
 let activeRoom = null;
@@ -708,21 +754,21 @@ function renderSettings() {
     time.addEventListener("change", update); sw.addEventListener("change", update);
     $("days").appendChild(row);
   }
-  document.querySelectorAll(".sound").forEach((b) => b.classList.toggle("on", b.dataset.s === settings.chime.sound));
+  document.querySelectorAll("#sounds .sound").forEach((b) => b.classList.toggle("on", b.dataset.s === settings.chime.sound));
   bindRange("volume", settings.chime.volume, (v) => (settings.chime.volume = v), (v) => v + " / 10");
   bindRange("fade", settings.chime.fade_in_seconds, (v) => (settings.chime.fade_in_seconds = v), (v) => (v ? v + " sec" : "Off"));
   bindRange("snooze", settings.snooze_minutes, (v) => (settings.snooze_minutes = v), (v) => v + " min");
 }
 
-function bindRange(id, value, set, fmt) {
+function bindRange(id, value, set, fmt, onChange = dirty) {
   const el = $(id), out = $(id + "Val");
   el.value = value; out.textContent = fmt(value);
-  el.oninput = () => { const v = Number(el.value); set(v); out.textContent = fmt(v); dirty(); };
+  el.oninput = () => { const v = Number(el.value); set(v); out.textContent = fmt(v); onChange(); };
 }
 
-document.querySelectorAll(".sound").forEach((b) => b.addEventListener("click", () => {
+document.querySelectorAll("#sounds .sound").forEach((b) => b.addEventListener("click", () => {
   settings.chime.sound = b.dataset.s;
-  document.querySelectorAll(".sound").forEach((x) => x.classList.toggle("on", x === b));
+  document.querySelectorAll("#sounds .sound").forEach((x) => x.classList.toggle("on", x === b));
   play(b.dataset.s); dirty();
 }));
 
@@ -762,11 +808,52 @@ function play(sound) {
 }
 $("preview").addEventListener("click", () => play(settings ? settings.chime.sound : "bells"));
 
+// ---------- Away room ----------
+let away = null, awaySha = null;
+async function loadAway() {
+  $("awToast").textContent = "Bernard is fetching the timetable…"; $("awToast").classList.remove("err");
+  try {
+    const d = await api("/away/settings");
+    away = d.settings; awaySha = d.sha; renderAway(); $("awToast").textContent = "";
+    $("awSave").disabled = true;
+  } catch (err) { $("awToast").textContent = err.message; $("awToast").classList.add("err"); }
+}
+function awayDirty() { $("awSave").disabled = false; $("awToast").textContent = "Not saved yet"; $("awToast").classList.remove("err"); }
+function renderAway() {
+  $("awStation").value = away.home_station;
+  document.querySelectorAll("#awDir .sound").forEach((b) => b.classList.toggle("on", b.dataset.d === away.direction));
+  bindRange("awTrains", away.trains_shown, (v) => (away.trains_shown = v), (v) => v, awayDirty);
+  bindRange("awWalk", away.walk_minutes, (v) => (away.walk_minutes = v), (v) => (v ? v + " min" : "Off"), awayDirty);
+  bindRange("awBright", away.brightness, (v) => (away.brightness = v), (v) => v + " / 10", awayDirty);
+  $("awNight").checked = away.night.on; $("awFrom").value = away.night.from; $("awTo").value = away.night.to;
+  $("awFrom").disabled = $("awTo").disabled = !away.night.on;
+  $("awTravel").checked = away.travel_mode;
+}
+$("awStation").addEventListener("input", () => { away.home_station = $("awStation").value; awayDirty(); });
+document.querySelectorAll("#awDir .sound").forEach((b) => b.addEventListener("click", () => {
+  away.direction = b.dataset.d;
+  document.querySelectorAll("#awDir .sound").forEach((x) => x.classList.toggle("on", x === b)); awayDirty();
+}));
+$("awNight").addEventListener("change", () => { away.night.on = $("awNight").checked; $("awFrom").disabled = $("awTo").disabled = !away.night.on; awayDirty(); });
+$("awFrom").addEventListener("change", () => { away.night.from = $("awFrom").value || "23:00"; awayDirty(); });
+$("awTo").addEventListener("change", () => { away.night.to = $("awTo").value || "06:30"; awayDirty(); });
+$("awTravel").addEventListener("change", () => { away.travel_mode = $("awTravel").checked; awayDirty(); });
+$("awSave").addEventListener("click", async () => {
+  $("awSave").disabled = true; $("awToast").textContent = "Bernard is filing it…";
+  try {
+    const d = await api("/away/settings", { method: "PUT", body: JSON.stringify({ settings: away, sha: awaySha }) });
+    awaySha = d.sha; away = d.settings; renderAway();
+    $("awToast").textContent = d.bertrand || "Filed.";
+  } catch (err) { $("awToast").textContent = err.message; $("awToast").classList.add("err"); $("awSave").disabled = false; }
+});
+
 // ---------- routing ----------
 function route() {
-  const paper = location.hash === "#paper";
-  $("hub").classList.toggle("hidden", paper);
-  $("paper").classList.toggle("hidden", !paper);
+  const room = ["#paper", "#away"].includes(location.hash) ? location.hash.slice(1) : null;
+  $("hub").classList.toggle("hidden", !!room);
+  $("paper").classList.toggle("hidden", room !== "paper");
+  $("away").classList.toggle("hidden", room !== "away");
+  if (room === "away" && token) loadAway();
   window.scrollTo(0, 0);
 }
 window.addEventListener("hashchange", route);
