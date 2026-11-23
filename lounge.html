@@ -219,7 +219,7 @@
     background: linear-gradient(90deg, #6b4c20, #e9cd8c 45%, #8c6a30); }
 
   /* walnut floorboards */
-  .floor { position: relative; height: calc(210px * var(--k) + 50px); perspective: none; overflow: hidden; background: #1a0d06; }
+  .floor { position: relative; height: calc(250px * var(--k) + 60px); perspective: none; overflow: hidden; background: #1a0d06; }
   .boards { position: absolute; left: -40%; right: -40%; top: 0; height: 260%; transform-origin: 50% 0; transform: perspective(700px) rotateX(68deg);
     background:
       repeating-linear-gradient(0deg, transparent 0 233px, rgba(0,0,0,.55) 233px 235px),
@@ -230,7 +230,7 @@
   .floor::after { content: ""; position: absolute; inset: 0; pointer-events: none;
     background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(255,180,110,.18), transparent 70%),
       linear-gradient(180deg, rgba(0,0,0,.35), transparent 30%, rgba(0,0,0,.55)); }
-  .rug-plane { position: absolute; left: 50%; top: calc(14px * var(--k) + 4px); width: 56%; z-index: 1; aspect-ratio: 3 / 2; transform: translateX(-50%) perspective(1400px) rotateX(66deg);
+  .rug-plane { position: absolute; left: 50%; top: calc(70px * var(--k) + 4px); width: 56%; z-index: 1; aspect-ratio: 3 / 2; transform: translateX(-50%) perspective(1400px) rotateX(66deg);
     transform-origin: 50% 0; transform-style: preserve-3d; }
   .rug { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; border-radius: 2px;
     clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
@@ -273,6 +273,45 @@
   .msgs.history .when { grid-row: 1 / span 2; grid-column: 2; font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding-top: 4px; }
   .msgs.history .when.waiting { color: var(--brass); }
   .msgs .day-head { grid-template-columns: 1fr; padding: 14px 0 2px; border: 0; font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: var(--brass-dim); }
+  /* ---------- the desk in the room ---------- */
+  .room-desk { position: absolute; left: 50%; top: calc(6px * var(--k)); z-index: 3; width: calc(280px * var(--k)); height: calc(150px * var(--k));
+    transform: translateX(-50%); border: 0; padding: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
+    filter: drop-shadow(0 14px 14px rgba(0,0,0,.55)); transition: transform .4s cubic-bezier(.2,.75,.2,1), filter .4s; }
+  .room-desk:hover, .room-desk:focus-visible { transform: translateX(-50%) translateY(-4px); outline: none;
+    filter: drop-shadow(0 18px 18px rgba(0,0,0,.6)) drop-shadow(0 0 14px rgba(255,190,110,.35)); }
+  .room-desk span, .room-desk i { position: absolute; display: block; }
+  .rd-top { left: 0; right: 0; top: 34%; height: 15%; clip-path: polygon(3% 0, 97% 0, 100% 100%, 0 100%);
+    background: linear-gradient(180deg, #7a4626, #5a3019); }
+  .rd-top i { left: 22%; right: 22%; top: 18%; height: 58%; clip-path: polygon(2% 0, 98% 0, 100% 100%, 0 100%); background: linear-gradient(180deg, #2a4433, #1d3326); }
+  .rd-apron { left: 1%; right: 1%; top: 49%; height: 22%; background: linear-gradient(180deg, #4e2a15, #3a1e0f);
+    box-shadow: inset 0 2px 0 rgba(255,220,170,.15), inset 0 -2px 4px rgba(0,0,0,.4); }
+  .rd-apron i { top: 22%; width: 30%; height: 56%; border: 1px solid rgba(0,0,0,.45); box-shadow: inset 1px 1px 0 rgba(255,220,170,.1); }
+  .rd-apron i:first-child { left: 8%; } .rd-apron i:last-child { right: 8%; }
+  .rd-apron i::after { content: ""; position: absolute; left: 50%; top: 50%; width: 14px; height: 3px; margin: -1.5px -7px; border-radius: 2px;
+    background: linear-gradient(90deg, #8c6a30, #e9cd8c, #8c6a30); transform: scale(var(--k)); }
+  .rd-legs { left: 3%; right: 3%; top: 71%; bottom: 0; }
+  .rd-legs i { top: 0; bottom: 0; width: 4%; background: linear-gradient(90deg, #2a150a, #5a3019 50%, #2a150a); clip-path: polygon(0 0, 100% 0, 75% 100%, 25% 100%); }
+  .rd-legs i:first-child { left: 0; } .rd-legs i:last-child { right: 0; }
+  .rd-lamp { left: 8%; top: 0; width: 18%; height: 36%; }
+  .rd-lamp::before { content: ""; position: absolute; left: 10%; right: 10%; top: 0; height: 38%; border-radius: 40px 40px 4px 4px;
+    background: linear-gradient(180deg, #1f4a33, #13301f); box-shadow: inset 0 -2px 0 #c9a46a, 0 10px 24px 4px rgba(255,200,120,.35); }
+  .rd-lamp i { left: 48%; top: 36%; width: 6%; height: 64%; background: linear-gradient(90deg, #8c6a30, #e9cd8c, #8c6a30); }
+  .rd-things { left: 36%; right: 18%; top: 20%; height: 18%; }
+  .rd-things .env { left: 0; bottom: 0; width: 28%; height: 55%; background: #eadcbf; transform: skewX(-8deg); }
+  .rd-things .book { left: 36%; bottom: 0; width: 22%; height: 100%; background: #241c17; border-right: 2px solid #8c1c1e; }
+  .rd-things .rec { right: 0; bottom: 0; width: 26%; height: 40%; border-radius: 50%; background: radial-gradient(ellipse, #7d1414 0 22%, #111 24%); }
+
+  /* ---------- the desk, zoomed in ---------- */
+  .desk-view { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 70px 16px 24px;
+    background: rgba(10,6,4,0); backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); transition: background .5s, backdrop-filter .5s; overflow-y: auto; }
+  .desk-view[hidden] { display: none; }
+  .desk-view.open { background: rgba(10,6,4,.93); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .desk-zoom { position: relative; width: min(980px, 100%); margin: auto; transform-origin: 50% 50%;
+    transition: transform .6s cubic-bezier(.2,.75,.2,1), opacity .45s; }
+  .desk-back { position: absolute; left: 0; top: -48px; background: none; border: 0; color: var(--muted); font-size: .75rem; letter-spacing: .24em; text-transform: uppercase; }
+  .desk-back:hover, .desk-back:focus-visible { color: var(--brass); outline: none; }
+  body.desk-open { overflow: hidden; }
+
   /* ---------- the desk ---------- */
   .desk { position: relative; margin-top: 4px; padding: 34px 34px 0; border-radius: 6px 6px 3px 3px;
     background:
@@ -333,7 +372,7 @@
   .note::before { content: ""; position: absolute; left: 50%; top: 8px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, #ff8a7a, #b0201a); box-shadow: 0 2px 2px rgba(0,0,0,.4); }
 
-  .lamp { position: absolute; left: 26px; top: -40px; width: 90px; height: 120px; pointer-events: none; z-index: 2; }
+  .lamp { position: absolute; left: 26px; top: -30px; width: 90px; height: 120px; pointer-events: none; z-index: 2; }
   .lamp .shade { position: absolute; left: 6px; top: 0; width: 80px; height: 30px; border-radius: 40px 40px 6px 6px;
     background: linear-gradient(180deg, #1f4a33, #13301f); box-shadow: inset 0 -3px 0 #c9a46a, 0 18px 40px 6px rgba(255,200,120,.25); }
   .lamp .neck { position: absolute; left: 44px; top: 28px; width: 4px; height: 50px; background: linear-gradient(90deg, #8c6a30, #e9cd8c, #8c6a30); }
@@ -352,6 +391,7 @@
     .blotter { padding: 24px 10px 34px; }
     .items { gap: 30px 18px; }
     .lamp { display: none; }
+    .desk-view { padding-top: 64px; }
     .desk-front { margin: 22px -12px 0; }
     .obj { transform: rotate(var(--r, 0deg)) scale(.86); }
   }
@@ -461,6 +501,13 @@
         </div>
         <div class="floor">
           <div class="boards"></div>
+          <button class="room-desk" id="roomDesk" aria-label="Your desk: tap to sit down">
+            <span class="rd-lamp"><i></i></span>
+            <span class="rd-things"><i class="env"></i><i class="book"></i><i class="rec"></i></span>
+            <span class="rd-top"><i></i></span>
+            <span class="rd-apron"><i></i><i></i></span>
+            <span class="rd-legs"><i></i><i></i></span>
+          </button>
           <div class="rug-plane" id="rugPlane">
             <button class="trapdoor" id="trapdoor" aria-label="A trapdoor"><i></i></button>
             <img class="rug" src="images/lounge-rug.jpg" alt="" draggable="false">
@@ -470,8 +517,10 @@
         </div>
       </div>
 
-      <!-- the desk: swap between desks, everything you use within reach -->
-      <div class="section-head"><h4>The desk</h4><span class="eyebrow">Swap desks with the arrows</span></div>
+      <!-- the desk, zoomed in: opens when you tap the desk in the room -->
+      <div class="desk-view" id="deskView" role="dialog" aria-modal="true" aria-label="Your desk" hidden>
+        <div class="desk-zoom" id="deskZoom">
+        <button class="desk-back" id="deskBack">← Back to the room</button>
       <div class="desk" id="desk">
         <div class="lamp" aria-hidden="true"><i class="shade"></i><i class="neck"></i><i class="foot"></i></div>
         <div class="blotter"><div class="items" id="deskItems"></div></div>
@@ -479,6 +528,8 @@
           <button class="desk-arrow" id="deskPrev" aria-label="Previous desk">‹</button>
           <div class="desk-plate"><span class="eyebrow" id="deskNo"></span><b id="deskName"></b></div>
           <button class="desk-arrow" id="deskNext" aria-label="Next desk">›</button>
+        </div>
+      </div>
         </div>
       </div>
     </section>
@@ -1012,6 +1063,36 @@ $("desk").addEventListener("touchend", (e) => {
   if (Math.abs(dx) > 50) showDesk(deskIndex + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
 }, { passive: true });
 showDesk(deskIndex);
+
+// the zoomed view must sit on <body>: fixed elements inside animated parents get trapped
+document.body.appendChild($("deskView"));
+function zoomFromDesk() {
+  const from = $("roomDesk").getBoundingClientRect(), to = $("deskZoom").getBoundingClientRect();
+  const dx = from.left + from.width / 2 - (to.left + to.width / 2), dy = from.top + from.height / 2 - (to.top + to.height / 2);
+  return `translate(${dx}px, ${dy}px) scale(${Math.max(0.15, from.width / to.width)})`;
+}
+function openDesk() {
+  const v = $("deskView"), z = $("deskZoom");
+  v.hidden = false; document.body.classList.add("desk-open");
+  z.style.transition = "none"; z.style.opacity = "0"; z.style.transform = zoomFromDesk();
+  void z.offsetWidth;
+  z.style.transition = ""; z.style.opacity = "1"; z.style.transform = "none"; v.classList.add("open");
+  setTimeout(() => $("deskBack").focus(), 350);
+}
+function closeDesk() {
+  const v = $("deskView"), z = $("deskZoom");
+  if (v.hidden) return;
+  z.style.transform = zoomFromDesk(); z.style.opacity = "0"; v.classList.remove("open");
+  setTimeout(() => { v.hidden = true; document.body.classList.remove("desk-open"); $("roomDesk").focus({ preventScroll: true }); }, 520);
+}
+$("roomDesk").addEventListener("click", openDesk);
+$("roomDesk").addEventListener("mouseenter", () => {
+  $("doors").querySelectorAll(".door").forEach((d) => d.classList.remove("on"));
+  $("plaqueNo").textContent = "The desk"; $("plaqueName").textContent = "Your desk"; $("plaqueNote").textContent = "Sit down";
+});
+$("deskBack").addEventListener("click", closeDesk);
+$("deskView").addEventListener("click", (e) => { if (e.target === $("deskView")) closeDesk(); });
+addEventListener("keydown", (e) => { if (e.key === "Escape") closeDesk(); });
 
 // ---------- Reach room ----------
 let reachCfg = null;
