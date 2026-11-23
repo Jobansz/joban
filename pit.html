@@ -41,6 +41,16 @@
   .link { background: none; border: 0; color: var(--muted); font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; }
   .link:hover { color: var(--brass); }
 
+  .room-say { position: absolute; left: 50%; top: 4%; z-index: 4; transform: translate(-50%, -6px); max-width: 80%; width: max-content; margin: 0; padding: 10px 18px;
+    font-family: "Fraunces", serif; font-style: italic; font-size: clamp(.9rem, 2vw, 1.1rem); color: var(--cream); text-align: center;
+    background: rgba(14,8,6,.88); border-radius: 4px; box-shadow: inset 0 0 0 1px var(--brass), 0 10px 30px rgba(0,0,0,.5);
+    opacity: 0; pointer-events: none; transition: opacity .3s, transform .3s; }
+  .room-say::before { content: "Bernard · "; font-family: "Inter", sans-serif; font-style: normal; font-size: .72rem; color: var(--muted); }
+  .room-say.show { opacity: 1; transform: translate(-50%, 0); }
+  .room-say.err { color: var(--rose); }
+  .room .hot.ping { animation: ping .7s ease; }
+  @keyframes ping { 0% { filter: none; } 35% { filter: brightness(1.6) drop-shadow(0 0 16px rgba(255,210,140,.8)); } 100% { filter: none; } }
+  .hint-row button.on { border-color: var(--brass); color: var(--brass); }
   /* ---------- the wall (deco doors over the room) ---------- */
   .leaves { position: absolute; inset: 0; z-index: 5; border-radius: 6px; overflow: hidden; pointer-events: auto; }
   .leaf { position: absolute; top: 0; bottom: 0; width: 50.2%; transition: transform 1.6s cubic-bezier(.6,.05,.25,1);
@@ -365,6 +375,7 @@
       <g id="sconces"></g>
       <rect width="1200" height="700" fill="url(#vignette)" pointer-events="none"/>
     </svg>
+    <p class="room-say" id="roomSay" aria-live="polite"></p>
     <div class="hint-row" id="hintRow" role="group" aria-label="Places in the room">
       <button data-go="hotBar">The bar</button><button data-go="hotPit">The pit</button><button data-go="hotRecord">Record player</button><button data-go="hotWindow">Window</button>
     </div>
@@ -413,7 +424,14 @@
 <script>
 const API = "https://lounge.jobanxy.workers.dev";
 const $ = (id) => document.getElementById(id);
-const say = (t, err) => { $("say").textContent = t; $("say").classList.toggle("err", !!err); };
+let sayTimer;
+const say = (t, err) => {
+  $("say").textContent = t; $("say").classList.toggle("err", !!err);
+  // also say it inside the room, so you see it wherever you've scrolled
+  const b = $("roomSay"); if (!b || !$("vault").classList.contains("vault-open")) return;
+  b.textContent = t; b.classList.toggle("err", !!err); b.classList.remove("show"); void b.offsetWidth; b.classList.add("show");
+  clearTimeout(sayTimer); sayTimer = setTimeout(() => b.classList.remove("show"), 4200);
+};
 
 // ---------- the room ----------
 const NS = "http://www.w3.org/2000/svg";
@@ -521,20 +539,28 @@ let bi = 0;
 function openBar() { say(BAR_LINES[bi++ % BAR_LINES.length]); }
 const actions = {
   hotBar: openBar,
-  hotPit: () => { say(myPass ? "Your seat's waiting. Leave a glass below." : "The Pit is for members. Mix a drink at the bar first."); $("pitStage").scrollIntoView({ behavior: "smooth" }); },
+  hotPit: () => { say(isHost ? "Your usual seat, Mr. Singh. Leave a glass below if you like." : "Your seat's waiting. Leave a glass below."); setTimeout(() => $("pitStage").scrollIntoView({ behavior: "smooth" }), 900); },
   hotRecord: () => playNext(true),
   hotWindow: () => say(WINDOW_LINES[wi++ % WINDOW_LINES.length]),
   hotSign: () => say(SIGN_LINES[si++ % SIGN_LINES.length]),
   hotDoor: () => { location.href = "index.html"; },
 };
+function act(id) {
+  const el = $(id); el.classList.remove("ping"); void el.getBBox(); el.classList.add("ping");
+  document.querySelectorAll(".hint-row button").forEach((b) => b.classList.toggle("on", b.dataset.go === id));
+  actions[id]();
+}
 for (const id in actions) {
   const el = $(id);
-  el.addEventListener("click", actions[id]);
-  el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); actions[id](); } });
+  el.addEventListener("click", () => act(id));
+  el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(id); } });
 }
-document.querySelectorAll(".hint-row button").forEach((b) => b.addEventListener("click", () => actions[b.dataset.go]()));
+document.querySelectorAll(".hint-row button").forEach((b) => b.addEventListener("click", () => act(b.dataset.go)));
 function playNext(fromClick) {
-  if (!playlist.length) { say("No records yet. Leave a song with your glass and Bernard will put it on."); return; }
+  if (!playlist.length) {
+    $("room").classList.add("playing"); setTimeout(() => $("room").classList.remove("playing"), 2600);
+    say("Nothing on the turntable yet. Leave a song with your glass and Bernard will put it on."); return;
+  }
   const m = playlist[pi++ % playlist.length];
   $("room").classList.add("playing"); $("nowPlaying").hidden = false;
   $("npSong").textContent = m.song; $("npSong").href = "https://open.spotify.com/search/" + encodeURIComponent(m.song);
