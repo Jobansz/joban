@@ -1,12 +1,16 @@
 {
   "week_of": "November 23",
-  "updated": "2026-11-23T08:00:20.295Z",
-  "changes": 44,
+  "updated": "2026-11-24T02:32:56.679Z",
+  "changes": 59,
   "projects": [
     "joban",
     "snippy-privacy"
   ],
   "new_pages": [
+    {
+      "title": "The Conversation Pit",
+      "href": "pit.html"
+    },
     {
       "title": "Reach",
       "href": "reach.html"
@@ -18,18 +22,14 @@
     {
       "title": "Snippy",
       "href": "snippy.html"
-    },
-    {
-      "title": "SweetTreat",
-      "href": "sweettreat.html"
     }
   ],
-  "headline": "Gadgets, apps, and film photos this week",
-  "body": "I've been working on Away, a train display, and Reach, my desk clock, which now has a public page with a little LED-style preview. Snippy is live on the Chrome Web Store, and the Apps page got a fresh look where a swarm of cursors builds it up. I'm still shooting film too, and the photo gallery now has a neat square grid.",
+  "headline": "Gadgets, apps and small surprises this week",
+  "body": "I've been making little things that each do one job well. Reach, my desk clock, now has a live LED preview, and The Morning Paper is up on Projects. The guestbook is open if you want to say hi.",
   "items": [
-    "Snippy is live on the Chrome Web Store",
-    "Away gained a travel mode and display screens",
-    "SweetTreat, formerly Food Budget, has its own page",
-    "Photography page has a square grid and film Instagram"
+    "Reach: a desk clock with a live LED preview",
+    "The Morning Paper: an e-ink front page each morning",
+    "Snippy: a Chrome extension with a rewritten privacy policy",
+    "Guestbook open: leave a note and say hi"
   ]
 }
