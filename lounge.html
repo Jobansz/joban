@@ -171,6 +171,39 @@
   .sound small { display: block; color: var(--muted); font-size: .7rem; margin-top: 4px; letter-spacing: .08em; }
   .sound.on { border-color: var(--brass); background: rgba(201,164,106,.1); }
   .sound .serif { font-style: italic; font-size: 1.1rem; }
+  /* the paper's settings */
+  .ps .hint { color: var(--muted); font-size: .82rem; margin: 8px 0 6px; line-height: 1.45; }
+  .week .wd { display: grid; grid-template-columns: 44px 1fr auto auto; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid rgba(201,164,106,.1); }
+  .week .wd b { font-weight: 500; }
+  .week .wd input[type=time], .ps input[type=time] { width: 100%; min-width: 0; background: transparent; color: var(--cream); border: 1px solid var(--line); border-radius: 4px; padding: 6px; font: inherit; font-size: 16px; color-scheme: dark; }
+  .week select, .ps select { background: transparent; color: var(--cream); border: 1px solid var(--line); border-radius: 4px; padding: 6px 4px; font: inherit; font-size: .8rem; max-width: 128px; }
+  .week select option { color: #000; }
+  .week .light { white-space: nowrap; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; border: 1px solid var(--line); background: none; color: var(--muted); border-radius: 99px; padding: 5px 9px; cursor: pointer; }
+  .week .light.on { border-color: var(--brass); color: var(--brass); }
+  .week .wd.off input[type=time] { opacity: .35; }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .seg.small { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .seg button { background: none; border: 1px solid var(--line); color: var(--cream); border-radius: 6px; padding: 10px 8px; cursor: pointer; display: grid; gap: 2px; text-align: center; font: inherit; }
+  .seg.small button { padding: 7px 12px; font-size: .82rem; }
+  .seg button small { color: var(--muted); font-size: .7rem; }
+  .seg button.on { border-color: var(--brass); background: rgba(201,164,106,.12); color: var(--brass); }
+  .row-sw { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(201,164,106,.1); }
+  .row-sw small { display: block; color: var(--muted); font-size: .74rem; margin-top: 2px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; min-height: 10px; }
+  .chips span { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 99px; padding: 5px 6px 5px 12px; font-size: .82rem; }
+  .chips button, .ps .x { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 1rem; line-height: 1; padding: 2px 6px; }
+  .chips .empty { border: 0; color: var(--muted); font-style: italic; padding-left: 0; }
+  .add-row { display: flex; gap: 8px; margin-top: 6px; }
+  .add-row input, .add-art input, .ps .field input:not([type=checkbox]), .course input { flex: 1; min-width: 0; background: transparent; border: 0; border-bottom: 1px solid var(--line); color: var(--cream); font: inherit; font-size: 16px; padding: 7px 2px; outline: none; }
+  .add-art { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin-top: 10px; }
+  .add-art input[name=file] { grid-column: 1 / -1; }
+  .add-art button { grid-column: 1 / -1; justify-self: start; }
+  .course, .artrow { display: grid; grid-template-columns: 70px 1fr auto; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(201,164,106,.1); }
+  .course code { color: var(--muted); font-size: .82rem; }
+  .course.new code { color: var(--brass); }
+  .artrow { grid-template-columns: 1fr auto; }
+  .artrow small { display: block; color: var(--muted); font-size: .72rem; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .field { margin-top: 22px; }
   .field label { display: flex; justify-content: space-between; font-size: .72rem; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
   .field label output { color: var(--brass); letter-spacing: .05em; }
@@ -738,6 +771,93 @@
           </div>
         </div>
       </div>
+
+      <!-- everything else the paper can be told -->
+      <div class="section-head" style="margin-top:34px"><h4>The paper's settings</h4><span class="eyebrow">Bernard files them when you save</span></div>
+      <div class="grid2 ps">
+        <div class="panel">
+          <span class="eyebrow">Each day</span>
+          <p class="hint">When it prints (off = a quiet day, no paper), whether it's a day-off edition, and what's in the daily corner.</p>
+          <div class="week" id="psWeek"></div>
+        </div>
+        <div>
+          <div class="panel">
+            <span class="eyebrow">The paper's voice</span>
+            <div class="seg" id="psTone">
+              <button type="button" data-v="news"><b>Straight news</b><small>just the facts</small></button>
+              <button type="button" data-v="friendly"><b>Friendly</b><small>a joke or two</small></button>
+              <button type="button" data-v="roast"><b>Roast me</b><small>cheeky, never mean</small></button>
+            </div>
+          </div>
+          <div class="panel">
+            <span class="eyebrow">Evening edition</span>
+            <div class="row-sw"><span>A short paper at night: tomorrow's deadlines, shift and weather</span>
+              <label class="sw"><input type="checkbox" id="psEveOn"><span></span></label></div>
+            <div class="field"><label for="psEveTime">Prints at</label><input type="time" id="psEveTime"></div>
+          </div>
+          <div class="panel">
+            <span class="eyebrow">Work shifts</span>
+            <div class="row-sw"><span>Timberline <small>read from Ami's schedule emails</small></span><label class="sw"><input type="checkbox" id="psTimber"><span></span></label></div>
+            <div class="row-sw"><span>BFF Bar &amp; Grill <small>needs a schedule source: forward one to Gmail and tell Bernard</small></span><label class="sw"><input type="checkbox" id="psBff"><span></span></label></div>
+            <div class="row-sw"><span>Show tomorrow's shift too</span><label class="sw"><input type="checkbox" id="psDayBefore"><span></span></label></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2 ps" style="margin-top:14px">
+        <div class="panel">
+          <span class="eyebrow">Never needs a reply</span>
+          <p class="hint">Emails from these senders or with these words are FYI only: never "waiting on you".</p>
+          <div class="chips" id="psNoReply"></div>
+          <form class="add-row" id="psNoReplyAdd"><input placeholder="A name or phrase" maxlength="60"><button class="btn-brass">Add</button></form>
+        </div>
+        <div class="panel">
+          <span class="eyebrow">Ticked off</span>
+          <p class="hint">Work you told Bernard you've handed in. Tap × if one was a mistake.</p>
+          <div class="chips" id="psDone"></div>
+        </div>
+      </div>
+
+      <div class="grid2 ps" style="margin-top:14px">
+        <div class="panel">
+          <span class="eyebrow">Course names</span>
+          <p class="hint">Moodle calls courses by number. Name new ones here (the paper lists any it doesn't know).</p>
+          <div id="psCourses"></div>
+          <form class="add-row" id="psCourseAdd"><input placeholder="Course number, e.g. 50177" maxlength="6" inputmode="numeric"><button class="btn-brass">Add</button></form>
+        </div>
+        <div class="panel">
+          <span class="eyebrow">Art favourites</span>
+          <p class="hint">Paintings added to the art days. Use the file name from commons.wikimedia.org; wide pieces look best.</p>
+          <div id="psArt"></div>
+          <form class="add-art" id="psArtAdd">
+            <input name="file" placeholder="File name, e.g. Tsunami by hokusai 19th century.jpg" maxlength="200" required>
+            <input name="title" placeholder="Title" maxlength="80" required>
+            <input name="artist" placeholder="Artist" maxlength="60">
+            <input name="year" placeholder="Year" maxlength="20">
+            <button class="btn-brass">Add painting</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="grid2 ps" style="margin-top:14px">
+        <div class="panel">
+          <span class="eyebrow">Right now page</span>
+          <div class="field"><label for="psPlace">Weather for</label><input id="psPlace" maxlength="60" placeholder="City, Province"></div>
+          <div class="field"><label>Units</label><div class="seg small" id="psUnits"><button type="button" data-v="C">°C</button><button type="button" data-v="F">°F</button></div></div>
+          <div class="field"><label>Hours on the strip</label><div class="seg small" id="psHours"><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button><button type="button" data-v="6">6</button></div></div>
+          <div class="field"><label>What to wear</label><div class="seg small" id="psDress"><button type="button" data-v="practical">Practical</button><button type="button" data-v="stylish">Stylish</button></div></div>
+          <div class="field"><label>Pressing ♥ saves the song to</label><div class="seg small" id="psLike"><button type="button" data-v="liked">Liked Songs</button><button type="button" data-v="playlist">The Pit playlist</button></div></div>
+          <div class="field"><label for="psDevice">Spotify plays on</label><input id="psDevice" maxlength="60" placeholder="Whatever's playing (or a device name)"></div>
+        </div>
+        <div class="panel">
+          <span class="eyebrow">The board</span>
+          <div class="field"><label>Clock updates every</label><div class="seg small" id="psClock"><button type="button" data-v="1">1 min</button><button type="button" data-v="5">5 min</button><button type="button" data-v="15">15 min</button></div></div>
+          <div class="field"><label>Wakes up on</label><div class="seg small" id="psStart"><button type="button" data-v="0">The paper</button><button type="button" data-v="1">Today's work</button><button type="button" data-v="2">Right now</button></div></div>
+          <div class="row-sw" style="margin-top:22px"><span>Night mode <small>screen freezes, no chime</small></span><label class="sw"><input type="checkbox" id="psNightOn"><span></span></label></div>
+          <div class="two"><div class="field"><label for="psNightFrom">From</label><input type="time" id="psNightFrom"></div><div class="field"><label for="psNightTo">Until</label><input type="time" id="psNightTo"></div></div>
+          <p class="hint" style="margin-top:16px">Board settings take effect once the e-ink board is set up.</p>
+        </div>
+      </div>
     </section>
 
     <!-- Reach room -->
@@ -877,7 +997,7 @@
   <button class="btn-brass" id="save">Save</button>
 </div>
 
-<script src="eink.js?v=6"></script>
+<script src="eink.js?v=8"></script>
 <script src="pit-bar.js"></script>
 <script>
 const API = "https://lounge.jobanxy.workers.dev";
@@ -942,7 +1062,8 @@ async function loadPaper() {
   try {
     const [e, s] = await Promise.all([api("/paper/edition"), api("/paper/settings")]);
     edition = e.edition; settings = s.settings; sha = s.sha;
-    renderEdition(); renderSettings(); updateAlarmTag();
+    if (settings?.board && einkPage === 0) einkPage = settings.board.start_page || 0; // the board wakes on this page
+    renderEdition(); renderSettings(); renderPaperSettings(); updateAlarmTag();
     if (location.hash === "#study") loadStudy();
   } catch (err) { $("clipDate").textContent = err.message; }
 }
@@ -1274,6 +1395,105 @@ function renderSettings() {
   bindRange("snooze", settings.snooze_minutes, (v) => (settings.snooze_minutes = v), (v) => v + " min");
 }
 
+
+// ---------- the paper's settings ----------
+var KIND_NAMES = { word: "Word", prediction: "Prediction", art: "Art", quote: "Quote", fact: "Fun fact", riddle: "Riddle", onthisday: "On this day", off: "Nothing" };
+var prevPlace = "";
+function seg(id, value, set) {
+  document.querySelectorAll(`#${id} button`).forEach((b) => {
+    b.classList.toggle("on", String(b.dataset.v) === String(value));
+    b.onclick = () => { set(b.dataset.v); document.querySelectorAll(`#${id} button`).forEach((x) => x.classList.toggle("on", x === b)); dirty(); };
+  });
+}
+function chipList(id, list, onRemove) {
+  const box = $(id); box.innerHTML = "";
+  if (!list.length) { box.innerHTML = '<span class="empty">None yet</span>'; return; }
+  list.forEach((t, i) => {
+    const c = document.createElement("span"); c.textContent = t;
+    const x = document.createElement("button"); x.type = "button"; x.textContent = "×"; x.setAttribute("aria-label", "Remove " + t);
+    x.onclick = () => { onRemove(i); dirty(); };
+    c.appendChild(x); box.appendChild(c);
+  });
+}
+function renderPaperSettings() {
+  const st = settings;
+  if (!st || !st.print) return; // Bernard's older settings: wait for the next save
+  prevPlace = st.weather.place;
+  // each day
+  const week = $("psWeek"); week.innerHTML = "";
+  for (const [key, label] of DAYS) {
+    const on = st.print[key] !== "off", row = document.createElement("div");
+    row.className = "wd" + (on ? "" : " off");
+    row.innerHTML = `<b>${label}</b><div style="display:flex;gap:8px;align-items:center"><input type="time" aria-label="${label} print time" value="${on ? st.print[key] : "04:30"}" ${on ? "" : "disabled"}>
+      <label class="sw"><input type="checkbox" aria-label="${label} paper on" ${on ? "checked" : ""}><span></span></label></div>
+      <button type="button" class="light${st.light_days.includes(key) ? " on" : ""}" title="Day-off edition: no work section">Day off</button>
+      <select aria-label="${label} daily corner">${Object.entries(KIND_NAMES).map(([k, n]) => `<option value="${k}"${st.daily[key] === k ? " selected" : ""}>${n}</option>`).join("")}</select>`;
+    const [time, sw] = row.querySelectorAll("input"), light = row.querySelector(".light"), sel = row.querySelector("select");
+    const upd = () => { time.disabled = !sw.checked; row.classList.toggle("off", !sw.checked); st.print[key] = sw.checked ? (time.value || "04:30") : "off"; dirty(); };
+    time.onchange = upd; sw.onchange = upd;
+    light.onclick = () => { const i = st.light_days.indexOf(key); i >= 0 ? st.light_days.splice(i, 1) : st.light_days.push(key); light.classList.toggle("on", i < 0); dirty(); };
+    sel.onchange = () => { st.daily[key] = sel.value; dirty(); };
+    week.appendChild(row);
+  }
+  seg("psTone", st.tone, (v) => (st.tone = v));
+  $("psEveOn").checked = st.evening.on; $("psEveTime").value = st.evening.time;
+  $("psEveOn").onchange = () => { st.evening.on = $("psEveOn").checked; dirty(); };
+  $("psEveTime").onchange = () => { st.evening.time = $("psEveTime").value || "20:00"; dirty(); };
+  for (const [id, k] of [["psTimber", "timberline"], ["psBff", "bff"], ["psDayBefore", "day_before"]]) { $(id).checked = !!st.shifts[k]; $(id).onchange = () => { st.shifts[k] = $(id).checked; dirty(); }; }
+  // lists
+  const drawLists = () => {
+    chipList("psNoReply", st.no_reply_needed, (i) => { st.no_reply_needed.splice(i, 1); drawLists(); });
+    chipList("psDone", st.done, (i) => { st.done.splice(i, 1); drawLists(); });
+  };
+  drawLists();
+  $("psNoReplyAdd").onsubmit = (e) => { e.preventDefault(); const inp = e.target.querySelector("input"), v = inp.value.trim(); if (v && !st.no_reply_needed.includes(v)) { st.no_reply_needed.push(v); drawLists(); dirty(); } inp.value = ""; };
+  // courses (plus any the paper found without a name)
+  const drawCourses = () => {
+    const box = $("psCourses"); box.innerHTML = "";
+    const crns = [...new Set([...Object.keys(st.courses), ...((edition && edition.unnamed_courses) || [])])];
+    if (!crns.length) box.innerHTML = '<p class="hint">Names from the paper\'s own list are used until you add one here.</p>';
+    for (const crn of crns) {
+      const row = document.createElement("div"); row.className = "course" + (st.courses[crn] ? "" : " new");
+      row.innerHTML = `<code>${crn}</code><input maxlength="40" placeholder="${st.courses[crn] ? "" : "New course: name it"}" aria-label="Name for course ${crn}"><button type="button" class="x" aria-label="Remove">×</button>`;
+      const inp = row.querySelector("input"); inp.value = st.courses[crn] || "";
+      inp.oninput = () => { const v = inp.value.trim(); if (v) st.courses[crn] = v; else delete st.courses[crn]; dirty(); };
+      row.querySelector(".x").onclick = () => { delete st.courses[crn]; if (edition?.unnamed_courses) edition.unnamed_courses = edition.unnamed_courses.filter((c) => c !== crn); drawCourses(); dirty(); };
+      box.appendChild(row);
+    }
+  };
+  drawCourses();
+  $("psCourseAdd").onsubmit = (e) => { e.preventDefault(); const inp = e.target.querySelector("input"), v = inp.value.trim(); if (/^\d{3,6}$/.test(v) && !(v in st.courses)) { st.courses[v] = ""; drawCourses(); } inp.value = ""; };
+  // art favourites
+  const drawArt = () => {
+    const box = $("psArt"); box.innerHTML = st.art_extra.length ? "" : '<p class="hint">None yet: the paper uses its own list of wide paintings.</p>';
+    st.art_extra.forEach((a, i) => {
+      const row = document.createElement("div"); row.className = "artrow";
+      row.innerHTML = `<div><b></b><small></small></div><button type="button" class="x" aria-label="Remove">×</button>`;
+      row.querySelector("b").textContent = a.title; row.querySelector("small").textContent = [a.artist, a.year].filter(Boolean).join(", ");
+      row.querySelector(".x").onclick = () => { st.art_extra.splice(i, 1); drawArt(); dirty(); };
+      box.appendChild(row);
+    });
+  };
+  drawArt();
+  $("psArtAdd").onsubmit = (e) => {
+    e.preventDefault(); const f = new FormData(e.target);
+    st.art_extra.push({ file: String(f.get("file")).replace(/^File:/i, "").trim(), title: String(f.get("title")).trim(), artist: String(f.get("artist")).trim(), year: String(f.get("year")).trim() });
+    e.target.reset(); drawArt(); dirty();
+  };
+  // right now + board
+  $("psPlace").value = st.weather.place; $("psPlace").oninput = () => { st.weather.place = $("psPlace").value; dirty(); };
+  seg("psUnits", st.weather.units, (v) => (st.weather.units = v));
+  seg("psHours", st.weather.hours, (v) => (st.weather.hours = Number(v)));
+  seg("psDress", st.weather.dress, (v) => (st.weather.dress = v));
+  seg("psLike", st.spotify.like_to, (v) => (st.spotify.like_to = v));
+  $("psDevice").value = st.spotify.device; $("psDevice").oninput = () => { st.spotify.device = $("psDevice").value; dirty(); };
+  seg("psClock", st.board.clock_minutes, (v) => (st.board.clock_minutes = Number(v)));
+  seg("psStart", st.board.start_page, (v) => (st.board.start_page = Number(v)));
+  $("psNightOn").checked = st.board.night_on; $("psNightOn").onchange = () => { st.board.night_on = $("psNightOn").checked; dirty(); };
+  $("psNightFrom").value = st.board.night_from; $("psNightFrom").onchange = () => { st.board.night_from = $("psNightFrom").value || "23:30"; dirty(); };
+  $("psNightTo").value = st.board.night_to; $("psNightTo").onchange = () => { st.board.night_to = $("psNightTo").value || "06:30"; dirty(); };
+}
+
 function bindRange(id, value, set, fmt, onChange = dirty) {
   const el = $(id), out = $(id + "Val");
   el.value = value; out.textContent = fmt(value);
@@ -1294,8 +1514,8 @@ function dirty() {
 $("save").addEventListener("click", async () => {
   $("save").disabled = true; $("toast").textContent = "Bernard is filing it…";
   try {
-    const d = await api("/paper/settings", { method: "PUT", body: JSON.stringify({ settings, sha }) });
-    sha = d.sha; settings = d.settings; updateAlarmTag();
+    const d = await api("/paper/settings", { method: "PUT", body: JSON.stringify({ settings, sha, previous_place: prevPlace }) });
+    sha = d.sha; settings = d.settings; updateAlarmTag(); renderPaperSettings();
     $("toast").textContent = d.bertrand || "Filed. Your paper will know by 4:30am.";
     setTimeout(() => $("savebar").classList.remove("show"), 2200);
   } catch (err) { $("toast").textContent = err.message; $("toast").classList.add("err"); $("save").disabled = false; }

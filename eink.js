@@ -100,11 +100,12 @@
             ctx.font = `17px ${SANS}`; ctx.fillText(ascii(d.text), M, y + 4);
             return;
           }
-          fill(ctx, ascii(d.text), 132, H - 60, (z) => `italic ${z}px ${SERIF}`, [26, 22, 19]);
+          const yy = fill(ctx, ascii(d.text), 132, H - 140, (z) => `italic ${z}px ${SERIF}`, [26, 22, 19]);
+          if (d.prev_answer) { ctx.font = `bold 15px ${SANS}`; ctx.fillText("YESTERDAY'S ANSWER", M, yy + 30); ctx.font = `19px ${SERIF}`; para(ctx, ascii(d.prev_answer), M, yy + 56, W - 2 * M, 2, 24); }
         },
       ];
     },
-    1: (ed) => [
+    1: (ed) => ed.light ? [] : [
       (ctx) => { head(ctx, "Important", "EVERY EMAIL WAITING ON YOU");
         const mails = ed.emails || [];
         if (!mails.length) { ctx.font = `italic 20px ${SERIF}`; ctx.fillText("Nothing waiting on you.", M, 130); return; }
@@ -136,7 +137,7 @@
 
   // ---- page 1: the paper ----
   function paper(ctx, ed) {
-    ctx.font = `bold 40px ${SERIF}`; ctx.fillText("The Paper", M, 58);
+    ctx.font = `bold 40px ${SERIF}`; ctx.fillText(ed.edition === "evening" ? "Evening Paper" : "The Paper", M, 58);
     statusIcons(ctx, 30);
     rule(ctx, 72, 3); rule(ctx, 78);
     ctx.font = `bold 14px ${SANS}`; ctx.fillText(ascii((ed.date || "").toUpperCase()), M, 100);
@@ -146,12 +147,15 @@
     ctx.font = `20px ${SERIF}`;
     y = para(ctx, ascii(ed.summary), M, y + 10, W - 2 * M, 9, 29);
     // shift today
-    const sh = ed.shift || SAMPLE.shift;
+    const known = "shift" in ed, sh = known ? ed.shift : SAMPLE.shift;
     y = Math.max(y + 14, 470);
     rule(ctx, y - 6);
-    label(ctx, "WORK TODAY", y + 18); if (!ed.shift) sample(ctx, W - M, y + 17);
-    ctx.font = `bold 22px ${SERIF}`; ctx.fillText(ascii(sh.where), M, y + 48);
-    ctx.font = `20px ${SANS}`; ctx.textAlign = "right"; ctx.fillText(ascii(sh.time), W - M, y + 48); ctx.textAlign = "left";
+    label(ctx, ed.edition === "evening" ? "WORK TOMORROW" : "WORK TODAY", y + 18); if (!known) sample(ctx, W - M, y + 17);
+    if (sh) {
+      ctx.font = `bold 22px ${SERIF}`; ctx.fillText(ascii(sh.where), M, y + 48);
+      ctx.font = `20px ${SANS}`; ctx.textAlign = "right"; ctx.fillText(ascii(sh.time), W - M, y + 48); ctx.textAlign = "left";
+    } else { ctx.font = `italic 20px ${SERIF}`; ctx.fillText("No shift. The day is yours.", M, y + 48); }
+    if (ed.shift_tomorrow && ed.edition !== "evening") { ctx.font = `14px ${SANS}`; ctx.fillText("Tomorrow: " + ascii(ed.shift_tomorrow.where) + ", " + ascii(ed.shift_tomorrow.time), M, y + 70); }
     // the daily corner: a word, a prediction, or a piece of art (rotates through the week)
     const d = ed.daily || SAMPLE.daily, top = H - 220;
     rule(ctx, top, 3);
@@ -168,11 +172,19 @@
       return;
     }
     ctx.font = `bold italic 34px ${SERIF}`; ctx.fillText(ascii(d.title), M, top + 72);
-    ctx.font = `italic 19px ${SERIF}`; para(ctx, ascii(d.text), M, top + 104, W - 2 * M, 3, 26);
+    ctx.font = `italic 19px ${SERIF}`; para(ctx, ascii(d.text), M, top + 104, W - 2 * M, d.prev_answer ? 2 : 3, 26);
+    if (d.prev_answer) { ctx.font = `bold 14px ${SANS}`; ctx.fillText(wrap(ctx, "Yesterday's riddle: " + ascii(d.prev_answer), W - 2 * M, 1)[0] || "", M, top + 172); }
   }
 
   // ---- page 2: today's work ----
   function work(ctx, ed) {
+    if (ed.light) {
+      ctx.font = `bold 36px ${SERIF}`; ctx.fillText("Today's work", M, 56);
+      statusIcons(ctx, 30); rule(ctx, 72, 3); rule(ctx, 78);
+      ctx.font = `bold italic 40px ${SERIF}`; ctx.fillText("Day off.", M, 200);
+      ctx.font = `italic 21px ${SERIF}`; para(ctx, "No emails, no deadlines, no list. Everything will still be here tomorrow.", M, 250, W - 2 * M, 4, 30);
+      return;
+    }
     ctx.font = `bold 36px ${SERIF}`; ctx.fillText("Today's work", M, 56);
     statusIcons(ctx, 30); rule(ctx, 72, 3); rule(ctx, 78);
     let y = 112;
@@ -237,8 +249,8 @@
     ctx.textAlign = "left";
     rule(ctx, 142, 3);
     // weather: an hour-by-hour strip, then what to wear
-    const w = ed.weather || SAMPLE.weather;
-    label(ctx, "WEATHER  -  PRINCE GEORGE", 168); if (!ed.weather) sample(ctx, W - M, 167);
+    const w = ed.weather?.hourly ? strip(ed.weather) : SAMPLE.weather;
+    label(ctx, "WEATHER  -  " + ascii((ed.weather?.place || "Prince George").split(",")[0]).toUpperCase(), 168); if (!ed.weather) sample(ctx, W - M, 167);
     const hrs = (w.hours || []).slice(0, 6), cw = (W - 2 * M) / Math.max(1, hrs.length);
     ctx.textAlign = "center";
     hrs.forEach((h, i) => {
@@ -264,6 +276,25 @@
     ctx.font = `16px ${SANS}`; ctx.fillText(ascii(p.artist), W / 2, ay + S + 52);
     ctx.textAlign = "left";
     heart(ctx, W / 2, ay + S + 72, p.liked);
+  }
+  // the hour-by-hour strip from the paper's forecast: now, then every 2 hours, with sunrise slotted in
+  function strip(wx) {
+    const now = new Date(), stamp = (d) => d.toLocaleString("sv-SE", { timeZone: "America/Vancouver" }).slice(0, 13); // "YYYY-MM-DD HH"
+    const at = new Map(wx.hourly.map((h) => [h.t.slice(0, 13).replace("T", " "), h]));
+    const kind = (h) => { const c = h.code; return c <= 1 ? (h.day ? "sun" : "night") : c <= 48 ? "cloud" : c <= 67 || (c >= 80 && c <= 82) || c >= 95 ? "rain" : c <= 77 || c === 85 || c === 86 ? "snow" : "cloud"; };
+    const lbl = (d) => { const h = Number(d.toLocaleString("en-US", { timeZone: "America/Vancouver", hour: "numeric", hour12: false })) % 24; return `${((h + 11) % 12) + 1}${h < 12 ? "AM" : "PM"}`; };
+    const n = wx.hours || 6, out = [];
+    for (let i = 0; out.length < n && i < 30; i += 2) {
+      const d = new Date(now.getTime() + i * 3600000), h = at.get(stamp(d));
+      if (!h) continue;
+      out.push({ t: i === 0 ? "Now" : lbl(d), icon: kind(h), temp: h.temp, pop: h.pop >= 10 ? h.pop : 0, when: d });
+    }
+    const sr = (wx.sunrise || []).map((x) => new Date(x + ":00-07:00")).find((d) => d > now && out.length && d < out[out.length - 1].when);
+    if (sr) { // swap the slot nearest sunrise for a sunrise marker
+      let k = 1; for (let j = 1; j < out.length; j++) if (Math.abs(out[j].when - sr) < Math.abs(out[k].when - sr)) k = j;
+      out[k] = { t: sr.toLocaleTimeString("en-US", { timeZone: "America/Vancouver", hour: "numeric", minute: "2-digit", hour12: true }).replace(/ [AP]M/, ""), icon: "sunrise", temp: null };
+    }
+    return { hours: out, dress: wx.dress || "" };
   }
   // weather icons, drawn in solid black so they read on e-ink
   function cloud(ctx, x, y, k = 1) {
