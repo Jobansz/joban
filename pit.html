@@ -257,6 +257,9 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes notes { 0% { opacity: 0; transform: translateY(10px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-24px); } }
   .twinkle { animation: tw 3s ease-in-out infinite; }
+  .crate-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .pl-link a { color: var(--brass); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; }
+  .pl-link a:hover { color: var(--cream); }
   /* the bar breathes: warm glow, a glint sweeping the bottles, the odd neon flicker */
   .bar-glow { animation: barGlow 5s ease-in-out infinite; }
   @keyframes barGlow { 50% { opacity: .78; } }
@@ -1285,7 +1288,7 @@ function draftRing(area, x, y) {
 
 // ---- covers for older records that were typed in by hand ----
 // Display only: nothing is written back to the server, so the saved crate is untouched.
-let coverCache = {};
+let coverCache = {}, pitPlaylistUrl = null;
 try { coverCache = JSON.parse(localStorage.getItem("pitCovers") || "{}") || {}; } catch {}
 const coverTried = new Set();
 let coverBusy = false;
@@ -1322,7 +1325,7 @@ function buildRecords(s) {
   s.insertAdjacentHTML("beforeend", `<div class="rec-wrap">
       <div class="deck"><div class="platter"><div class="vinyl" id="vinyl"><div class="vlabel" id="vlabel"></div></div></div><div class="tonearm"></div>
         <div class="np" id="np">Nothing on yet. Pick a record from the crate.</div></div>
-      <div class="crate-box"><span class="eyebrow">The crate</span><div class="sleeves" id="area"></div></div></div>`);
+      <div class="crate-box"><div class="crate-head"><span class="eyebrow">The crate</span><span class="pl-link" id="plLink"></span></div><div class="sleeves" id="area"></div></div></div>`);
   const area = $("area");
   const play = (i) => {
     pi = i; const m = playlist[i], c = SLEEVES[hashStr(m.song) % SLEEVES.length];
@@ -1333,8 +1336,14 @@ function buildRecords(s) {
                  : `<a href="https://open.spotify.com/search/${encodeURIComponent(m.song)}" target="_blank" rel="noopener">Find it on Spotify ↗</a>`);
     area.querySelectorAll(".sleeve[data-i]").forEach((x) => x.classList.toggle("on", Number(x.dataset.i) === i));
   };
+  const playlistLink = () => {
+    const el = $("plLink"); if (!el) return;
+    if (pitPlaylistUrl) el.innerHTML = `<a href="${esc(pitPlaylistUrl)}" target="_blank" rel="noopener">The Conversation Pit on Spotify ↗</a>`;
+    else if (myMember === 0 && myPass) el.innerHTML = `<a href="${API}/spotify/connect?pass=${encodeURIComponent(myPass)}">Connect Spotify playlist</a>`;
+    else el.innerHTML = "";
+  };
   const render = () => {
-    fillCovers();
+    fillCovers(); playlistLink();
     area.innerHTML =`<button type="button" class="sleeve blank" id="blank"><b>+</b><span>Bring a record</span></button>` +
       playlist.map((m, i) => m.art
         ? `<button type="button" class="sleeve cover" data-i="${i}" style="--art:url('${m.art}')"><span class="disc"></span><span class="cap"><b>${esc(m.song)}</b><small>${esc(m.name)}</small></span></button>`
@@ -1531,7 +1540,7 @@ async function loadPit() {
     const count = d.count || 0;
     $("pitCount").textContent = `${count} guest${count === 1 ? " has" : "s have"} found their way in`;
     $("topCount").textContent = `${count} member${count === 1 ? "" : "s"}`;
-    lastMarks = d.marks || []; memos = d.memos || []; playlist = (d.songs || []).slice().reverse();
+    lastMarks = d.marks || []; memos = d.memos || []; playlist = (d.songs || []).slice().reverse(); pitPlaylistUrl = d.playlist || null;
     drawTableGlasses(lastMarks); drawCork(memos);
     if (surfaceRefresh && !drafting) surfaceRefresh();
   } catch {}
