@@ -70,7 +70,7 @@
   .coasters svg { width: 100%; height: 100%; }
   .cu-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
   .room.lamp-off .lamp-glow { opacity: 0; }
-  .room.lamp-off .lamp-dome { fill: #6a3a1a; }
+  .room.lamp-off .lamp-dome { fill: #7a3412; }
   .lamp-glow { transition: opacity .4s; pointer-events: none; }
   .cu-form { display: grid; gap: 4px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
   .cu-form .row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
@@ -421,6 +421,20 @@
         <radialGradient id="pool" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd9a0" stop-opacity=".28"/><stop offset="1" stop-color="#ffd9a0" stop-opacity="0"/></radialGradient>
         <radialGradient id="shadow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".7"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
         <pattern id="corkTex" patternUnits="userSpaceOnUse" width="200" height="130"><image href="images/pit-cork.jpg" width="200" height="130" preserveAspectRatio="none"/></pattern>
+        <!-- green leather for the bar stools -->
+        <linearGradient id="greenLeather" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f8a5a"/><stop offset=".45" stop-color="#2c6a3c"/><stop offset="1" stop-color="#143a20"/></linearGradient>
+        <linearGradient id="chromeV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2f4f5"/><stop offset=".5" stop-color="#9aa0a5"/><stop offset="1" stop-color="#5a5f63"/></linearGradient>
+        <!-- chestnut leather for the club chair -->
+        <linearGradient id="chestnut" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a4428"/><stop offset=".5" stop-color="#5a2e18"/><stop offset="1" stop-color="#341a0c"/></linearGradient>
+        <radialGradient id="puff" cx=".4" cy=".3" r=".8"><stop offset="0" stop-color="#9a5a36" stop-opacity=".9"/><stop offset=".6" stop-color="#6a361c" stop-opacity="0"/></radialGradient>
+        <!-- orange glass for the stacked lamp -->
+        <radialGradient id="glassOrange" cx=".5" cy=".55" r=".65"><stop offset="0" stop-color="#ffe2a8"/><stop offset=".3" stop-color="#ffa040"/><stop offset=".75" stop-color="#ee6a14"/><stop offset="1" stop-color="#b8420a"/></radialGradient>
+        <!-- painted dusk sky over the river -->
+        <linearGradient id="skyDeco" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16343f"/><stop offset=".35" stop-color="#24505a"/><stop offset=".55" stop-color="#2e5560"/><stop offset=".64" stop-color="#5e5670"/><stop offset=".67" stop-color="#8a6070"/><stop offset="1" stop-color="#1a2a3a"/></linearGradient>
+        <linearGradient id="river" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a4c5e"/><stop offset=".5" stop-color="#1b3546"/><stop offset="1" stop-color="#0c1a26"/></linearGradient>
+        <filter id="canvas" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="11"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .18 -.04"/></filter>
+        <!-- dark floral wallpaper behind the bar -->
+        <pattern id="floral" patternUnits="userSpaceOnUse" width="200" height="220"><g id="floralTile"></g></pattern>
         <clipPath id="floorClip"><polygon points="0,700 330,480 870,480 1200,700"/></clipPath>
         <clipPath id="winClip"><polygon points="890,156.9 1190,20.5 1190,673.3 890,473.3"/></clipPath>
       </defs>
@@ -442,10 +456,12 @@
       <g id="slatsR" clip-path="url(#wallRClip)"></g>
       <g id="pinstripes"></g>
       <polygon points="0,0 330,150 330,250 0,180" fill="#fff" opacity=".03"/>
-      <!-- the glowing velvet curtain behind the bar -->
-      <rect x="470" y="150" width="400" height="330" fill="url(#curtain)"/>
-      <g id="folds"></g>
-      <rect x="470" y="150" width="400" height="330" fill="url(#curtainLight)" style="mix-blend-mode:multiply"/>
+      <!-- dark floral wallpaper behind the bar -->
+      <rect x="470" y="150" width="400" height="330" fill="#4a1410"/>
+      <rect x="470" y="150" width="400" height="330" fill="url(#floral)"/>
+      <rect x="470" y="150" width="400" height="330" filter="url(#grainV)" opacity=".55"/>
+      <rect x="470" y="150" width="400" height="330" fill="#1a0604" opacity=".22"/>
+      <rect x="470" y="150" width="400" height="330" fill="url(#curtainLight)" opacity=".7" style="mix-blend-mode:multiply"/>
       <rect x="470" y="150" width="400" height="330" fill="url(#lampGlow)" opacity=".5"/>
       <!-- crown + skirting in brass -->
       <path d="M330 150 H870" stroke="url(#brassG)" stroke-width="3"/>
@@ -464,9 +480,8 @@
       <!-- the window: floor to ceiling, the city at night -->
       <g class="hot" id="hotWindow" tabindex="0" role="button" aria-label="The window">
         <g clip-path="url(#winClip)">
-          <rect x="880" y="10" width="320" height="680" fill="url(#sky)"/>
+          <rect x="880" y="10" width="320" height="680" fill="url(#skyDeco)"/>
           <g id="stars"></g>
-          <circle cx="1150" cy="80" r="11" fill="#f4ecd6" opacity=".85"/>
           <g id="city"></g>
         </g>
         <polygon points="890,156.9 1190,20.5 1190,673.3 890,473.3" fill="none" stroke="#1a0c05" stroke-width="7"/>
@@ -580,19 +595,31 @@
         <g id="notes" fill="#ffd28a" opacity="0" font-family="Fraunces, serif" font-size="22"><text x="170" y="520">♪</text><text x="226" y="505">♫</text></g>
       </g>
 
-      <!-- tufted oxblood club chair by the window -->
+      <!-- tufted chestnut leather lounge chair on a tubular chrome sled -->
       <g id="chair">
-        <ellipse cx="952" cy="582" rx="78" ry="10" fill="url(#shadow)"/>
-        <path d="M898 540 Q896 488 952 482 Q1008 488 1006 540 Z" fill="url(#leather)"/>
+        <ellipse cx="952" cy="584" rx="82" ry="10" fill="url(#shadow)"/>
+        <!-- back half of the chrome frame -->
+        <path d="M900 576 H1004" stroke="url(#chromeV)" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+        <!-- leather sling under the seat -->
+        <path d="M904 552 L912 572 H992 L1000 552 Z" fill="#241006"/>
+        <!-- puffy back cushion -->
+        <path d="M904 540 Q898 500 906 484 Q952 470 998 484 Q1006 500 1000 540 Z" fill="url(#chestnut)"/>
+        <path d="M904 540 Q898 500 906 484 Q952 470 998 484 Q1006 500 1000 540 Z" fill="url(#puff)"/>
+        <path d="M904 540 Q898 500 906 484 Q952 470 998 484 Q1006 500 1000 540 Z" filter="url(#nap)" opacity=".5"/>
+        <path d="M910 486 Q952 474 994 486" stroke="#c88a5e" stroke-width="2" opacity=".45" fill="none"/>
         <g id="chairTufts"></g>
-        <path d="M904 492 Q952 478 1000 492" stroke="#d07a52" stroke-width="2" opacity=".5" fill="none"/>
-        <path d="M900 536 H1004 Q1010 536 1010 546 V562 H894 V546 Q894 536 900 536 Z" fill="#6e2416"/>
-        <path d="M904 538 Q952 532 1000 538" stroke="#d07a52" stroke-width="1.6" opacity=".5" fill="none"/>
-        <path d="M884 516 Q884 504 896 504 Q908 504 908 516 V566 H884 Z" fill="url(#leather)"/>
-        <path d="M996 516 Q996 504 1008 504 Q1020 504 1020 516 V566 H996 Z" fill="url(#leather)"/>
-        <ellipse cx="896" cy="508" rx="11" ry="4" fill="#b8553a" opacity=".6"/><ellipse cx="1008" cy="508" rx="11" ry="4" fill="#b8553a" opacity=".6"/>
-        <rect x="884" y="562" width="136" height="9" rx="2" fill="#3a0e08"/>
-        <g fill="#c9a46a"><rect x="890" y="571" width="5" height="9"/><rect x="1009" y="571" width="5" height="9"/></g>
+        <!-- seat cushion -->
+        <path d="M898 534 Q952 526 1006 534 Q1014 546 1006 558 Q952 564 898 558 Q890 546 898 534 Z" fill="url(#chestnut)"/>
+        <path d="M898 534 Q952 526 1006 534 Q1014 546 1006 558 Q952 564 898 558 Q890 546 898 534 Z" fill="url(#puff)"/>
+        <path d="M904 535 Q952 529 1000 535" stroke="#c88a5e" stroke-width="1.6" opacity=".5" fill="none"/>
+        <g fill="#2a1206"><circle cx="930" cy="545" r="1.6"/><circle cx="952" cy="544" r="1.6"/><circle cx="974" cy="545" r="1.6"/></g>
+        <!-- chrome sled: front runner, curved legs, arms -->
+        <path d="M888 518 Q880 518 880 528 V566 Q880 578 892 578 H1012 Q1024 578 1024 566 V528 Q1024 518 1016 518" stroke="url(#chrome)" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M888 518 Q880 518 880 528 V566 Q880 578 892 578 H1012 Q1024 578 1024 566 V528 Q1024 518 1016 518" stroke="#fff" stroke-width="1" fill="none" opacity=".55"/>
+        <!-- padded leather armrests -->
+        <path d="M876 512 Q876 504 886 504 H904 Q912 506 910 516 Q908 522 898 522 H884 Q876 522 876 512 Z" fill="url(#chestnut)"/>
+        <path d="M1028 512 Q1028 504 1018 504 H1000 Q992 506 994 516 Q996 522 1006 522 H1020 Q1028 522 1028 512 Z" fill="url(#chestnut)"/>
+        <ellipse cx="891" cy="508" rx="10" ry="2.6" fill="#c88a5e" opacity=".45"/><ellipse cx="1013" cy="508" rx="10" ry="2.6" fill="#c88a5e" opacity=".45"/>
       </g>
       <!-- palm in a brass pot -->
       <g id="palm">
@@ -601,14 +628,21 @@
         <path d="M1088 630 h74 l-8 66 h-58z" fill="url(#brassG)"/>
         <rect x="1084" y="624" width="82" height="9" rx="2" fill="#f0d69c"/>
       </g>
-      <!-- amber mushroom lamp on the record cabinet -->
+      <!-- stacked orange glass lamp on a chrome stem, on the record cabinet -->
       <g id="lamp">
-        <circle class="lamp-glow" cx="96" cy="520" r="190" fill="url(#amberGlow)"/>
+        <circle class="lamp-glow" cx="96" cy="500" r="190" fill="url(#amberGlow)"/>
         <ellipse class="lamp-glow" cx="104" cy="562" rx="48" ry="5" fill="#ffb347" opacity=".3"/>
-        <ellipse cx="96" cy="559" rx="17" ry="4" fill="#5a2408"/>
-        <path class="lamp-dome" d="M89 558 Q88 540 91 530 H101 Q104 540 103 558 Z" fill="url(#amber)"/>
-        <path class="lamp-dome" d="M60 532 Q62 498 96 496 Q130 498 132 532 Q96 538 60 532 Z" fill="url(#amber)"/>
-        <path d="M70 512 Q86 500 104 500" stroke="#fff6d8" stroke-width="2" opacity=".6" fill="none"/>
+        <ellipse cx="96" cy="559" rx="19" ry="4.2" fill="#3a3d40"/>
+        <ellipse cx="96" cy="557.5" rx="19" ry="4" fill="url(#chrome)"/>
+        <rect x="93.5" y="524" width="5" height="33" fill="url(#chrome)"/>
+        <rect x="92.5" y="548" width="7" height="3" rx="1" fill="url(#chrome)"/>
+        <rect x="91" y="521" width="10" height="4" rx="1" fill="url(#chrome)"/>
+        <!-- two glass tiers -->
+        <rect class="lamp-dome" x="66" y="502" width="60" height="21" rx="10.5" fill="url(#glassOrange)"/>
+        <rect class="lamp-dome" x="66" y="483" width="60" height="21" rx="10.5" fill="url(#glassOrange)"/>
+        <path d="M70 503.5 Q96 506 122 503.5" stroke="#a8380a" stroke-width="1.2" opacity=".6" fill="none"/>
+        <path d="M74 488 Q84 485 96 485" stroke="#fff6e4" stroke-width="2" opacity=".75" fill="none" stroke-linecap="round"/>
+        <path d="M74 507 Q84 504 94 504" stroke="#fff6e4" stroke-width="1.6" opacity=".6" fill="none" stroke-linecap="round"/>
       </g>
       <g id="sconces"></g>
       <rect width="1200" height="700" fill="url(#vignette)" pointer-events="none"/>
@@ -676,11 +710,31 @@ function drawRoom() {
   // light pooling on the floor under the downlights and the lamp
   const pools = $("pools");
   for (const [x, y, rx] of [[420, 520, 120], [600, 515, 140], [780, 520, 120], [300, 640, 170], [950, 600, 170]]) svgEl("ellipse", { cx: x, cy: y, rx, ry: rx * 0.28, fill: "url(#pool)" }, pools);
-  // curtain folds
-  const folds = $("folds");
-  for (let x = 470; x < 870; x += 22) {
-    svgEl("rect", { x: x + 12, y: 150, width: 6, height: 330, fill: "#5a1406", opacity: .45 }, folds);
-    svgEl("rect", { x: x + 4, y: 150, width: 3, height: 330, fill: "#ffb080", opacity: .25 }, folds);
+  // floral wallpaper: blooms and leaves in oxblood, rust and near-black, drawn as one repeating tile
+  const ft = $("floralTile"), rf = seeded(13);
+  const bloom = (cx, cy, r, col, line, seedOff) => {
+    const g = svgEl("g", {}, ft);
+    for (let ring = 3; ring >= 1; ring--) {
+      const rr = (r * ring) / 3, n = 5 + ring * 2, off = seedOff + ring;
+      for (let k = 0; k < n; k++) {
+        const a = (k / n) * Math.PI * 2 + off, px = cx + Math.cos(a) * rr * .55, py = cy + Math.sin(a) * rr * .55;
+        svgEl("ellipse", { cx: px, cy: py, rx: rr * .5, ry: rr * .34, transform: `rotate(${(a * 180) / Math.PI} ${px} ${py})`, fill: col, opacity: .3 + ring * .12, stroke: line, "stroke-width": .6, "stroke-opacity": .7 }, g);
+      }
+    }
+    svgEl("circle", { cx, cy, r: r * .18, fill: line, opacity: .6 }, g);
+  };
+  const leaf = (x, y, s, rot, col) => {
+    svgEl("path", { d: `M${x} ${y} Q${x + s * .6} ${y - s * .5} ${x + s} ${y} Q${x + s * .6} ${y + s * .5} ${x} ${y} Z M${x} ${y} L${x + s} ${y}`, fill: col, stroke: "#1a0604", "stroke-width": .8, opacity: .8, transform: `rotate(${rot} ${x} ${y})` }, ft);
+  };
+  const leafCols = ["#5a1410", "#2a0a08", "#62241a", "#3a0e0a"];
+  for (let i = 0; i < 26; i++) {
+    const lx = rf() * 200, ly = rf() * 220, ls = 26 + rf() * 30, lr = rf() * 360;
+    for (const dx of [-200, 0, 200]) for (const dy of [-220, 0, 220]) leaf(lx + dx, ly + dy, ls, lr, leafCols[i % 4]);
+  }
+  // blooms placed so they wrap cleanly across tile edges
+  for (const [x, y, r, c] of [[40, 50, 34, "#7a2216"], [150, 30, 24, "#a04a26"], [120, 130, 40, "#5e1812"], [20, 170, 28, "#9a4a24"], [180, 190, 30, "#2a0c0a"], [80, 205, 20, "#8a3420"], [100, 70, 22, "#3a0e0c"], [175, 105, 18, "#6a1e16"], [55, 120, 20, "#4a1410"]]) {
+    const so = rf() * 6;
+    for (const dx of [-200, 0, 200]) for (const dy of [-220, 0, 220]) if (x + dx > -r && x + dx < 200 + r && y + dy > -r && y + dy < 220 + r) bloom(x + dx, y + dy, r, c, "#1a0604", so);
   }
   // back-bar bottles with labels, caps and a glint
   const rnd = seeded(7), bottles = $("bottles"), cols = ["#e7d6b6", "#2e6a6c", "#3a0a08", "#c9932c", "#1a0c05", "#9ec3c8", "#5a1406", "#4f7a2a"];
@@ -700,16 +754,25 @@ function drawRoom() {
   }
   const flute = $("fluting");
   for (let x = 504; x < 858; x += 12) svgEl("line", { x1: x, y1: 396, x2: x, y2: 458 }, flute);
-  // bar stools: oxblood leather cushion, chrome pedestal, foot ring
+  // bar stools: green leather seat and curved back, ribbed chrome drum, chrome pedestal on a round base
   const stools = $("stools");
   for (const x of [540, 640, 740, 820]) {
-    svgEl("ellipse", { cx: x, cy: 522, rx: 24, ry: 5, fill: "url(#shadow)" }, stools);
-    svgEl("ellipse", { cx: x, cy: 519, rx: 14, ry: 3.5, fill: "url(#chrome)" }, stools);
-    svgEl("rect", { x: x - 2.5, y: 470, width: 5, height: 49, fill: "url(#chrome)" }, stools);
-    svgEl("ellipse", { cx: x, cy: 500, rx: 11, ry: 3, fill: "none", stroke: "url(#chrome)", "stroke-width": 2 }, stools);
-    svgEl("path", { d: `M${x - 22} 462 Q${x - 22} 470 ${x} 471 Q${x + 22} 470 ${x + 22} 462 Z`, fill: "#4a0e0a" }, stools);
-    svgEl("ellipse", { cx: x, cy: 462, rx: 22, ry: 6.5, fill: "#8a2218" }, stools);
-    svgEl("ellipse", { cx: x - 5, cy: 460.5, rx: 10, ry: 2.4, fill: "#e07a5a", opacity: .35 }, stools);
+    svgEl("ellipse", { cx: x, cy: 522, rx: 26, ry: 5, fill: "url(#shadow)" }, stools);
+    svgEl("ellipse", { cx: x, cy: 518, rx: 17, ry: 4, fill: "url(#chrome)" }, stools);
+    svgEl("ellipse", { cx: x, cy: 517, rx: 17, ry: 3.4, fill: "none", stroke: "#fff", "stroke-opacity": .35, "stroke-width": .6 }, stools);
+    svgEl("path", { d: `M${x - 5} 516 Q${x - 3} 510 ${x - 2.5} 504 H${x + 2.5} Q${x + 3} 510 ${x + 5} 516 Z`, fill: "url(#chrome)" }, stools);
+    svgEl("rect", { x: x - 2.5, y: 472, width: 5, height: 34, fill: "url(#chrome)" }, stools);
+    // curved backrest sits behind the seat
+    svgEl("path", { d: `M${x - 21} 458 Q${x - 22} 444 ${x} 443 Q${x + 22} 444 ${x + 21} 458 L${x + 16} 458 Q${x + 16} 450 ${x} 449 Q${x - 16} 450 ${x - 16} 458 Z`, fill: "url(#greenLeather)" }, stools);
+    svgEl("path", { d: `M${x - 16} 446 Q${x} 442 ${x + 14} 445`, stroke: "#9cd0a4", "stroke-width": 1, opacity: .45, fill: "none" }, stools);
+    // chrome arm loops from the backrest down to the drum
+    svgEl("path", { d: `M${x - 20} 452 V466 L${x - 14} 472 M${x + 20} 452 V466 L${x + 14} 472`, stroke: "url(#chrome)", "stroke-width": 1.8, fill: "none", "stroke-linecap": "round" }, stools);
+    // ribbed chrome drum
+    svgEl("path", { d: `M${x - 19} 461 V469 Q${x} 475 ${x + 19} 469 V461 Z`, fill: "url(#chrome)" }, stools);
+    for (const yy of [463.5, 466.5]) svgEl("path", { d: `M${x - 19} ${yy} Q${x} ${yy + 5.5} ${x + 19} ${yy}`, stroke: "#4a4f54", "stroke-width": .7, fill: "none", opacity: .8 }, stools);
+    // green cushion
+    svgEl("ellipse", { cx: x, cy: 460, rx: 20, ry: 5.5, fill: "url(#greenLeather)" }, stools);
+    svgEl("ellipse", { cx: x - 4, cy: 458.6, rx: 10, ry: 2, fill: "#a8dcae", opacity: .3 }, stools);
   }
   // recessed downlights with a soft cone
   const pend = $("pendants");
@@ -730,27 +793,67 @@ function drawRoom() {
   const ct = $("chairTufts");
   for (let row = 0; row < 3; row++) for (let i = 0; i < 4 - (row === 0 ? 1 : 0); i++) {
     const x = 922 + i * 20 + (row === 0 ? 10 : 0), y = 500 + row * 12;
-    svgEl("circle", { cx: x, cy: y, r: 1.8, fill: "#2a0806" }, ct);
-    svgEl("path", { d: `M${x - 10} ${y + 6} L${x} ${y} L${x + 10} ${y + 6}`, stroke: "#2a0806", "stroke-width": .8, fill: "none", opacity: .5 }, ct);
+    svgEl("circle", { cx: x, cy: y, r: 1.8, fill: "#2a1206" }, ct);
+    svgEl("path", { d: `M${x - 10} ${y + 6} L${x} ${y} L${x + 10} ${y + 6}`, stroke: "#2a1206", "stroke-width": .8, fill: "none", opacity: .55 }, ct);
   }
-  // the city: dark towers, warm windows, a glittering grid to the horizon
+  // the city: a painted dusk skyline of art deco towers over a river, with lit ferries
   const city = $("city"), r2 = seeded(21), stars = $("stars");
-  for (let i = 0; i < 30; i++) { const st = svgEl("circle", { cx: 890 + r2() * 300, cy: 20 + r2() * 220, r: 0.6 + r2() * 1, fill: "#fff", class: "twinkle" }, stars); st.style.animationDelay = (r2() * 3).toFixed(2) + "s"; }
-  const HZ = 430;
-  for (let i = 0; i < 520; i++) {
-    const y = HZ + Math.pow(r2(), 1.6) * 260, x = 880 + r2() * 320;
-    svgEl("rect", { x, y, width: 1.4 + (y - HZ) / 140, height: 1.2, fill: r2() < 0.8 ? "#ffd27a" : "#fff4e0", opacity: .35 + r2() * .6 }, city);
+  for (let i = 0; i < 14; i++) { const st = svgEl("circle", { cx: 890 + r2() * 300, cy: 20 + r2() * 160, r: 0.5 + r2() * .8, fill: "#e8f4f0", class: "twinkle", opacity: .7 }, stars); st.style.animationDelay = (r2() * 3).toFixed(2) + "s"; }
+  const HZ = 430, warm = ["#ffd98a", "#ffe9b8", "#ffc864", "#fff3d6"];
+  const lit = (x, y, w, h, p, g) => {
+    for (let wy = y + 4; wy < y + h - 2; wy += 4.5) for (let wx = x + 2; wx < x + w - 2; wx += 3.6)
+      if (r2() < p) svgEl("rect", { x: wx, y: wy, width: 1.8, height: 2.2, fill: warm[Math.floor(r2() * 4)], opacity: .55 + r2() * .45 }, g);
+  };
+  // a deco tower: shaft, stepped setbacks, then a spire, a lit crown or a flat top
+  const tower = (x, w, h, col, p, g) => {
+    let y = HZ - h, cx = x + w / 2;
+    svgEl("rect", { x, y, width: w, height: h + 2, fill: col }, g);
+    svgEl("rect", { x: x + w * .72, y, width: w * .28, height: h + 2, fill: "#000", opacity: .22 }, g);
+    lit(x, y, w * .72, h, p, g); lit(x + w * .72, y, w * .28, h, p * .5, g);
+    let sw = w;
+    const steps = 1 + Math.floor(r2() * 3);
+    for (let k = 0; k < steps; k++) {
+      sw *= .72; const sh = 10 + r2() * 18; y -= sh;
+      svgEl("rect", { x: cx - sw / 2, y, width: sw, height: sh + 1, fill: col }, g);
+      lit(cx - sw / 2, y, sw, sh, p * 1.1, g);
+    }
+    const top = r2();
+    if (top < .45) {
+      const sh = 30 + r2() * 45;
+      svgEl("path", { d: `M${cx - sw / 2} ${y} L${cx} ${y - sh} L${cx + sw / 2} ${y} Z`, fill: col }, g);
+      svgEl("path", { d: `M${cx - sw * .3} ${y - sh * .2} L${cx} ${y - sh * .8} L${cx + sw * .3} ${y - sh * .2}`, stroke: "#ffe6a8", "stroke-width": .8, fill: "none", opacity: .7 }, g);
+      svgEl("rect", { x: cx - .5, y: y - sh - 12, width: 1, height: 12, fill: col }, g);
+    } else if (top < .75) {
+      svgEl("rect", { x: cx - sw * .3, y: y - 12, width: sw * .6, height: 12, fill: "#fff2cc", opacity: .9 }, g);
+      svgEl("rect", { x: cx - sw * .3, y: y - 12, width: sw * .6, height: 12, fill: "url(#lampGlow)" }, g);
+      svgEl("rect", { x: cx - 1, y: y - 34, width: 2, height: 22, fill: col }, g);
+    }
+  };
+  const far = svgEl("g", { opacity: .55 }, city), mid = svgEl("g", {}, city), near = svgEl("g", {}, city);
+  for (let x = 880; x < 1200;) { const w = 10 + r2() * 18, h = 30 + r2() * 70; tower(x, w, h, "#2a4450", .25, far); x += w + r2() * 3; }
+  for (let x = 884; x < 1200;) { const w = 14 + r2() * 20, h = 45 + r2() * 95; tower(x, w, h, "#1c2a36", .35, mid); x += w + 2 + r2() * 8; }
+  for (const [x, w, h] of [[912, 24, 190], [1002, 20, 140], [1052, 30, 250], [1128, 26, 200]]) tower(x, w, h, "#2a1a1e", .5, near);
+  // waterfront haze and the river with streaked reflections
+  svgEl("rect", { x: 880, y: HZ - 14, width: 320, height: 16, fill: "#ffcf8a", opacity: .18, filter: "url(#soft)" }, city);
+  svgEl("rect", { x: 880, y: HZ, width: 320, height: 270, fill: "url(#river)" }, city);
+  for (let i = 0; i < 70; i++) {
+    const x = 882 + r2() * 316, y = HZ + 2 + Math.pow(r2(), 1.8) * 90, len = 3 + r2() * 14;
+    svgEl("rect", { x, y, width: .8 + r2() * 1.2, height: len, fill: warm[Math.floor(r2() * 4)], opacity: .15 + r2() * .4 }, city);
   }
-  svgEl("rect", { x: 880, y: HZ - 6, width: 320, height: 10, fill: "#6a3a7a", opacity: .35 }, city);
-  let x = 884;
-  while (x < 1196) {
-    const tall = r2() < 0.18, w = 14 + r2() * 26, h = tall ? 230 + r2() * 90 : 40 + r2() * 140, y = HZ - h;
-    svgEl("rect", { x, y, width: w, height: h + 4, fill: r2() < 0.5 ? "#0a0d22" : "#111530" }, city);
-    if (tall) svgEl("rect", { x: x + w / 2 - 1, y: y - 40, width: 2, height: 40, fill: "#111530" }, city), svgEl("circle", { cx: x + w / 2, cy: y - 40, r: 1.8, fill: "#ff4a4a" }, city);
-    for (let wy = y + 5; wy < HZ - 2; wy += 6) for (let wx = x + 3; wx < x + w - 3; wx += 5)
-      if (r2() < (tall ? 0.6 : 0.3)) svgEl("rect", { x: wx, y: wy, width: 2.4, height: 2.6, fill: r2() < 0.75 ? "#ffd98a" : "#e8f0ff", opacity: .55 + r2() * .45 }, city);
-    x += w + 1 + r2() * 5;
+  for (let i = 0; i < 40; i++) svgEl("rect", { x: 882 + r2() * 310, y: HZ + 4 + r2() * 120, width: 6 + r2() * 16, height: .8, fill: "#9ec8d0", opacity: .15 + r2() * .2 }, city);
+  // ferries with rows of lit cabin windows and a plume of smoke
+  for (const [fx, fy, fw] of [[905, 452, 52], [1060, 468, 82], [1150, 444, 34]]) {
+    const fh = fw * .12;
+    svgEl("ellipse", { cx: fx + fw / 2, cy: fy + fh + 6, rx: fw * .55, ry: 3, fill: "#ffd98a", opacity: .25, filter: "url(#soft)" }, city);
+    svgEl("path", { d: `M${fx} ${fy} H${fx + fw} L${fx + fw - 5} ${fy + fh} H${fx + 4} Z`, fill: "#0c0e14" }, city);
+    svgEl("rect", { x: fx + fw * .12, y: fy - fh * .9, width: fw * .7, height: fh * .9, fill: "#141820" }, city);
+    for (let wx = fx + 3; wx < fx + fw - 4; wx += 3.2) svgEl("rect", { x: wx, y: fy + fh * .25, width: 1.8, height: 1.8, fill: "#ffe2a0", opacity: .9 }, city);
+    for (let wx = fx + fw * .15; wx < fx + fw * .8; wx += 3.2) svgEl("rect", { x: wx, y: fy - fh * .65, width: 1.6, height: 1.6, fill: "#ffe2a0", opacity: .85 }, city);
+    svgEl("rect", { x: fx + fw * .45, y: fy - fh * 1.9, width: 3, height: fh, fill: "#0c0e14" }, city);
+    svgEl("ellipse", { cx: fx + fw * .4, cy: fy - fh * 2.4, rx: 9, ry: 4, fill: "#8a9aa8", opacity: .25, filter: "url(#soft)" }, city);
+    for (let k = 0; k < 6; k++) svgEl("rect", { x: fx + 4 + r2() * (fw - 8), y: fy + fh + 2, width: 1.2, height: 6 + r2() * 14, fill: "#ffd98a", opacity: .35 }, city);
   }
+  svgEl("rect", { x: 880, y: 10, width: 320, height: 680, filter: "url(#canvas)" }, city);
   // palm fronds: a stem, with leaflets on both sides
   const fr = $("fronds"), r3 = seeded(5), greens = ["#1f5a32", "#2e7a44", "#3f8f52", "#265f38"];
   for (let i = 0; i < 11; i++) {
