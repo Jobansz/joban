@@ -4,7 +4,8 @@
 // Pages turn with the rotary switch on the board: Front page, Mail, Alarm.
 (function () {
   const W = 800, H = 480, M = 26;
-  const SERIF = 'Georgia, "Times New Roman", serif', SANS = '"Helvetica Neue", Arial, sans-serif';
+  // Literata was drawn for e-readers; Atkinson Hyperlegible for legibility at small sizes. Both are free and convert to the board's bitmap fonts.
+  const SERIF = 'Literata, Georgia, serif', SANS = '"Atkinson Hyperlegible", Arial, sans-serif';
   const PAGES = ["Front page", "Mail", "Alarm"];
 
   function wrap(ctx, text, maxW, maxLines) {
@@ -37,7 +38,7 @@
   function masthead(ctx, ed, page) {
     ctx.font = `bold 30px ${SERIF}`; ctx.textBaseline = "alphabetic";
     ctx.fillText("THE MORNING PAPER", M, 46);
-    ctx.font = `13px ${SANS}`; ctx.textAlign = "right";
+    ctx.font = `bold 14px ${SANS}`; ctx.textAlign = "right";
     ctx.fillText(ascii((ed.date || "").toUpperCase()), W - M, 30);
     ctx.fillText(page === 0 ? (ed.updated ? "PRINTED " + ed.updated : "") : PAGES[page].toUpperCase(), W - M, 48);
     ctx.textAlign = "left";
@@ -45,7 +46,7 @@
   }
   function footer(ctx, ed, page) {
     ctx.fillRect(M, H - 34, W - 2 * M, 1);
-    ctx.font = `13px ${SANS}`;
+    ctx.font = `15px ${SANS}`;
     const n = (ed.emails || []).length;
     const left = page === 0 ? (n ? `${n} email${n > 1 ? "s" : ""} waiting  >  turn the dial` : "Inbox clear") : "Turn the dial for more";
     ctx.fillText(left, M, H - 13);
@@ -56,16 +57,16 @@
     }
   }
   function front(ctx, ed) {
-    ctx.font = `bold 38px ${SERIF}`;
+    ctx.font = `bold 36px ${SERIF}`;
     let y = 108;
     for (const l of wrap(ctx, ascii(ed.headline || "No edition yet"), W - 2 * M, 2)) { ctx.fillText(l, M, y); y += 42; }
-    ctx.font = `19px ${SERIF}`; y += 2;
-    for (const l of wrap(ctx, ascii(ed.summary), W - 2 * M, 2)) { ctx.fillText(l, M, y); y += 25; }
+    ctx.font = `20px ${SERIF}`; y += 4;
+    for (const l of wrap(ctx, ascii(ed.summary), W - 2 * M, 2)) { ctx.fillText(l, M, y); y += 27; }
     const top = Math.max(y + 10, 214), mid = W / 2;
     ctx.fillRect(M, top - 14, W - 2 * M, 1);
     ctx.fillRect(mid, top, 1, H - 48 - top);
     // left: due this week
-    ctx.font = `bold 13px ${SANS}`; ctx.fillText("DUE THIS WEEK", M, top + 12);
+    ctx.font = `bold 15px ${SANS}`; ctx.fillText("DUE THIS WEEK", M, top + 12);
     let ly = top + 40;
     const due = (ed.due || []).slice(0, 5);
     if (!due.length) { ctx.font = `italic 17px ${SERIF}`; ctx.fillText("Nothing due. Enjoy it.", M, ly); }
@@ -73,20 +74,20 @@
       if (ly > H - 60) break;
       // "Wed, Nov 25 8:00 AM" -> "Wed 25"
       const m = String(d.when || "").match(/^(\w{3}),?\s+\w+\s+(\d{1,2})/);
-      ctx.font = `bold 15px ${SANS}`; ctx.fillText(m ? `${m[1]} ${m[2]}` : ascii(d.when).slice(0, 7), M, ly);
-      ctx.font = `17px ${SERIF}`;
-      ctx.fillText(fit(ctx, ascii((d.course ? d.course + ": " : "") + d.title), mid - M - 20 - 66), M + 66, ly);
+      ctx.font = `bold 17px ${SANS}`; ctx.fillText(m ? `${m[1]} ${m[2]}` : ascii(d.when).slice(0, 7), M, ly);
+      ctx.font = `18px ${SANS}`;
+      ctx.fillText(fit(ctx, ascii((d.course ? d.course + ": " : "") + d.title), mid - M - 20 - 72), M + 72, ly);
       ly += 30;
     }
     // right: to do, with tick boxes
-    ctx.font = `bold 13px ${SANS}`; ctx.fillText("TO DO", mid + 22, top + 12);
+    ctx.font = `bold 15px ${SANS}`; ctx.fillText("TO DO", mid + 22, top + 12);
     let ry = top + 40;
     const todos = (ed.todos || []).slice(0, 6);
     if (!todos.length) { ctx.font = `italic 17px ${SERIF}`; ctx.fillText("Nothing on the list.", mid + 22, ry); }
     for (const t of todos) {
       if (ry > H - 60) break;
       ctx.lineWidth = 2; ctx.strokeRect(mid + 22, ry - 13, 14, 14);
-      ctx.font = `17px ${SERIF}`; ctx.fillText(fit(ctx, ascii(t), W - M - (mid + 46)), mid + 46, ry);
+      ctx.font = `18px ${SANS}`; ctx.fillText(fit(ctx, ascii(t), W - M - (mid + 46)), mid + 46, ry);
       ry += 30;
     }
   }
@@ -95,8 +96,8 @@
     let y = 108;
     if (!list.length) { ctx.font = `italic 28px ${SERIF}`; ctx.fillText("Nothing waiting on you.", M, 160); return; }
     for (const e of list) {
-      ctx.font = `bold 20px ${SERIF}`; ctx.fillText(fit(ctx, ascii(e.subject), W - 2 * M), M, y);
-      ctx.font = `15px ${SANS}`; ctx.fillText(fit(ctx, ascii(e.from) + (e.why ? "  -  " + ascii(e.why) : ""), W - 2 * M), M, y + 22);
+      ctx.font = `bold 22px ${SERIF}`; ctx.fillText(fit(ctx, ascii(e.subject), W - 2 * M), M, y);
+      ctx.font = `17px ${SANS}`; ctx.fillText(fit(ctx, ascii(e.from) + (e.why ? "  -  " + ascii(e.why) : ""), W - 2 * M), M, y + 22);
       y += 66; if (y > H - 50) break;
       ctx.fillRect(M, y - 26, W - 2 * M, 1);
     }
@@ -112,7 +113,7 @@
       if (d > now) next = { d, v, day: i === 0 ? "TODAY" : i === 1 ? "TOMORROW" : names[d.getDay()] };
     }
     ctx.textAlign = "center";
-    ctx.font = `bold 14px ${SANS}`; ctx.fillText(next ? "NEXT ALARM  -  " + next.day : "NO ALARM SET", W / 2, 140);
+    ctx.font = `bold 16px ${SANS}`; ctx.fillText(next ? "NEXT ALARM  -  " + next.day : "NO ALARM SET", W / 2, 140);
     if (next) {
       const h = next.d.getHours(), t = `${((h + 11) % 12) + 1}:${String(next.d.getMinutes()).padStart(2, "0")}`;
       ctx.font = `bold 150px ${SERIF}`; const tw = ctx.measureText(t).width;
@@ -123,7 +124,7 @@
       ctx.textAlign = "center";
     }
     const c = ed.chime || {};
-    ctx.font = `17px ${SERIF}`;
+    ctx.font = `18px ${SANS}`;
     ctx.fillText(`Chime: ${c.sound || "bells"}  ·  volume ${c.volume ?? 6}  ·  snooze ${ed.snooze_minutes || 9} min`.replace("·", "-").replace("·", "-"), W / 2, 372);
     ctx.textAlign = "left";
   }
@@ -138,16 +139,19 @@
     [front, mail, alarm][page](ctx, ed);
     footer(ctx, ed, page);
     const img = ctx.getImageData(0, 0, W, H), p = img.data;
-    for (let i = 0; i < p.length; i += 4) { const v = p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11 < 150 ? 0 : 255; p[i] = p[i + 1] = p[i + 2] = v; p[i + 3] = 255; }
+    for (let i = 0; i < p.length; i += 4) { const v = p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11 < 190 ? 0 : 255; p[i] = p[i + 1] = p[i + 2] = v; p[i + 3] = 255; }
     ctx.putImageData(img, 0, 0);
   }
   // the e-ink full refresh: a black flash, then the new page
+  const fontsReady = document.fonts ? Promise.all([
+    "bold 36px Literata", "20px Literata", "italic 18px Literata", "18px \"Atkinson Hyperlegible\"", "bold 16px \"Atkinson Hyperlegible\"",
+  ].map((f) => document.fonts.load(f))).catch(() => {}) : Promise.resolve();
   function refresh(canvas, ed, page, flash) {
-    if (!flash) return draw(canvas, ed, page);
+    if (!flash) { draw(canvas, ed, page); fontsReady.then(() => draw(canvas, ed, page)); return; }
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
     setTimeout(() => { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H); }, 180);
-    setTimeout(() => draw(canvas, ed, page), 380);
+    setTimeout(() => fontsReady.then(() => draw(canvas, ed, page)), 380);
   }
   window.Eink = { W, H, PAGES, draw, refresh };
 })();
