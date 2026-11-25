@@ -1056,6 +1056,40 @@ function draftRing(area, x, y) {
   say("Type your name and pick a colour. Watch it soak in.");
 }
 
+// ---- covers for older records that were typed in by hand ----
+// Display only: nothing is written back to the server, so the saved crate is untouched.
+let coverCache = {};
+try { coverCache = JSON.parse(localStorage.getItem("pitCovers") || "{}") || {}; } catch {}
+const coverTried = new Set();
+let coverBusy = false;
+function fillCovers() {
+  for (const m of playlist) {
+    const hit = !m.art && coverCache[m.song.toLowerCase()];
+    if (hit && hit.art) { m.art = hit.art; if (!m.spotify && hit.id) m.spotify = hit.id; }
+  }
+  if (coverBusy || !myPass) return;
+  const todo = playlist.filter((m) => !m.art && !coverTried.has(m.song.toLowerCase())).slice(0, 12);
+  if (!todo.length) return;
+  coverBusy = true;
+  (async () => {
+    let found = false;
+    for (const m of todo) {
+      const key = m.song.toLowerCase(); coverTried.add(key);
+      try {
+        const q = m.song.replace(/\s+(–|-|by)\s+/i, " ");
+        const r = await fetch(`${API}/pit/search?pass=${encodeURIComponent(myPass)}&q=${encodeURIComponent(q)}`);
+        if (!r.ok) break; // Spotify off or rate-limited: try again next visit
+        const t = ((await r.json()).tracks || [])[0];
+        coverCache[key] = t ? { art: t.art, id: t.id } : {};
+        if (t && t.art) found = true;
+      } catch { break; }
+    }
+    try { localStorage.setItem("pitCovers", JSON.stringify(coverCache)); } catch {}
+    coverBusy = false;
+    if (found && surfaceRefresh) surfaceRefresh();
+  })();
+}
+
 // ---- the record player: search Spotify, pick the real record ----
 function buildRecords(s) {
   s.insertAdjacentHTML("beforeend", `<div class="rec-wrap">
@@ -1073,7 +1107,8 @@ function buildRecords(s) {
     area.querySelectorAll(".sleeve[data-i]").forEach((x) => x.classList.toggle("on", Number(x.dataset.i) === i));
   };
   const render = () => {
-    area.innerHTML = `<button type="button" class="sleeve blank" id="blank"><b>+</b><span>Bring a record</span></button>` +
+    fillCovers();
+    area.innerHTML =`<button type="button" class="sleeve blank" id="blank"><b>+</b><span>Bring a record</span></button>` +
       playlist.map((m, i) => m.art
         ? `<button type="button" class="sleeve cover" data-i="${i}" style="--art:url('${m.art}')"><span class="disc"></span><span class="cap"><b>${esc(m.song)}</b><small>${esc(m.name)}</small></span></button>`
         : `<button type="button" class="sleeve" data-i="${i}" style="--c:${SLEEVES[hashStr(m.song) % SLEEVES.length]}"><span class="disc"></span><b>${esc(m.song)}</b><small>${esc(m.name)}</small></button>`).join("");
