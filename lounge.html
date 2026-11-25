@@ -89,6 +89,23 @@
   .hello h2 { font-family: "Fraunces", serif; font-weight: 400; font-size: clamp(2.6rem, 7vw, 4.6rem); line-height: 1; }
   .hello h2 em { color: var(--brass); }
 
+  /* the e-ink board: 3.97" panel, 800 x 480, in a slim black bezel */
+  .eink-wrap { display: grid; justify-items: center; gap: 12px; margin: 8px 0 34px; }
+  .eink-board { position: relative; width: min(100%, 760px); padding: 3.2% 3.6% 3.2% 3.2%; border-radius: 14px; background: linear-gradient(160deg, #26262a, #121214);
+    box-shadow: 0 30px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08), inset 0 0 0 1px rgba(255,255,255,.04); }
+  .eink-glass { background: #e9e7df; padding: 1.2%; border-radius: 2px; box-shadow: inset 0 0 0 1px #0a0a0a; }
+  .eink-glass canvas { display: block; width: 100%; height: auto; aspect-ratio: 800 / 480; image-rendering: pixelated;
+    filter: sepia(.08) contrast(.94) brightness(.97); mix-blend-mode: multiply; }
+  .eink-dial { position: absolute; right: -10px; top: 50%; width: 20px; height: 54px; margin-top: -27px; border: 0; border-radius: 6px; cursor: pointer;
+    background: repeating-linear-gradient(180deg, #5a5a5e 0 2px, #2a2a2e 2px 4px); box-shadow: 0 2px 6px rgba(0,0,0,.6); }
+  .eink-dial:active { transform: translateY(2px); }
+  .eink-bar { display: flex; align-items: center; gap: 10px; }
+  .eink-bar button { background: none; border: 1px solid var(--line, rgba(201,164,106,.3)); color: var(--cream, #efe3cf); border-radius: 99px; min-width: 34px; height: 34px; font-size: 1.1rem; cursor: pointer; }
+  .eink-bar .eink-size { font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; padding: 0 14px; margin-left: 10px; }
+  .eink-bar .eink-size.on { border-color: var(--brass, #c9a46a); color: var(--brass, #c9a46a); }
+  #einkPage { min-width: 92px; text-align: center; font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted, #a8957c); }
+  .eink-note { color: var(--muted, #a8957c); font-size: .78rem; }
+  .eink-board.printing::after { content: "Bernard has sent for a fresh edition…"; position: absolute; left: 50%; bottom: -30px; transform: translateX(-50%); white-space: nowrap; font-size: .75rem; color: var(--brass, #c9a46a); }
   /* the paper clipping */
   .clipping {
     background: linear-gradient(180deg, #f1e6d2, #e6d7bd); color: #23180f; padding: 28px 30px 26px; position: relative;
@@ -580,12 +597,20 @@
         <p class="serif" style="font-style:italic;color:var(--muted);font-size:1.05rem" id="bertrand"></p>
       </div>
 
-      <article class="clipping" id="clipping">
-        <div class="mast"><b>THE MORNING PAPER</b><small id="clipDate">Loading…</small></div>
-        <h3 id="clipHead">&nbsp;</h3>
-        <p id="clipSummary"></p>
-        <ul id="clipTodos"></ul>
-      </article>
+      <!-- the paper, exactly as the 3.97" e-ink board shows it (800 x 480, black and white) -->
+      <div class="eink-wrap">
+        <div class="eink-board" id="einkBoard">
+          <div class="eink-glass"><canvas id="einkCanvas" width="800" height="480" aria-label="Today's Morning Paper"></canvas></div>
+          <button class="eink-dial" id="einkDial" type="button" aria-label="Turn the dial to the next page"><i></i></button>
+        </div>
+        <div class="eink-bar">
+          <button type="button" id="einkPrev" aria-label="Previous page">‹</button>
+          <span id="einkPage">Front page</span>
+          <button type="button" id="einkNext" aria-label="Next page">›</button>
+          <button type="button" class="eink-size" id="einkSize">Actual size</button>
+        </div>
+        <small class="eink-note" id="clipDate">Loading…</small>
+      </div>
 
       <!-- the room -->
       <div class="section-head"><h4>The rooms</h4><span class="eyebrow" id="roomCount"></span></div>
@@ -851,6 +876,7 @@
   <button class="btn-brass" id="save">Save</button>
 </div>
 
+<script src="eink.js"></script>
 <script src="pit-bar.js"></script>
 <script>
 const API = "https://lounge.jobanxy.workers.dev";
@@ -920,18 +946,38 @@ async function loadPaper() {
   } catch (err) { $("clipDate").textContent = err.message; }
 }
 
-function renderEdition() {
+let einkPage = 0, einkActual = false;
+function renderEdition(flash) {
   const ed = edition || {};
-  $("clipDate").textContent = (ed.date || "") + (ed.updated ? " · " + ed.updated : "");
-  $("clipHead").textContent = ed.headline || "No edition yet";
-  $("clipSummary").textContent = ed.summary || "";
-  const todos = (ed.todos || []).slice(0, 6);
-  $("clipTodos").innerHTML = ""; $("edTodos").innerHTML = "";
-  for (const t of todos) {
-    const li = document.createElement("li"); li.textContent = t;
-    $("clipTodos").appendChild(li); $("edTodos").appendChild(li.cloneNode(true));
-  }
+  $("clipDate").textContent = ed.date ? `${ed.date} edition · printed ${ed.updated || ""} · 800 × 480 e-ink, exactly as the board shows it` : "No edition yet";
+  Eink.refresh($("einkCanvas"), { ...ed, alarm: settings?.alarm || ed.alarm, chime: settings?.chime || ed.chime, snooze_minutes: settings?.snooze_minutes || ed.snooze_minutes }, einkPage, flash);
+  $("einkPage").textContent = Eink.PAGES[einkPage];
+  $("edTodos").innerHTML = "";
+  for (const t of (ed.todos || []).slice(0, 6)) { const li = document.createElement("li"); li.textContent = t; $("edTodos").appendChild(li); }
   $("edHead").textContent = ed.headline || "";
+}
+function turnPage(d) { einkPage = (einkPage + d + Eink.PAGES.length) % Eink.PAGES.length; renderEdition(true); }
+$("einkNext").addEventListener("click", () => turnPage(1));
+$("einkPrev").addEventListener("click", () => turnPage(-1));
+$("einkDial").addEventListener("click", () => turnPage(1));
+$("einkSize").addEventListener("click", () => {
+  einkActual = !einkActual; $("einkSize").classList.toggle("on", einkActual);
+  // the panel's active area is 86.4 mm wide; CSS pixels per real inch differ by device (iPad ~132, iPhone ~153, computer ~96)
+  const ppi = /iPad|Macintosh/.test(navigator.userAgent) && "ontouchend" in document ? 132 : /iPhone/.test(navigator.userAgent) ? 153 : 96;
+  $("einkBoard").style.width = einkActual ? Math.round((86.4 / 25.4) * ppi / 0.866) + "px" : "";
+});
+// after Bernard sends for a fresh edition, watch for it and refresh the screen when it lands
+async function waitForPaper() {
+  const before = edition && edition.date + edition.updated;
+  $("einkBoard").classList.add("printing");
+  for (let i = 0; i < 24; i++) {
+    await new Promise((r) => setTimeout(r, 15000));
+    try {
+      const e = (await api("/paper/edition")).edition;
+      if (e && e.date + e.updated !== before) { edition = e; einkPage = 0; renderEdition(true); break; }
+    } catch {}
+  }
+  $("einkBoard").classList.remove("printing");
 }
 
 function updateAlarmTag() {
@@ -1560,6 +1606,7 @@ $("askForm").addEventListener("submit", async (e) => {
   try {
     const d = await api("/bernard", { method: "POST", body: JSON.stringify({ messages: talk, room: currentRoom() }) });
     talk.push({ role: "assistant", content: d.reply }); saveTalk(); renderTalk();
+    if (d.ordered) waitForPaper();
   } catch (err) {
     talk.pop(); saveTalk();
     const p = document.createElement("p"); p.className = "b err"; p.textContent = err.message; renderTalk(p); $("ask").value = q;
