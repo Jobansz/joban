@@ -104,6 +104,9 @@
   .eink-bar .eink-size { font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; padding: 0 14px; margin-left: 10px; }
   .eink-bar .eink-size.on { border-color: var(--brass, #c9a46a); color: var(--brass, #c9a46a); }
   #einkPage { min-width: 120px; text-align: center; font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted, #a8957c); }
+  .eink-daily { font-size: .74rem; color: var(--muted, #a8957c); flex-wrap: wrap; justify-content: center; }
+  .eink-daily button { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; padding: 0 12px; min-width: 0; }
+  .eink-daily button.on { border-color: var(--brass, #c9a46a); color: var(--brass, #c9a46a); }
   .eink-note { color: var(--muted, #a8957c); font-size: .78rem; }
   .eink-board.printing::after { content: "Bernard has sent for a fresh edition…"; position: absolute; left: 50%; bottom: -30px; transform: translateX(-50%); white-space: nowrap; font-size: .75rem; color: var(--brass, #c9a46a); }
   /* the paper clipping */
@@ -609,6 +612,9 @@
           <button type="button" id="einkNext" aria-label="Next page">›</button>
           <button type="button" class="eink-size" id="einkSize">Actual size</button>
         </div>
+        <div class="eink-bar eink-daily" role="group" aria-label="Preview the daily corner">
+          <span>Daily corner:</span><button type="button" data-k="today" class="on">Today's</button><button type="button" data-k="word">Word</button><button type="button" data-k="prediction">Prediction</button><button type="button" data-k="art">Art</button>
+        </div>
         <small class="eink-note" id="clipDate">Loading…</small>
       </div>
 
@@ -946,16 +952,28 @@ async function loadPaper() {
   } catch (err) { $("clipDate").textContent = err.message; }
 }
 
-let einkPage = 0, einkActual = false;
+let einkPage = 0, einkActual = false, dailyPreview = null, artSeed = Math.floor(Date.now() / 86400000);
 function renderEdition(flash) {
   const ed = edition || {};
   $("clipDate").textContent = ed.date ? `${ed.date} edition · printed ${ed.updated || ""} · 480 × 800 e-ink, standing up. Weather, work, the daily corner and now playing show SAMPLE content until they're wired up` : "No edition yet";
-  Eink.refresh($("einkCanvas"), { ...ed, alarm: settings?.alarm || ed.alarm, chime: settings?.chime || ed.chime, snooze_minutes: settings?.snooze_minutes || ed.snooze_minutes }, einkPage, flash);
+  Eink.refresh($("einkCanvas"), { ...ed, ...(dailyPreview ? { daily: dailyPreview } : {}), alarm: settings?.alarm || ed.alarm, chime: settings?.chime || ed.chime, snooze_minutes: settings?.snooze_minutes || ed.snooze_minutes }, einkPage, flash);
   $("einkPage").textContent = Eink.PAGES[einkPage];
   $("edTodos").innerHTML = "";
   for (const t of (ed.todos || []).slice(0, 6)) { const li = document.createElement("li"); li.textContent = t; $("edTodos").appendChild(li); }
   $("edHead").textContent = ed.headline || "";
 }
+document.querySelectorAll(".eink-daily button").forEach((b) => b.addEventListener("click", async () => {
+  document.querySelectorAll(".eink-daily button").forEach((x) => x.classList.toggle("on", x === b));
+  const k = b.dataset.k;
+  einkPage = 0;
+  if (k === "today") dailyPreview = null;
+  else if (k === "art") {
+    // each tap on Art fetches another wide piece, the same way the paper picks one
+    $("clipDate").textContent = "Finding a piece that suits the strip…";
+    try { dailyPreview = await Eink.previewArt(artSeed++); } catch { dailyPreview = null; $("clipDate").textContent = "Couldn't reach the museum. Try again."; }
+  } else dailyPreview = Eink.SAMPLE_DAILY[k];
+  renderEdition(true);
+}));
 function turnPage(d) { einkPage = (einkPage + d + Eink.PAGES.length) % Eink.PAGES.length; renderEdition(true); }
 $("einkNext").addEventListener("click", () => turnPage(1));
 $("einkPrev").addEventListener("click", () => turnPage(-1));

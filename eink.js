@@ -79,10 +79,21 @@
     label(ctx, "WORK TODAY", y + 18); if (!ed.shift) sample(ctx, W - M, y + 17);
     ctx.font = `bold 22px ${SERIF}`; ctx.fillText(ascii(sh.where), M, y + 48);
     ctx.font = `20px ${SANS}`; ctx.textAlign = "right"; ctx.fillText(ascii(sh.time), W - M, y + 48); ctx.textAlign = "left";
-    // the daily corner
+    // the daily corner: a word, a prediction, or a piece of art (rotates through the week)
     const d = ed.daily || SAMPLE.daily, top = H - 220;
     rule(ctx, top, 3);
-    label(ctx, ascii(d.kind), top + 26); if (!ed.daily) sample(ctx, W - M, top + 25);
+    label(ctx, ascii(d.kind), top + 26); if (!ed.daily || d.sample) sample(ctx, W - M, top + 25);
+    if (d.art) { // a 436 x 110 strip, already cropped to shape by the museum's image server
+      pics.push({ box: [M, top + 38, W - 2 * M, 110], img: artCache.get(d.art) });
+      ctx.lineWidth = 1; ctx.strokeRect(M - 0.5, top + 37.5, W - 2 * M + 1, 111);
+      // one caption line under the picture: title, then artist and date
+      ctx.font = `bold italic 17px ${SERIF}`;
+      const t = wrap(ctx, ascii(d.title), (W - 2 * M) * 0.62, 1)[0] || "";
+      ctx.fillText(t, M, top + 172);
+      const tw = ctx.measureText(t).width;
+      ctx.font = `14px ${SANS}`; ctx.fillText(wrap(ctx, ascii(d.text), W - 2 * M - tw - 14, 1)[0] || "", M + tw + 14, top + 172);
+      return;
+    }
     ctx.font = `bold italic 34px ${SERIF}`; ctx.fillText(ascii(d.title), M, top + 72);
     ctx.font = `italic 19px ${SERIF}`; para(ctx, ascii(d.text), M, top + 104, W - 2 * M, 3, 26);
   }
@@ -139,7 +150,7 @@
     return null;
   }
   const hm = (d) => `${((d.getHours() + 11) % 12) + 1}:${String(d.getMinutes()).padStart(2, "0")}`;
-  function now(ctx, ed, artBox) {
+  function now(ctx, ed) {
     const t = new Date();
     statusIcons(ctx, 30);
     ctx.font = `bold 96px ${SERIF}`; const tw = ctx.measureText(hm(t)).width;
@@ -172,7 +183,7 @@
     const p = ed.playing || SAMPLE.playing;
     label(ctx, "NOW PLAYING", 368); if (!ed.playing) sample(ctx, W - M, 367);
     const S = 266, ax = (W - S) / 2, ay = 384;
-    artBox.push([ax, ay, S, S]);
+    pics.push({ box: [ax, ay, S, S], img: p.art ? artCache.get(p.art) : null });
     ctx.lineWidth = 2; ctx.strokeRect(ax - 1, ay - 1, S + 2, S + 2);
     ctx.font = `bold 34px ${SANS}`; ctx.fillText("<", M, ay + S / 2 + 12); ctx.textAlign = "right"; ctx.fillText(">", W - M, ay + S / 2 + 12);
     ctx.textAlign = "center";
@@ -216,7 +227,8 @@
     ctx.lineWidth = 2; if (filled) ctx.fill(); else ctx.stroke();
   }
   // a stand-in cover, until Spotify is wired up: soft shapes that show off the grey dithering
-  function sampleArt(ctx, [x, y, s]) {
+  function sampleArt(ctx, [x, y, s, hh]) {
+    if (hh && hh < s) { ctx.fillStyle = "#bbb"; ctx.fillRect(x, y, s, hh); ctx.fillStyle = "#000"; return; } // art still loading
     const g = ctx.createLinearGradient(x, y, x + s, y + s); g.addColorStop(0, "#d8d8d8"); g.addColorStop(1, "#3a3a3a");
     ctx.fillStyle = g; ctx.fillRect(x, y, s, s);
     const r = ctx.createRadialGradient(x + s * .62, y + s * .4, 4, x + s * .62, y + s * .4, s * .34); r.addColorStop(0, "#fff"); r.addColorStop(1, "#555");
@@ -225,18 +237,35 @@
     ctx.fillStyle = "#000";
   }
 
+  // pictures are loaded once and kept; the page redraws when one arrives
+  const artCache = new Map();
+  let pics = [];
+  function loadArt(url, onload) {
+    if (!url || artCache.has(url)) return;
+    const img = new Image(); img.crossOrigin = "anonymous";
+    artCache.set(url, null);
+    img.onload = () => { artCache.set(url, img); onload(); };
+    img.src = url;
+  }
   // draw a page, then make it look like the panel: pure black/white text, 4-grey dithered pictures
   function draw(canvas, ed, page) {
     const ctx = canvas.getContext("2d");
     canvas.width = W; canvas.height = H;
     ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H); ctx.fillStyle = "#000"; ctx.strokeStyle = "#000"; ctx.textBaseline = "alphabetic";
     ed = ed || {};
-    const art = [];
-    [paper, work, (c, e) => now(c, e, art)][page](ctx, ed);
+    pics = [];
+    [paper, work, now][page](ctx, ed);
     footer(ctx, page);
-    for (const box of art) sampleArt(ctx, box);
-    const img = ctx.getImageData(0, 0, W, H), p = img.data;
-    const inArt = (x, y) => art.some(([ax, ay, s]) => x >= ax && x < ax + s && y >= ay && y < ay + s);
+    for (const { box: [x, y, w, h], img } of pics) {
+      if (!img) { sampleArt(ctx, [x, y, w, h]); continue; }
+      const s = Math.max(w / img.width, h / img.height), sw = w / s, sh = h / s; // cover, centred
+      ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, x, y, w, h);
+    }
+    const art = pics.map((p) => p.box);
+    let img;
+    try { img = ctx.getImageData(0, 0, W, H); } catch { return; } // a picture without permission to read: show it undithered
+    const p = img.data;
+    const inArt = (x, y) => art.some(([ax, ay, s, hh]) => x >= ax && x < ax + s && y >= ay && y < ay + (hh || s));
     const lum = new Float32Array(W * H);
     for (let i = 0; i < W * H; i++) lum[i] = p[i * 4] * 0.3 + p[i * 4 + 1] * 0.59 + p[i * 4 + 2] * 0.11;
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
@@ -255,11 +284,26 @@
   ].map((f) => document.fonts.load(f))).catch(() => {}) : Promise.resolve();
   // the e-ink full refresh: a black flash, then the new page
   function refresh(canvas, ed, page, flash) {
+    for (const url of [ed && ed.daily && ed.daily.art, ed && ed.playing && ed.playing.art]) loadArt(url, () => draw(canvas, ed, page));
     if (!flash) { draw(canvas, ed, page); fontsReady.then(() => draw(canvas, ed, page)); return; }
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
     setTimeout(() => { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H); }, 180);
     setTimeout(() => fontsReady.then(() => draw(canvas, ed, page)), 380);
   }
-  window.Eink = { W, H, PAGES, draw, refresh };
+  async function previewArt(seed) {
+    const q = ["hiroshige", "hokusai", "seascape", "winter landscape", "harbor", "mountain landscape", "river landscape", "panorama"][seed % 8];
+    const r = await fetch("https://api.artic.edu/api/v1/artworks/search?" + new URLSearchParams({ q, limit: "60", fields: "id,title,artist_title,date_display,image_id,thumbnail,is_public_domain" }));
+    const wide = ((await r.json()).data || []).filter((a) => a.is_public_domain && a.image_id && a.thumbnail?.width && a.thumbnail.width / a.thumbnail.height >= 1.35);
+    const a = wide[seed % wide.length], ratio = 436 / 110, aspect = a.thumbnail.width / a.thumbnail.height;
+    let region;
+    if (aspect > ratio) { const w = (ratio / aspect) * 100; region = `pct:${((100 - w) / 2).toFixed(2)},0,${w.toFixed(2)},100`; }
+    else { const h = (aspect / ratio) * 100; region = `pct:0,${((100 - h) / 2).toFixed(2)},100,${h.toFixed(2)}`; }
+    return { kind: "ART OF THE DAY", title: a.title, text: [a.artist_title, a.date_display].filter(Boolean).join(", "), art: `https://www.artic.edu/iiif/2/${a.image_id}/${region}/843,/0/default.jpg`, sample: true };
+  }
+  const SAMPLE_DAILY = {
+    word: SAMPLE.daily,
+    prediction: { kind: "TODAY'S PREDICTION", title: "Fortune favours", text: "Ethics gets finished before lunch. Someone at work asks to swap a shift. You say yes to the second coffee." },
+  };
+  window.Eink = { W, H, PAGES, draw, refresh, previewArt, SAMPLE_DAILY };
 })();
