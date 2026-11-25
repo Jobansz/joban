@@ -1,12 +1,20 @@
 // The Morning Paper, drawn exactly as the e-ink board shows it:
-// Waveshare ESP32-S3-ePaper-3.97, 800 x 480 pixels, black and white only, landscape.
-// The firmware draws the same layout (same pixel positions), so this is the real form factor.
-// Pages turn with the rotary switch on the board: Front page, Mail, Alarm.
+// Waveshare ESP32-S3-ePaper-3.97 standing up (portrait): 480 x 800 pixels, black and white,
+// with two greys for pictures (the panel's 4-grey mode). The firmware draws the same layout.
+// Pages turn with the dial: The paper, Today's work, Right now.
+// Parts not wired up yet (weather, shifts, daily corner, now playing) use sample content, marked SAMPLE.
 (function () {
-  const W = 800, H = 480, M = 26;
-  // Literata was drawn for e-readers; Atkinson Hyperlegible for legibility at small sizes. Both are free and convert to the board's bitmap fonts.
+  const W = 480, H = 800, M = 22;
+  // Literata was drawn for e-readers; Atkinson Hyperlegible for legibility at small sizes.
   const SERIF = 'Literata, Georgia, serif', SANS = '"Atkinson Hyperlegible", Arial, sans-serif';
-  const PAGES = ["Front page", "Mail", "Alarm"];
+  const PAGES = ["The paper", "Today's work", "Right now"];
+
+  const SAMPLE = {
+    shift: { where: "Timberline", time: "10:00 AM - 6:00 PM" },
+    daily: { kind: "WORD OF THE DAY", title: "Sonder", text: "The realisation that each passer-by has a life as vivid and complex as your own." },
+    weather: { now: "-6", hi: "-2", lo: "-11", sky: "Light snow", dress: "Parka, toque and gloves. Boots with grip: the walk to class will be icy." },
+    playing: { song: "Aruarian Dance", artist: "Nujabes", liked: false },
+  };
 
   function wrap(ctx, text, maxW, maxLines) {
     const words = String(text || "").split(/\s+/).filter(Boolean), lines = [];
@@ -19,133 +27,190 @@
       if (lines.length === maxLines) break;
     }
     if (line && lines.length < maxLines) lines.push(line);
-    const used = lines.join(" ").split(/\s+/).length;
-    if (used < words.length && lines.length) { // ran out of room: end with an ellipsis
+    if (lines.join(" ").split(/\s+/).length < words.length && lines.length) {
       let last = lines[lines.length - 1];
       while (last && ctx.measureText(last + "...").width > maxW) last = last.replace(/\s*\S+$/, "");
       lines[lines.length - 1] = last + "...";
     }
     return lines;
   }
-  function fit(ctx, text, maxW) {
-    let t = String(text || "");
-    if (ctx.measureText(t).width <= maxW) return t;
-    while (t && ctx.measureText(t + "...").width > maxW) t = t.slice(0, -1);
-    return t.trimEnd() + "...";
-  }
+  function para(ctx, text, x, y, maxW, maxLines, lh) { for (const l of wrap(ctx, text, maxW, maxLines)) { ctx.fillText(l, x, y); y += lh; } return y; }
   const ascii = (s) => String(s || "").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, "-").replace(/…/g, "...");
-
-  function masthead(ctx, ed, page) {
-    ctx.font = `bold 30px ${SERIF}`; ctx.textBaseline = "alphabetic";
-    ctx.fillText("THE MORNING PAPER", M, 46);
-    ctx.font = `bold 14px ${SANS}`; ctx.textAlign = "right";
-    ctx.fillText(ascii((ed.date || "").toUpperCase()), W - M, 30);
-    ctx.fillText(page === 0 ? (ed.updated ? "PRINTED " + ed.updated : "") : PAGES[page].toUpperCase(), W - M, 48);
-    ctx.textAlign = "left";
-    ctx.fillRect(M, 58, W - 2 * M, 3); ctx.fillRect(M, 64, W - 2 * M, 1);
+  const rule = (ctx, y, h = 1) => ctx.fillRect(M, y, W - 2 * M, h);
+  const label = (ctx, t, y) => { ctx.font = `bold 14px ${SANS}`; ctx.fillText(t, M, y); };
+  const sample = (ctx, x, y) => { ctx.font = `bold 10px ${SANS}`; ctx.lineWidth = 1; const w = ctx.measureText("SAMPLE").width + 8; ctx.strokeRect(x - w, y - 10, w, 13); ctx.fillText("SAMPLE", x - w + 4, y); };
+  function statusIcons(ctx, y) { // wifi + battery, top right
+    const x = W - M;
+    ctx.lineWidth = 1.5; ctx.strokeRect(x - 26, y - 10, 22, 11); ctx.fillRect(x - 4, y - 7, 2, 5); ctx.fillRect(x - 24, y - 8, 15, 7);
+    for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x - 44, y + 1, 4 + i * 4, Math.PI * 1.25, Math.PI * 1.75); ctx.stroke(); }
+    ctx.fillRect(x - 45.5, y - 0.5, 3, 3);
   }
-  function footer(ctx, ed, page) {
-    ctx.fillRect(M, H - 34, W - 2 * M, 1);
-    ctx.font = `15px ${SANS}`;
-    const n = (ed.emails || []).length;
-    const left = page === 0 ? (n ? `${n} email${n > 1 ? "s" : ""} waiting  >  turn the dial` : "Inbox clear") : "Turn the dial for more";
-    ctx.fillText(left, M, H - 13);
-    for (let i = 0; i < PAGES.length; i++) { // page dots
+  function footer(ctx, page) {
+    rule(ctx, H - 40);
+    ctx.font = `14px ${SANS}`; ctx.fillText(page === 2 ? "Turn: skip  -  Press: like" : "Turn the dial for more", M, H - 16);
+    for (let i = 0; i < PAGES.length; i++) {
       const x = W - M - (PAGES.length - 1 - i) * 18 - 5;
-      ctx.beginPath(); ctx.arc(x, H - 18, 5, 0, Math.PI * 2);
+      ctx.beginPath(); ctx.arc(x, H - 21, 5, 0, Math.PI * 2);
       if (i === page) ctx.fill(); else { ctx.lineWidth = 1.5; ctx.stroke(); }
     }
   }
-  function front(ctx, ed) {
-    ctx.font = `bold 36px ${SERIF}`;
-    let y = 108;
-    for (const l of wrap(ctx, ascii(ed.headline || "No edition yet"), W - 2 * M, 2)) { ctx.fillText(l, M, y); y += 42; }
-    ctx.font = `20px ${SERIF}`; y += 4;
-    for (const l of wrap(ctx, ascii(ed.summary), W - 2 * M, 2)) { ctx.fillText(l, M, y); y += 27; }
-    const top = Math.max(y + 10, 214), mid = W / 2;
-    ctx.fillRect(M, top - 14, W - 2 * M, 1);
-    ctx.fillRect(mid, top, 1, H - 48 - top);
-    // left: due this week
-    ctx.font = `bold 15px ${SANS}`; ctx.fillText("DUE THIS WEEK", M, top + 12);
-    let ly = top + 40;
+
+  // ---- page 1: the paper ----
+  function paper(ctx, ed) {
+    ctx.font = `bold 40px ${SERIF}`; ctx.fillText("The Paper", M, 58);
+    statusIcons(ctx, 30);
+    rule(ctx, 72, 3); rule(ctx, 78);
+    ctx.font = `bold 14px ${SANS}`; ctx.fillText(ascii((ed.date || "").toUpperCase()), M, 100);
+    ctx.textAlign = "right"; ctx.font = `14px ${SANS}`; ctx.fillText(ed.updated ? "Printed " + ed.updated : "", W - M, 100); ctx.textAlign = "left";
+    ctx.font = `bold 30px ${SERIF}`;
+    let y = para(ctx, ascii(ed.headline || "No edition yet"), M, 146, W - 2 * M, 2, 36);
+    ctx.font = `20px ${SERIF}`;
+    y = para(ctx, ascii(ed.summary), M, y + 10, W - 2 * M, 9, 29);
+    // shift today
+    const sh = ed.shift || SAMPLE.shift;
+    y = Math.max(y + 14, 470);
+    rule(ctx, y - 6);
+    label(ctx, "WORK TODAY", y + 18); if (!ed.shift) sample(ctx, W - M, y + 17);
+    ctx.font = `bold 22px ${SERIF}`; ctx.fillText(ascii(sh.where), M, y + 48);
+    ctx.font = `20px ${SANS}`; ctx.textAlign = "right"; ctx.fillText(ascii(sh.time), W - M, y + 48); ctx.textAlign = "left";
+    // the daily corner
+    const d = ed.daily || SAMPLE.daily, top = H - 220;
+    rule(ctx, top, 3);
+    label(ctx, ascii(d.kind), top + 26); if (!ed.daily) sample(ctx, W - M, top + 25);
+    ctx.font = `bold italic 34px ${SERIF}`; ctx.fillText(ascii(d.title), M, top + 72);
+    ctx.font = `italic 19px ${SERIF}`; para(ctx, ascii(d.text), M, top + 104, W - 2 * M, 3, 26);
+  }
+
+  // ---- page 2: today's work ----
+  function work(ctx, ed) {
+    ctx.font = `bold 36px ${SERIF}`; ctx.fillText("Today's work", M, 56);
+    statusIcons(ctx, 30); rule(ctx, 72, 3); rule(ctx, 78);
+    let y = 112;
+    label(ctx, "IMPORTANT", y);
+    const mails = (ed.emails || []).slice(0, 3);
+    y += 30;
+    if (!mails.length) { ctx.font = `italic 19px ${SERIF}`; ctx.fillText("Nothing waiting on you.", M, y); y += 30; }
+    for (const e of mails) {
+      ctx.fillRect(M, y - 9, 6, 6);
+      ctx.font = `bold 19px ${SERIF}`; ctx.fillText(wrap(ctx, ascii(e.subject), W - 2 * M - 18, 1)[0] || "", M + 18, y);
+      ctx.font = `16px ${SANS}`; ctx.fillText(wrap(ctx, ascii(e.from) + (e.why ? " - " + ascii(e.why) : ""), W - 2 * M - 18, 1)[0] || "", M + 18, y + 22);
+      y += 54;
+    }
+    rule(ctx, y - 12);
+    label(ctx, "DUE THIS WEEK", y + 14); y += 44;
     const due = (ed.due || []).slice(0, 5);
-    if (!due.length) { ctx.font = `italic 17px ${SERIF}`; ctx.fillText("Nothing due. Enjoy it.", M, ly); }
+    if (!due.length) { ctx.font = `italic 19px ${SERIF}`; ctx.fillText("Nothing due. Enjoy it.", M, y); y += 30; }
     for (const d of due) {
-      if (ly > H - 60) break;
-      // "Wed, Nov 25 8:00 AM" -> "Wed 25"
       const m = String(d.when || "").match(/^(\w{3}),?\s+\w+\s+(\d{1,2})/);
-      ctx.font = `bold 17px ${SANS}`; ctx.fillText(m ? `${m[1]} ${m[2]}` : ascii(d.when).slice(0, 7), M, ly);
-      ctx.font = `18px ${SANS}`;
-      ctx.fillText(fit(ctx, ascii((d.course ? d.course + ": " : "") + d.title), mid - M - 20 - 72), M + 72, ly);
-      ly += 30;
+      ctx.font = `bold 17px ${SANS}`; ctx.fillText(m ? `${m[1]} ${m[2]}` : "", M, y);
+      ctx.font = `17px ${SANS}`; ctx.fillText(wrap(ctx, ascii((d.course ? d.course + ": " : "") + d.title), W - 2 * M - 70, 1)[0] || "", M + 70, y);
+      y += 30;
     }
-    // right: to do, with tick boxes
-    ctx.font = `bold 15px ${SANS}`; ctx.fillText("TO DO", mid + 22, top + 12);
-    let ry = top + 40;
-    const todos = (ed.todos || []).slice(0, 6);
-    if (!todos.length) { ctx.font = `italic 17px ${SERIF}`; ctx.fillText("Nothing on the list.", mid + 22, ry); }
+    rule(ctx, y - 8);
+    label(ctx, "TO DO", y + 18); y += 48;
+    // to-dos that just repeat a deadline are left out: the list above already has them
+    const dueWords = (ed.due || []).map((d) => String(d.title).toLowerCase().split(/\W+/).filter((w) => w.length > 4));
+    const todos = (ed.todos || []).filter((t) => !dueWords.some((ws) => ws.filter((w) => t.toLowerCase().includes(w)).length >= 2)).slice(0, 5);
+    if (!todos.length) { ctx.font = `italic 19px ${SERIF}`; ctx.fillText("Nothing else on the list.", M, y); }
     for (const t of todos) {
-      if (ry > H - 60) break;
-      ctx.lineWidth = 2; ctx.strokeRect(mid + 22, ry - 13, 14, 14);
-      ctx.font = `18px ${SANS}`; ctx.fillText(fit(ctx, ascii(t), W - M - (mid + 46)), mid + 46, ry);
-      ry += 30;
+      if (y > H - 60) break;
+      ctx.lineWidth = 2; ctx.strokeRect(M, y - 14, 15, 15);
+      ctx.font = `17px ${SANS}`; ctx.fillText(wrap(ctx, ascii(t), W - 2 * M - 26, 1)[0] || "", M + 26, y);
+      y += 32;
     }
   }
-  function mail(ctx, ed) {
-    const list = (ed.emails || []).slice(0, 5);
-    let y = 108;
-    if (!list.length) { ctx.font = `italic 28px ${SERIF}`; ctx.fillText("Nothing waiting on you.", M, 160); return; }
-    for (const e of list) {
-      ctx.font = `bold 22px ${SERIF}`; ctx.fillText(fit(ctx, ascii(e.subject), W - 2 * M), M, y);
-      ctx.font = `17px ${SANS}`; ctx.fillText(fit(ctx, ascii(e.from) + (e.why ? "  -  " + ascii(e.why) : ""), W - 2 * M), M, y + 22);
-      y += 66; if (y > H - 50) break;
-      ctx.fillRect(M, y - 26, W - 2 * M, 1);
-    }
-  }
-  function alarm(ctx, ed) {
-    const keys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], names = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
-    const now = new Date(); let next = null;
-    for (let i = 0; i < 8 && !next; i++) {
+
+  // ---- page 3: right now ----
+  function nextAlarm(ed) {
+    const keys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"], now = new Date();
+    for (let i = 0; i < 8; i++) {
       const d = new Date(now); d.setDate(now.getDate() + i);
       const v = (ed.alarm || {})[keys[d.getDay()]];
       if (!v || v === "off") continue;
       const [h, m] = v.split(":").map(Number); d.setHours(h, m, 0, 0);
-      if (d > now) next = { d, v, day: i === 0 ? "TODAY" : i === 1 ? "TOMORROW" : names[d.getDay()] };
+      if (d > now) return d;
     }
-    ctx.textAlign = "center";
-    ctx.font = `bold 16px ${SANS}`; ctx.fillText(next ? "NEXT ALARM  -  " + next.day : "NO ALARM SET", W / 2, 140);
-    if (next) {
-      const h = next.d.getHours(), t = `${((h + 11) % 12) + 1}:${String(next.d.getMinutes()).padStart(2, "0")}`;
-      ctx.font = `bold 150px ${SERIF}`; const tw = ctx.measureText(t).width;
-      ctx.font = `bold 36px ${SERIF}`; const aw = ctx.measureText("AM").width, x0 = W / 2 - (tw + 14 + aw) / 2;
-      ctx.textAlign = "left";
-      ctx.font = `bold 150px ${SERIF}`; ctx.fillText(t, x0, 300);
-      ctx.font = `bold 36px ${SERIF}`; ctx.fillText(h < 12 ? "AM" : "PM", x0 + tw + 14, 300);
-      ctx.textAlign = "center";
-    }
-    const c = ed.chime || {};
-    ctx.font = `18px ${SANS}`;
-    ctx.fillText(`Chime: ${c.sound || "bells"}  ·  volume ${c.volume ?? 6}  ·  snooze ${ed.snooze_minutes || 9} min`.replace("·", "-").replace("·", "-"), W / 2, 372);
+    return null;
+  }
+  const hm = (d) => `${((d.getHours() + 11) % 12) + 1}:${String(d.getMinutes()).padStart(2, "0")}`;
+  function now(ctx, ed, artBox) {
+    const t = new Date();
+    statusIcons(ctx, 30);
+    ctx.font = `bold 96px ${SERIF}`; const tw = ctx.measureText(hm(t)).width;
+    ctx.fillText(hm(t), M - 4, 120);
+    ctx.font = `bold 26px ${SERIF}`; ctx.fillText(t.getHours() < 12 ? "AM" : "PM", M + tw + 6, 120);
+    const al = nextAlarm(ed);
+    ctx.textAlign = "right";
+    ctx.font = `bold 13px ${SANS}`; ctx.fillText("ALARM", W - M, 72);
+    ctx.font = `bold 22px ${SANS}`; ctx.fillText(al ? hm(al) + (al.getHours() < 12 ? " AM" : " PM") : "OFF", W - M, 98);
+    ctx.font = `14px ${SANS}`; ctx.fillText(t.toLocaleDateString("en-CA", { weekday: "short", month: "short", day: "numeric" }).toUpperCase(), W - M, 120);
     ctx.textAlign = "left";
+    rule(ctx, 142, 3);
+    // weather and what to wear
+    const w = ed.weather || SAMPLE.weather;
+    label(ctx, "WEATHER  -  PRINCE GEORGE", 170); if (!ed.weather) sample(ctx, W - M, 169);
+    ctx.font = `bold 44px ${SERIF}`; ctx.fillText(`${w.now}°`, M, 220);
+    ctx.font = `18px ${SANS}`; ctx.fillText(`${ascii(w.sky)}  -  H ${w.hi}°  L ${w.lo}°`, M + 96, 212);
+    ctx.font = `italic 18px ${SERIF}`; para(ctx, ascii(w.dress), M, 252, W - 2 * M, 2, 24);
+    rule(ctx, 302);
+    // now playing
+    const p = ed.playing || SAMPLE.playing;
+    label(ctx, "NOW PLAYING", 330); if (!ed.playing) sample(ctx, W - M, 329);
+    const S = 300, ax = (W - S) / 2, ay = 348;
+    artBox.push([ax, ay, S, S]);
+    ctx.lineWidth = 2; ctx.strokeRect(ax - 1, ay - 1, S + 2, S + 2);
+    ctx.font = `bold 34px ${SANS}`; ctx.fillText("<", M, ay + S / 2 + 12); ctx.textAlign = "right"; ctx.fillText(">", W - M, ay + S / 2 + 12);
+    ctx.textAlign = "center";
+    ctx.font = `bold 21px ${SERIF}`; ctx.fillText(wrap(ctx, ascii(p.song), W - 2 * M, 1)[0] || "", W / 2, ay + S + 30);
+    ctx.font = `16px ${SANS}`; ctx.fillText(ascii(p.artist), W / 2, ay + S + 52);
+    ctx.textAlign = "left";
+    heart(ctx, W / 2, ay + S + 72, p.liked);
+  }
+  function heart(ctx, x, y, filled) {
+    ctx.beginPath(); ctx.moveTo(x, y + 14);
+    ctx.bezierCurveTo(x - 20, y + 2, x - 12, y - 10, x, y - 2);
+    ctx.bezierCurveTo(x + 12, y - 10, x + 20, y + 2, x, y + 14);
+    ctx.lineWidth = 2; if (filled) ctx.fill(); else ctx.stroke();
+  }
+  // a stand-in cover, until Spotify is wired up: soft shapes that show off the grey dithering
+  function sampleArt(ctx, [x, y, s]) {
+    const g = ctx.createLinearGradient(x, y, x + s, y + s); g.addColorStop(0, "#d8d8d8"); g.addColorStop(1, "#3a3a3a");
+    ctx.fillStyle = g; ctx.fillRect(x, y, s, s);
+    const r = ctx.createRadialGradient(x + s * .62, y + s * .4, 4, x + s * .62, y + s * .4, s * .34); r.addColorStop(0, "#fff"); r.addColorStop(1, "#555");
+    ctx.fillStyle = r; ctx.beginPath(); ctx.arc(x + s * .62, y + s * .4, s * .3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#111"; ctx.fillRect(x, y + s * .78, s, s * .22);
+    ctx.fillStyle = "#000";
   }
 
-  // draw a page, then force every pixel to pure black or white like the real panel
+  // draw a page, then make it look like the panel: pure black/white text, 4-grey dithered pictures
   function draw(canvas, ed, page) {
     const ctx = canvas.getContext("2d");
     canvas.width = W; canvas.height = H;
-    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H); ctx.fillStyle = "#000"; ctx.strokeStyle = "#000";
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H); ctx.fillStyle = "#000"; ctx.strokeStyle = "#000"; ctx.textBaseline = "alphabetic";
     ed = ed || {};
-    masthead(ctx, ed, page);
-    [front, mail, alarm][page](ctx, ed);
-    footer(ctx, ed, page);
+    const art = [];
+    [paper, work, (c, e) => now(c, e, art)][page](ctx, ed);
+    footer(ctx, page);
+    for (const box of art) sampleArt(ctx, box);
     const img = ctx.getImageData(0, 0, W, H), p = img.data;
-    for (let i = 0; i < p.length; i += 4) { const v = p[i] * 0.3 + p[i + 1] * 0.59 + p[i + 2] * 0.11 < 190 ? 0 : 255; p[i] = p[i + 1] = p[i + 2] = v; p[i + 3] = 255; }
+    const inArt = (x, y) => art.some(([ax, ay, s]) => x >= ax && x < ax + s && y >= ay && y < ay + s);
+    const lum = new Float32Array(W * H);
+    for (let i = 0; i < W * H; i++) lum[i] = p[i * 4] * 0.3 + p[i * 4 + 1] * 0.59 + p[i * 4 + 2] * 0.11;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = y * W + x; let v;
+      if (inArt(x, y)) { // Floyd-Steinberg to the panel's 4 greys
+        const old = lum[i]; v = Math.max(0, Math.min(255, Math.round(old / 85) * 85)); const e = old - v;
+        if (x + 1 < W) lum[i + 1] += e * 7 / 16;
+        if (y + 1 < H) { if (x) lum[i + W - 1] += e * 3 / 16; lum[i + W] += e * 5 / 16; if (x + 1 < W) lum[i + W + 1] += e / 16; }
+      } else v = lum[i] < 190 ? 0 : 255;
+      p[i * 4] = p[i * 4 + 1] = p[i * 4 + 2] = v; p[i * 4 + 3] = 255;
+    }
     ctx.putImageData(img, 0, 0);
   }
-  // the e-ink full refresh: a black flash, then the new page
   const fontsReady = document.fonts ? Promise.all([
-    "bold 36px Literata", "20px Literata", "italic 18px Literata", "18px \"Atkinson Hyperlegible\"", "bold 16px \"Atkinson Hyperlegible\"",
+    "bold 40px Literata", "20px Literata", "italic 18px Literata", "bold italic 34px Literata", "17px \"Atkinson Hyperlegible\"", "bold 14px \"Atkinson Hyperlegible\"",
   ].map((f) => document.fonts.load(f))).catch(() => {}) : Promise.resolve();
+  // the e-ink full refresh: a black flash, then the new page
   function refresh(canvas, ed, page, flash) {
     if (!flash) { draw(canvas, ed, page); fontsReady.then(() => draw(canvas, ed, page)); return; }
     const ctx = canvas.getContext("2d");
