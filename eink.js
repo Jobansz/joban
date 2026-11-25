@@ -51,15 +51,88 @@
     for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x - 44, y + 1, 4 + i * 4, Math.PI * 1.25, Math.PI * 1.75); ctx.stroke(); }
     ctx.fillRect(x - 45.5, y - 0.5, 3, 3);
   }
-  function footer(ctx, page) {
+  function footer(ctx, page, sub, count) {
     rule(ctx, H - 40);
-    ctx.font = `14px ${SANS}`; ctx.fillText(page === 2 ? "Turn: skip  -  Press: like" : "Turn the dial for more", M, H - 16);
-    for (let i = 0; i < PAGES.length; i++) {
-      const x = W - M - (PAGES.length - 1 - i) * 18 - 5;
+    ctx.font = `14px ${SANS}`;
+    ctx.fillText(sub != null ? "Turn: next  -  Press: back" : page === 2 ? "Turn: skip  -  Press: like" : "Turn: page  -  Press: read in full", M, H - 16);
+    const n = sub != null ? count : PAGES.length, cur = sub != null ? sub : page;
+    for (let i = 0; i < n; i++) {
+      const x = W - M - (n - 1 - i) * 18 - 5;
+      if (sub != null) { ctx.lineWidth = 1.5; i === cur ? ctx.fillRect(x - 5, H - 26, 10, 10) : ctx.strokeRect(x - 4.5, H - 25.5, 9, 9); continue; } // squares inside a full view
       ctx.beginPath(); ctx.arc(x, H - 21, 5, 0, Math.PI * 2);
-      if (i === page) ctx.fill(); else { ctx.lineWidth = 1.5; ctx.stroke(); }
+      if (i === cur) ctx.fill(); else { ctx.lineWidth = 1.5; ctx.stroke(); }
     }
   }
+
+  // ---- full versions: press the dial on page 1 or 2, turn to move between them ----
+  function head(ctx, title, kicker) {
+    statusIcons(ctx, 30);
+    ctx.font = `bold 13px ${SANS}`; ctx.fillText(kicker, M, 34);
+    ctx.font = `bold 32px ${SERIF}`; ctx.fillText(title, M, 70);
+    rule(ctx, 84, 3);
+  }
+  // a paragraph that never runs off the page: shrinks a step if it has to
+  function fill(ctx, text, y, bottom, font, sizes) {
+    for (const size of sizes) {
+      ctx.font = font(size); const lh = Math.round(size * 1.45);
+      const lines = wrap(ctx, text, W - 2 * M, Math.floor((bottom - y) / lh));
+      if (!lines.join(" ").endsWith("...") || size === sizes[sizes.length - 1]) { for (const l of lines) { ctx.fillText(l, M, y); y += lh; } return y; }
+    }
+  }
+  function list(ctx, items, y, draw1) { for (const it of items) { if (y > H - 70) break; y = draw1(it, y); } return y; }
+  const DETAILS = {
+    0: (ed) => {
+      const d = ed.daily || SAMPLE.daily;
+      return [
+        (ctx) => { head(ctx, "The whole story", ascii((ed.date || "").toUpperCase())); ctx.font = `bold 26px ${SERIF}`;
+          const y = para(ctx, ascii(ed.headline || ""), M, 128, W - 2 * M, 3, 32);
+          fill(ctx, ascii(ed.summary), y + 16, H - 60, (z) => `${z}px ${SERIF}`, [22, 20, 18]); },
+        (ctx) => {
+          head(ctx, ascii(d.title), ascii(d.kind));
+          if (d.art) { // the whole painting, uncropped, as big as the page allows
+            const img = artCache.get(d.art), maxW = W - 2 * M, maxH = 520;
+            let w = maxW, h = img ? maxW * img.height / img.width : maxW * 0.7;
+            if (h > maxH) { h = maxH; w = img ? h * img.width / img.height : maxW; }
+            const x = (W - w) / 2;
+            pics.push({ box: [x, 110, w, h], img, contain: true });
+            ctx.lineWidth = 1; ctx.strokeRect(x - 0.5, 109.5, w + 1, h + 1);
+            ctx.font = `bold italic 22px ${SERIF}`; let y = para(ctx, ascii(d.title), M, 110 + h + 40, W - 2 * M, 2, 28);
+            ctx.font = `17px ${SANS}`; ctx.fillText(ascii(d.text), M, y + 4);
+            return;
+          }
+          fill(ctx, ascii(d.text), 132, H - 60, (z) => `italic ${z}px ${SERIF}`, [26, 22, 19]);
+        },
+      ];
+    },
+    1: (ed) => [
+      (ctx) => { head(ctx, "Important", "EVERY EMAIL WAITING ON YOU");
+        const mails = ed.emails || [];
+        if (!mails.length) { ctx.font = `italic 20px ${SERIF}`; ctx.fillText("Nothing waiting on you.", M, 130); return; }
+        list(ctx, mails, 126, (e, y) => {
+          ctx.font = `bold 20px ${SERIF}`; y = para(ctx, ascii(e.subject), M, y, W - 2 * M, 2, 25);
+          ctx.font = `16px ${SANS}`; ctx.fillText(wrap(ctx, ascii(e.from), W - 2 * M, 1)[0] || "", M, y);
+          if (e.why) { ctx.font = `italic 17px ${SERIF}`; y = para(ctx, ascii(e.why), M, y + 22, W - 2 * M, 2, 22) - 22; }
+          rule(ctx, y + 14); return y + 44;
+        }); },
+      (ctx) => { head(ctx, "Due this week", "FROM MOODLE");
+        const due = ed.due || [];
+        if (!due.length) { ctx.font = `italic 20px ${SERIF}`; ctx.fillText("Nothing due. Enjoy it.", M, 130); return; }
+        list(ctx, due, 128, (d, y) => {
+          ctx.font = `bold 15px ${SANS}`; ctx.fillText(ascii(d.when).toUpperCase() + (d.course ? "  -  " + ascii(d.course).toUpperCase() : ""), M, y);
+          ctx.font = `19px ${SERIF}`; y = para(ctx, ascii(d.title), M, y + 26, W - 2 * M, 3, 25);
+          rule(ctx, y - 8); return y + 22;
+        }); },
+      (ctx) => { head(ctx, "To do", "EVERYTHING ON THE LIST");
+        const todos = ed.todos || [];
+        if (!todos.length) { ctx.font = `italic 20px ${SERIF}`; ctx.fillText("Nothing on the list.", M, 130); return; }
+        list(ctx, todos, 132, (t, y) => {
+          ctx.lineWidth = 2; ctx.strokeRect(M, y - 15, 16, 16);
+          ctx.font = `19px ${SANS}`; ctx.save(); const out = para(ctx, ascii(t), M + 28, y, W - 2 * M - 28, 3, 25); ctx.restore();
+          return out + 14;
+        }); },
+    ],
+  };
+  const detailCount = (ed, page) => (DETAILS[page] ? DETAILS[page](ed || {}).length : 0);
 
   // ---- page 1: the paper ----
   function paper(ctx, ed) {
@@ -250,16 +323,18 @@
     img.src = window.EINK_PROXY && /^https:\/\/www\.artic\.edu\//.test(url) ? window.EINK_PROXY + encodeURIComponent(url) : url;
   }
   // draw a page, then make it look like the panel: pure black/white text, 4-grey dithered pictures
-  function draw(canvas, ed, page) {
+  function draw(canvas, ed, page, sub) {
     const ctx = canvas.getContext("2d");
     canvas.width = W; canvas.height = H;
     ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H); ctx.fillStyle = "#000"; ctx.strokeStyle = "#000"; ctx.textBaseline = "alphabetic";
     ed = ed || {};
     pics = [];
-    [paper, work, now][page](ctx, ed);
-    footer(ctx, page);
-    for (const { box: [x, y, w, h], img } of pics) {
+    const views = DETAILS[page] ? DETAILS[page](ed) : null;
+    if (sub != null && views) { sub = Math.min(sub, views.length - 1); views[sub](ctx); footer(ctx, page, sub, views.length); }
+    else { [paper, work, now][page](ctx, ed); footer(ctx, page); }
+    for (const { box: [x, y, w, h], img, contain } of pics) {
       if (!img) { sampleArt(ctx, [x, y, w, h]); continue; }
+      if (contain) { ctx.drawImage(img, x, y, w, h); continue; } // the whole picture
       const s = Math.max(w / img.width, h / img.height), sw = w / s, sh = h / s; // cover, centred
       ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, x, y, w, h);
     }
@@ -285,13 +360,13 @@
     "bold 40px Literata", "20px Literata", "italic 18px Literata", "bold italic 34px Literata", "17px \"Atkinson Hyperlegible\"", "bold 14px \"Atkinson Hyperlegible\"",
   ].map((f) => document.fonts.load(f))).catch(() => {}) : Promise.resolve();
   // the e-ink full refresh: a black flash, then the new page
-  function refresh(canvas, ed, page, flash) {
-    for (const url of [ed && ed.daily && ed.daily.art, ed && ed.playing && ed.playing.art]) loadArt(url, () => draw(canvas, ed, page));
-    if (!flash) { draw(canvas, ed, page); fontsReady.then(() => draw(canvas, ed, page)); return; }
+  function refresh(canvas, ed, page, flash, sub) {
+    for (const url of [ed && ed.daily && ed.daily.art, ed && ed.playing && ed.playing.art]) loadArt(url, () => draw(canvas, ed, page, sub));
+    if (!flash) { draw(canvas, ed, page, sub); fontsReady.then(() => draw(canvas, ed, page, sub)); return; }
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
     setTimeout(() => { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, W, H); }, 180);
-    setTimeout(() => fontsReady.then(() => draw(canvas, ed, page)), 380);
+    setTimeout(() => fontsReady.then(() => draw(canvas, ed, page, sub)), 380);
   }
   async function previewArt(seed) {
     const q = ["hiroshige", "hokusai", "seascape", "winter landscape", "harbor", "mountain landscape", "river landscape", "panorama"][seed % 8];
@@ -307,5 +382,5 @@
     word: SAMPLE.daily,
     prediction: { kind: "TODAY'S PREDICTION", title: "Fortune favours", text: "Ethics gets finished before lunch. Someone at work asks to swap a shift. You say yes to the second coffee." },
   };
-  window.Eink = { W, H, PAGES, draw, refresh, previewArt, SAMPLE_DAILY };
+  window.Eink = { W, H, PAGES, draw, refresh, previewArt, SAMPLE_DAILY, detailCount };
 })();

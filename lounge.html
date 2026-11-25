@@ -610,6 +610,7 @@
           <button type="button" id="einkPrev" aria-label="Previous page">‹</button>
           <span id="einkPage">The paper</span>
           <button type="button" id="einkNext" aria-label="Next page">›</button>
+          <button type="button" class="eink-size" id="einkPress" aria-label="Press the dial">● Press</button>
           <button type="button" class="eink-size" id="einkSize">Actual size</button>
         </div>
         <div class="eink-bar eink-daily" role="group" aria-label="Preview the daily corner">
@@ -882,7 +883,7 @@
   <button class="btn-brass" id="save">Save</button>
 </div>
 
-<script src="eink.js?v=4"></script>
+<script src="eink.js?v=5"></script>
 <script src="pit-bar.js"></script>
 <script>
 const API = "https://lounge.jobanxy.workers.dev";
@@ -953,12 +954,14 @@ async function loadPaper() {
 }
 
 window.EINK_PROXY = API + "/art/img?u=";
+let einkSub = null; // inside a full version (pressed), which one
 let einkPage = 0, einkActual = false, dailyPreview = null, artSeed = Math.floor(Date.now() / 86400000);
 function renderEdition(flash) {
   const ed = edition || {};
   $("clipDate").textContent = ed.date ? `${ed.date} edition · printed ${ed.updated || ""} · 480 × 800 e-ink, standing up. Weather, work, the daily corner and now playing show SAMPLE content until they're wired up` : "No edition yet";
-  Eink.refresh($("einkCanvas"), { ...ed, ...(dailyPreview ? { daily: dailyPreview } : {}), alarm: settings?.alarm || ed.alarm, chime: settings?.chime || ed.chime, snooze_minutes: settings?.snooze_minutes || ed.snooze_minutes }, einkPage, flash);
-  $("einkPage").textContent = Eink.PAGES[einkPage];
+  window.einkEd = { ...ed, ...(dailyPreview ? { daily: dailyPreview } : {}), alarm: settings?.alarm || ed.alarm, chime: settings?.chime || ed.chime, snooze_minutes: settings?.snooze_minutes || ed.snooze_minutes };
+  Eink.refresh($("einkCanvas"), window.einkEd, einkPage, flash, einkSub);
+  $("einkPage").textContent = Eink.PAGES[einkPage] + (einkSub != null ? " · full" : "");
   $("edTodos").innerHTML = "";
   for (const t of (ed.todos || []).slice(0, 6)) { const li = document.createElement("li"); li.textContent = t; $("edTodos").appendChild(li); }
   $("edHead").textContent = ed.headline || "";
@@ -976,10 +979,23 @@ document.querySelectorAll(".eink-daily button").forEach((b) => b.addEventListene
   } else dailyPreview = Eink.SAMPLE_DAILY[k];
   renderEdition(true);
 }));
-function turnPage(d) { einkPage = (einkPage + d + Eink.PAGES.length) % Eink.PAGES.length; renderEdition(true); }
+// turning: between pages, or between full versions once you've pressed in
+function turnPage(d) {
+  if (einkSub != null) { const n = Eink.detailCount(window.einkEd, einkPage); einkSub = (einkSub + d + n) % n; }
+  else einkPage = (einkPage + d + Eink.PAGES.length) % Eink.PAGES.length;
+  renderEdition(true);
+}
+// pressing: into the full versions on pages 1 and 2, and back out again
+function pressDial() {
+  if (einkSub != null) einkSub = null;
+  else if (Eink.detailCount(window.einkEd, einkPage)) einkSub = 0;
+  else return; // page 3: press likes the song (on the board)
+  renderEdition(true);
+}
+$("einkPress").addEventListener("click", pressDial);
 $("einkNext").addEventListener("click", () => turnPage(1));
 $("einkPrev").addEventListener("click", () => turnPage(-1));
-$("einkDial").addEventListener("click", () => turnPage(1));
+$("einkDial").addEventListener("click", pressDial);
 $("einkSize").addEventListener("click", () => {
   einkActual = !einkActual; $("einkSize").classList.toggle("on", einkActual);
   // standing up, the panel's active area is 51.84 mm wide; CSS pixels per real inch differ by device (iPad ~132, iPhone ~153, computer ~96)
