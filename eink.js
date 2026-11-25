@@ -12,7 +12,13 @@
   const SAMPLE = {
     shift: { where: "Timberline", time: "10:00 AM - 6:00 PM" },
     daily: { kind: "WORD OF THE DAY", title: "Sonder", text: "The realisation that each passer-by has a life as vivid and complex as your own." },
-    weather: { now: "-6", hi: "-2", lo: "-11", sky: "Light snow", dress: "Parka, toque and gloves. Boots with grip: the walk to class will be icy." },
+    weather: {
+      dress: "Parka, toque and gloves. Boots with grip: the walk to class will be icy.",
+      hours: [
+        { t: "Now", icon: "cloud", temp: -6 }, { t: "2AM", icon: "night", temp: -7 }, { t: "4AM", icon: "snow", temp: -8, pop: 20 },
+        { t: "6AM", icon: "snow", temp: -8, pop: 40 }, { t: "8:57", icon: "sunrise", temp: null }, { t: "11AM", icon: "sun", temp: -4 },
+      ],
+    },
     playing: { song: "Aruarian Dance", artist: "Nujabes", liked: false },
   };
 
@@ -146,17 +152,26 @@
     ctx.font = `14px ${SANS}`; ctx.fillText(t.toLocaleDateString("en-CA", { weekday: "short", month: "short", day: "numeric" }).toUpperCase(), W - M, 120);
     ctx.textAlign = "left";
     rule(ctx, 142, 3);
-    // weather and what to wear
+    // weather: an hour-by-hour strip, then what to wear
     const w = ed.weather || SAMPLE.weather;
-    label(ctx, "WEATHER  -  PRINCE GEORGE", 170); if (!ed.weather) sample(ctx, W - M, 169);
-    ctx.font = `bold 44px ${SERIF}`; ctx.fillText(`${w.now}°`, M, 220);
-    ctx.font = `18px ${SANS}`; ctx.fillText(`${ascii(w.sky)}  -  H ${w.hi}°  L ${w.lo}°`, M + 96, 212);
-    ctx.font = `italic 18px ${SERIF}`; para(ctx, ascii(w.dress), M, 252, W - 2 * M, 2, 24);
-    rule(ctx, 302);
+    label(ctx, "WEATHER  -  PRINCE GEORGE", 168); if (!ed.weather) sample(ctx, W - M, 167);
+    const hrs = (w.hours || []).slice(0, 6), cw = (W - 2 * M) / Math.max(1, hrs.length);
+    ctx.textAlign = "center";
+    hrs.forEach((h, i) => {
+      const cx = M + cw * i + cw / 2;
+      ctx.font = `bold 16px ${SANS}`; ctx.fillText(h.t, cx, 194);
+      icon(ctx, h.icon, cx, 222);
+      if (h.pop) { ctx.font = `bold 13px ${SANS}`; ctx.fillText(h.pop + "%", cx, 254); }
+      ctx.font = h.temp == null ? `bold 15px ${SANS}` : `bold 22px ${SERIF}`;
+      ctx.fillText(h.temp == null ? "Sunrise" : `${h.temp}°`, cx, 280);
+    });
+    ctx.textAlign = "left";
+    ctx.font = `italic 18px ${SERIF}`; para(ctx, ascii(w.dress), M, 306, W - 2 * M, 2, 23);
+    rule(ctx, 342);
     // now playing
     const p = ed.playing || SAMPLE.playing;
-    label(ctx, "NOW PLAYING", 330); if (!ed.playing) sample(ctx, W - M, 329);
-    const S = 300, ax = (W - S) / 2, ay = 348;
+    label(ctx, "NOW PLAYING", 368); if (!ed.playing) sample(ctx, W - M, 367);
+    const S = 266, ax = (W - S) / 2, ay = 384;
     artBox.push([ax, ay, S, S]);
     ctx.lineWidth = 2; ctx.strokeRect(ax - 1, ay - 1, S + 2, S + 2);
     ctx.font = `bold 34px ${SANS}`; ctx.fillText("<", M, ay + S / 2 + 12); ctx.textAlign = "right"; ctx.fillText(">", W - M, ay + S / 2 + 12);
@@ -165,6 +180,34 @@
     ctx.font = `16px ${SANS}`; ctx.fillText(ascii(p.artist), W / 2, ay + S + 52);
     ctx.textAlign = "left";
     heart(ctx, W / 2, ay + S + 72, p.liked);
+  }
+  // weather icons, drawn in solid black so they read on e-ink
+  function cloud(ctx, x, y, k = 1) {
+    ctx.beginPath();
+    ctx.arc(x - 8 * k, y + 2 * k, 7 * k, 0, Math.PI * 2); ctx.arc(x + 1 * k, y - 4 * k, 9 * k, 0, Math.PI * 2); ctx.arc(x + 10 * k, y + 2 * k, 7 * k, 0, Math.PI * 2);
+    ctx.rect(x - 8 * k, y + 2 * k, 18 * k, 7 * k); ctx.fill();
+  }
+  function sunAt(ctx, x, y, r, rays) {
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.lineWidth = 2;
+    for (let i = 0; i < rays; i++) { const a = (i / rays) * Math.PI * 2; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * (r + 3), y + Math.sin(a) * (r + 3)); ctx.lineTo(x + Math.cos(a) * (r + 7), y + Math.sin(a) * (r + 7)); ctx.stroke(); }
+  }
+  function icon(ctx, kind, x, y) {
+    if (kind === "sun") return sunAt(ctx, x, y, 8, 8);
+    if (kind === "sunrise") {
+      ctx.save(); ctx.beginPath(); ctx.rect(x - 20, y - 20, 40, 22); ctx.clip(); sunAt(ctx, x, y + 2, 8, 10); ctx.restore();
+      ctx.fillRect(x - 16, y + 4, 32, 2);
+      ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y - 6); ctx.lineTo(x, y - 18); ctx.moveTo(x - 4, y - 14); ctx.lineTo(x, y - 18); ctx.lineTo(x + 4, y - 14); ctx.stroke();
+      return;
+    }
+    if (kind === "night") { // moon peeking over a cloud
+      ctx.beginPath(); ctx.arc(x + 8, y - 8, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(x + 11, y - 11, 6, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = "#000";
+      return cloud(ctx, x - 2, y + 2, 0.9);
+    }
+    cloud(ctx, x, y - 2);
+    if (kind === "rain") { ctx.lineWidth = 2; for (const dx of [-7, 0, 7]) { ctx.beginPath(); ctx.moveTo(x + dx, y + 11); ctx.lineTo(x + dx - 3, y + 18); ctx.stroke(); } }
+    if (kind === "snow") for (const dx of [-7, 0, 7]) { ctx.beginPath(); ctx.arc(x + dx, y + 15, 2, 0, Math.PI * 2); ctx.fill(); }
   }
   function heart(ctx, x, y, filled) {
     ctx.beginPath(); ctx.moveTo(x, y + 14);
