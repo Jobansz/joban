@@ -613,10 +613,7 @@
           <button type="button" class="eink-size" id="einkPress" aria-label="Press the dial">● Press</button>
           <button type="button" class="eink-size" id="einkSize">Actual size</button>
         </div>
-        <div class="eink-bar eink-daily" role="group" aria-label="Preview the daily corner">
-          <span>Daily corner:</span><button type="button" data-k="today" class="on">Today's</button><button type="button" data-k="word">Word</button><button type="button" data-k="prediction">Prediction</button><button type="button" data-k="art">Art</button>
-        </div>
-        <small class="eink-note" id="clipDate">Loading…</small>
+        <small class="eink-note" id="clipDate" hidden></small>
       </div>
 
       <!-- the room -->
@@ -883,7 +880,7 @@
   <button class="btn-brass" id="save">Save</button>
 </div>
 
-<script src="eink.js?v=5"></script>
+<script src="eink.js?v=6"></script>
 <script src="pit-bar.js"></script>
 <script>
 const API = "https://lounge.jobanxy.workers.dev";
@@ -966,19 +963,6 @@ function renderEdition(flash) {
   for (const t of (ed.todos || []).slice(0, 6)) { const li = document.createElement("li"); li.textContent = t; $("edTodos").appendChild(li); }
   $("edHead").textContent = ed.headline || "";
 }
-document.querySelectorAll(".eink-daily button").forEach((b) => b.addEventListener("click", async () => {
-  document.querySelectorAll(".eink-daily button").forEach((x) => x.classList.toggle("on", x === b));
-  const k = b.dataset.k;
-  einkPage = 0;
-  if (k === "today") dailyPreview = null;
-  else if (k === "art") {
-    // each tap on Art fetches another wide piece, the same way the paper picks one
-    $("clipDate").textContent = "Finding a piece that suits the strip…";
-    try { dailyPreview = { ...(await api("/paper/art?seed=" + artSeed++)), sample: true }; }
-    catch (err) { dailyPreview = null; einkPage = 0; renderEdition(false); $("clipDate").textContent = "Art: " + err.message; return; }
-  } else dailyPreview = Eink.SAMPLE_DAILY[k];
-  renderEdition(true);
-}));
 // turning: between pages, or between full versions once you've pressed in
 function turnPage(d) {
   if (einkSub != null) { const n = Eink.detailCount(window.einkEd, einkPage); einkSub = (einkSub + d + n) % n; }
