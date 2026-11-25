@@ -746,7 +746,7 @@ function drawRoom() {
   // bar stools: green leather seat and curved back, ribbed chrome drum, chrome pedestal on a round base
   const stools = $("stools");
   for (const x of [536, 628, 720, 812]) {
-    const stools = svgEl("g", { transform: `translate(${x} 521) scale(1.55) translate(${-x} -521)` }, $("stools"));
+    const stools = svgEl("g", { transform: `translate(${x} 489) scale(1.33) translate(${-x} -521)` }, $("stools"));
     svgEl("ellipse", { cx: x, cy: 522, rx: 26, ry: 5, fill: "url(#shadow)" }, stools);
     svgEl("ellipse", { cx: x, cy: 518, rx: 17, ry: 4, fill: "url(#chrome)" }, stools);
     svgEl("ellipse", { cx: x, cy: 517, rx: 17, ry: 3.4, fill: "none", stroke: "#fff", "stroke-opacity": .35, "stroke-width": .6 }, stools);
