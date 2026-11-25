@@ -952,6 +952,7 @@ async function loadPaper() {
   } catch (err) { $("clipDate").textContent = err.message; }
 }
 
+window.EINK_PROXY = API + "/art/img?u=";
 let einkPage = 0, einkActual = false, dailyPreview = null, artSeed = Math.floor(Date.now() / 86400000);
 function renderEdition(flash) {
   const ed = edition || {};
@@ -970,7 +971,8 @@ document.querySelectorAll(".eink-daily button").forEach((b) => b.addEventListene
   else if (k === "art") {
     // each tap on Art fetches another wide piece, the same way the paper picks one
     $("clipDate").textContent = "Finding a piece that suits the strip…";
-    try { dailyPreview = await Eink.previewArt(artSeed++); } catch { dailyPreview = null; $("clipDate").textContent = "Couldn't reach the museum. Try again."; }
+    try { dailyPreview = { ...(await api("/paper/art?seed=" + artSeed++)), sample: true }; }
+    catch (err) { dailyPreview = null; einkPage = 0; renderEdition(false); $("clipDate").textContent = "Art: " + err.message; return; }
   } else dailyPreview = Eink.SAMPLE_DAILY[k];
   renderEdition(true);
 }));

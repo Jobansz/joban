@@ -245,7 +245,9 @@
     const img = new Image(); img.crossOrigin = "anonymous";
     artCache.set(url, null);
     img.onload = () => { artCache.set(url, img); onload(); };
-    img.src = url;
+    img.onerror = () => artCache.delete(url);
+    // museum pictures come through Bernard so the page is allowed to dither them
+    img.src = window.EINK_PROXY && /^https:\/\/www\.artic\.edu\//.test(url) ? window.EINK_PROXY + encodeURIComponent(url) : url;
   }
   // draw a page, then make it look like the panel: pure black/white text, 4-grey dithered pictures
   function draw(canvas, ed, page) {
